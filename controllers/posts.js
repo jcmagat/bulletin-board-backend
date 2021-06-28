@@ -40,3 +40,22 @@ exports.addPost = async (req, res, next) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+// @desc Delete a post
+// @route DELETE /api/v1/posts/:id
+// @access Public
+exports.deletePost = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const deletedPost = await Post.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      data: deletedPost,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
