@@ -24,10 +24,12 @@ exports.getPosts = async (req, res, next) => {
 exports.addPost = async (req, res, next) => {
   try {
     const message = req.body.message;
+    const postedBy = req.body.postedBy;
 
     const post = await Post.create({
       message: message,
       postedOn: Date.now(),
+      postedBy: postedBy,
     });
     const savedPost = await post.save();
 
