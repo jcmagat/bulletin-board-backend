@@ -11,6 +11,9 @@ app.get("/", (req, res) => {
   res.send("Hello world!");
 });
 
+const usersRoute = require("./routes/users");
+app.use("/users", usersRoute);
+
 const postsRoute = require("./routes/posts");
 app.use("/api/v1/posts", postsRoute);
 
