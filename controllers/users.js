@@ -14,7 +14,7 @@ exports.registerUser = async (req, res, next) => {
 
     const user = await User.findOne({ username: username });
     if (user) {
-      return res.status(409).send("Username is already taken");
+      return res.status(400).send("Username is already taken");
     }
 
     const newUser = await User.create({
@@ -43,7 +43,7 @@ exports.loginUser = async (req, res, next) => {
 
     const user = await User.findOne({ username: username });
     if (!user) {
-      return res.status(404).send("Username not found");
+      return res.status(400).send("Username not found");
     }
 
     if (await bcrypt.compare(password, user.password)) {
@@ -51,7 +51,7 @@ exports.loginUser = async (req, res, next) => {
         success: true,
       });
     } else {
-      return res.status(404).send("Incorrect password");
+      return res.status(400).send("Incorrect password");
     }
   } catch (err) {
     console.error(err);
