@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // @desc Register a user
 // @route POST /users
@@ -47,8 +48,14 @@ exports.loginUser = async (req, res, next) => {
     }
 
     if (await bcrypt.compare(password, user.password)) {
+      const payload = {
+        username: user.username,
+      };
+      const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET);
+
       return res.status(200).json({
         success: true,
+        accessToken: accessToken,
       });
     } else {
       return res.status(400).send("Incorrect password");
