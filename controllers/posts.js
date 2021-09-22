@@ -23,10 +23,12 @@ exports.getPosts = async (req, res, next) => {
 // @access Public
 exports.addPost = async (req, res, next) => {
   try {
+    const title = req.body.title;
     const message = req.body.message;
     const postedBy = req.user.username;
 
     const post = await Post.create({
+      title: title,
       message: message,
       postedOn: Date.now(),
       postedBy: postedBy,

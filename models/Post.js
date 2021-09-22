@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 
 const PostSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
   message: {
     type: String,
-    require: true,
+    required: true,
   },
   postedOn: {
     type: Date,
@@ -11,7 +15,7 @@ const PostSchema = new mongoose.Schema({
   },
   postedBy: {
     type: String,
-    require: true,
+    required: true,
   },
 });
 
