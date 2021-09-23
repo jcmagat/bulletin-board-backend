@@ -39,7 +39,8 @@ exports.addPost = async (req, res, next) => {
 
     await User.findOneAndUpdate(
       { username: postedBy },
-      { $push: { posts: savedPost._id } }
+      { $push: { posts: savedPost._id } },
+      { useFindAndModify: false }
     );
 
     return res.status(200).json({
