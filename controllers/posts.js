@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 // @desc Get all posts
 // @route GET /api/v1/posts
@@ -36,8 +37,14 @@ exports.addPost = async (req, res, next) => {
     });
     const savedPost = await post.save();
 
+    await User.findOneAndUpdate(
+      { username: postedBy },
+      { $push: { posts: savedPost._id } }
+    );
+
     return res.status(200).json({
       success: true,
+      date: Date.now(),
       data: savedPost,
     });
   } catch (err) {
