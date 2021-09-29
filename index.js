@@ -29,4 +29,6 @@ mongoose
     console.log(`DB Connection Error: ${err.message}`);
   });
 
-app.listen(5000, () => console.log("Listening on port 5000..."));
+const port = process.env.PORT || 8080;
+
+app.listen(port, () => console.log(`Listening on port ${port}...`));
