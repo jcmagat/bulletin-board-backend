@@ -3,8 +3,9 @@ const {
   GraphQLInt,
   GraphQLString,
   GraphQLList,
+  GraphQLNonNull,
 } = require("graphql");
-const { getAllPosts, getPostById } = require("../resolvers");
+const { getAllPosts, getPostById, addPost } = require("../resolvers");
 
 const PostType = new GraphQLObjectType({
   name: "Post",
@@ -18,7 +19,7 @@ const PostType = new GraphQLObjectType({
   }),
 });
 
-const RootQueryType = new GraphQLObjectType({
+exports.RootQueryType = new GraphQLObjectType({
   name: "RootQueryType",
   fields: () => ({
     posts: {
@@ -35,4 +36,16 @@ const RootQueryType = new GraphQLObjectType({
   }),
 });
 
-module.exports = RootQueryType;
+exports.RootMutationType = new GraphQLObjectType({
+  name: "RootMutationType",
+  fields: () => ({
+    addPost: {
+      type: PostType,
+      args: {
+        title: { type: GraphQLNonNull(GraphQLString) },
+        message: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve: addPost,
+    },
+  }),
+});

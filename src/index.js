@@ -4,7 +4,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const { GraphQLSchema } = require("graphql");
 const { graphqlHTTP } = require("express-graphql");
-const RootQueryType = require("./typedefs");
+const { RootQueryType, RootMutationType } = require("./typedefs");
 
 const app = express();
 app.use(express.json());
@@ -14,6 +14,7 @@ dotenv.config({ path: "src/.env" });
 
 const schema = new GraphQLSchema({
   query: RootQueryType,
+  mutation: RootMutationType,
 });
 
 app.use("/graphql", graphqlHTTP({ schema: schema, graphiql: true }));

@@ -1,13 +1,23 @@
 const Post = require("../models/Post");
 
+/* Query Resolvers */
 exports.getAllPosts = async () => {
-  console.log("all posts");
   const posts = await Post.find();
   return posts;
 };
 
 exports.getPostById = async (parent, args) => {
-  console.log("1 post");
   const post = await Post.findById(args.id);
+  return post;
+};
+
+/* Mutation Resolvers */
+exports.addPost = async (parent, args) => {
+  const post = await Post.create({
+    title: args.title,
+    message: args.message,
+    postedOn: Date.now(),
+    postedBy: "Testing",
+  });
   return post;
 };
