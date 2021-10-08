@@ -1,50 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config({ path: "src/.env" });
-const app = express();
-const {
-  GraphQLObjectType,
-  GraphQLSchema,
-  GraphQLInt,
-  GraphQLString,
-  GraphQLList,
-} = require("graphql");
+const dotenv = require("dotenv");
+const { GraphQLSchema } = require("graphql");
 const { graphqlHTTP } = require("express-graphql");
+const RootQueryType = require("./typedefs");
 
-const Post = require("./models/Post");
-
+const app = express();
 app.use(express.json());
 app.use(cors());
 
-const PostType = new GraphQLObjectType({
-  name: "Post",
-  fields: () => ({
-    _id: { type: GraphQLString },
-    title: { type: GraphQLString },
-    message: { type: GraphQLString },
-    postedOn: { type: GraphQLString },
-    postedBy: { type: GraphQLString },
-    likes: { type: GraphQLInt },
-  }),
-});
-
-const RootQueryType = new GraphQLObjectType({
-  name: "RootQueryType",
-  fields: () => ({
-    posts: {
-      type: new GraphQLList(PostType),
-      resolve: async () => {
-        const posts = await Post.find();
-        return posts;
-      },
-    },
-  }),
-});
-
-const Mutation = new GraphQLObjectType({
-  name: "Mutation",
-});
+dotenv.config({ path: "src/.env" });
 
 const schema = new GraphQLSchema({
   query: RootQueryType,
