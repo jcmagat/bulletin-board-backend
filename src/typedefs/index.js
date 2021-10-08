@@ -4,7 +4,7 @@ const {
   GraphQLString,
   GraphQLList,
 } = require("graphql");
-const PostsResolver = require("../resolvers");
+const { getAllPosts, getPostById } = require("../resolvers");
 
 const PostType = new GraphQLObjectType({
   name: "Post",
@@ -23,7 +23,14 @@ const RootQueryType = new GraphQLObjectType({
   fields: () => ({
     posts: {
       type: new GraphQLList(PostType),
-      resolve: PostsResolver,
+      resolve: getAllPosts,
+    },
+    post: {
+      type: PostType,
+      args: {
+        id: { type: GraphQLString },
+      },
+      resolve: getPostById,
     },
   }),
 });
