@@ -5,7 +5,13 @@ const {
   GraphQLList,
   GraphQLNonNull,
 } = require("graphql");
-const { getAllPosts, getPostById, addPost } = require("../resolvers");
+const {
+  getAllPosts,
+  getPostById,
+  addPost,
+  deletePost,
+  likePost,
+} = require("../resolvers");
 
 const PostType = new GraphQLObjectType({
   name: "Post",
@@ -46,6 +52,20 @@ exports.RootMutationType = new GraphQLObjectType({
         message: { type: GraphQLNonNull(GraphQLString) },
       },
       resolve: addPost,
+    },
+    deletePost: {
+      type: PostType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve: deletePost,
+    },
+    likePost: {
+      type: PostType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve: likePost,
     },
   }),
 });

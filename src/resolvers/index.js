@@ -21,3 +21,17 @@ exports.addPost = async (parent, args) => {
   });
   return post;
 };
+
+exports.deletePost = async (parent, args) => {
+  const post = await Post.findByIdAndDelete(args.id);
+  return post;
+};
+
+exports.likePost = async (parent, args) => {
+  const post = await Post.findByIdAndUpdate(
+    args.id,
+    { $inc: { likes: 1 } },
+    { new: true }
+  );
+  return post;
+};
