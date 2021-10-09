@@ -12,6 +12,7 @@ const {
   deletePost,
   likePost,
 } = require("../resolvers");
+const { login } = require("../resolvers/auth");
 
 const PostType = new GraphQLObjectType({
   name: "Post",
@@ -22,6 +23,15 @@ const PostType = new GraphQLObjectType({
     postedOn: { type: GraphQLString },
     postedBy: { type: GraphQLString },
     likes: { type: GraphQLInt },
+  }),
+});
+
+const AuthData = new GraphQLObjectType({
+  name: "AuthData",
+  fields: () => ({
+    username: { type: GraphQLString },
+    accessToken: { type: GraphQLString },
+    tokenExpiration: { type: GraphQLInt },
   }),
 });
 
@@ -66,6 +76,14 @@ exports.RootMutationType = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLString) },
       },
       resolve: likePost,
+    },
+    login: {
+      type: AuthData,
+      args: {
+        username: { type: GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve: login,
     },
   }),
 });

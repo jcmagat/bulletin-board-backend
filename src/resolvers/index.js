@@ -31,7 +31,7 @@ exports.likePost = async (parent, args) => {
   const post = await Post.findByIdAndUpdate(
     args.id,
     { $inc: { likes: 1 } },
-    { new: true }
+    { new: true, useFindAndModify: false }
   );
   return post;
 };
