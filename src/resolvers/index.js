@@ -12,12 +12,16 @@ exports.getPostById = async (parent, args) => {
 };
 
 /* Mutation Resolvers */
-exports.addPost = async (parent, args) => {
+exports.addPost = async (parent, args, req) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
   const post = await Post.create({
     title: args.title,
     message: args.message,
     postedOn: Date.now(),
-    postedBy: "Testing",
+    postedBy: req.user.username,
   });
   return post;
 };

@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const { GraphQLSchema } = require("graphql");
 const { graphqlHTTP } = require("express-graphql");
 const { RootQueryType, RootMutationType } = require("./typedefs");
+const { authenticateToken } = require("./resolvers/auth");
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,7 @@ const schema = new GraphQLSchema({
   mutation: RootMutationType,
 });
 
+app.use(authenticateToken);
 app.use("/graphql", graphqlHTTP({ schema: schema, graphiql: true }));
 
 app.get("/", (req, res) => {
