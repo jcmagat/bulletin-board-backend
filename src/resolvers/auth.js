@@ -2,6 +2,27 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+exports.register = async (parent, args) => {
+  const username = args.username;
+  const password = args.password;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = await User.findOne({ username: username });
+  if (user) {
+    throw new Error("Username is already taken");
+  }
+
+  await User.create({
+    username: username,
+    password: hashedPassword,
+  });
+
+  const Register = {
+    register: true,
+  };
+  return Register;
+};
+
 exports.login = async (parent, args) => {
   const username = args.username;
   const password = args.password;

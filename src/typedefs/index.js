@@ -4,6 +4,7 @@ const {
   GraphQLString,
   GraphQLList,
   GraphQLNonNull,
+  GraphQLBoolean,
 } = require("graphql");
 const {
   getAllPosts,
@@ -12,7 +13,7 @@ const {
   deletePost,
   likePost,
 } = require("../resolvers");
-const { login } = require("../resolvers/auth");
+const { login, register } = require("../resolvers/auth");
 
 const PostType = new GraphQLObjectType({
   name: "Post",
@@ -26,12 +27,19 @@ const PostType = new GraphQLObjectType({
   }),
 });
 
-const AuthData = new GraphQLObjectType({
+const AuthDataType = new GraphQLObjectType({
   name: "AuthData",
   fields: () => ({
     username: { type: GraphQLString },
     accessToken: { type: GraphQLString },
     tokenExpiration: { type: GraphQLString },
+  }),
+});
+
+const RegisterType = new GraphQLObjectType({
+  name: "Register",
+  fields: () => ({
+    register: { type: GraphQLBoolean },
   }),
 });
 
@@ -78,12 +86,20 @@ exports.RootMutationType = new GraphQLObjectType({
       resolve: likePost,
     },
     login: {
-      type: AuthData,
+      type: AuthDataType,
       args: {
         username: { type: GraphQLNonNull(GraphQLString) },
         password: { type: GraphQLNonNull(GraphQLString) },
       },
       resolve: login,
+    },
+    register: {
+      type: RegisterType,
+      args: {
+        username: { type: GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve: register,
     },
   }),
 });
