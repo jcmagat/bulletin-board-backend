@@ -17,10 +17,10 @@ exports.register = async (parent, args) => {
     password: hashedPassword,
   });
 
-  const Register = {
-    register: true,
+  const register = {
+    registered: true,
   };
-  return Register;
+  return register;
 };
 
 exports.login = async (parent, args) => {

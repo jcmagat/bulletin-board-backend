@@ -1,105 +1,42 @@
-const {
-  GraphQLObjectType,
-  GraphQLInt,
-  GraphQLString,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLBoolean,
-} = require("graphql");
-const {
-  getAllPosts,
-  getPostById,
-  addPost,
-  deletePost,
-  likePost,
-} = require("../resolvers");
-const { login, register } = require("../resolvers/auth");
+const { gql } = require("apollo-server-express");
 
-const PostType = new GraphQLObjectType({
-  name: "Post",
-  fields: () => ({
-    _id: { type: GraphQLString },
-    title: { type: GraphQLString },
-    message: { type: GraphQLString },
-    postedOn: { type: GraphQLString },
-    postedBy: { type: GraphQLString },
-    likes: { type: GraphQLInt },
-  }),
-});
+const typeDefs = gql`
+  type Register {
+    registered: Boolean!
+  }
 
-const AuthDataType = new GraphQLObjectType({
-  name: "AuthData",
-  fields: () => ({
-    username: { type: GraphQLString },
-    accessToken: { type: GraphQLString },
-    tokenExpiration: { type: GraphQLString },
-  }),
-});
+  type AuthData {
+    username: String!
+    accessToken: String!
+    tokenExpiration: String!
+  }
 
-const RegisterType = new GraphQLObjectType({
-  name: "Register",
-  fields: () => ({
-    register: { type: GraphQLBoolean },
-  }),
-});
+  type Post {
+    id: ID!
+    title: String!
+    message: String!
+    postedOn: String!
+    postedBy: String!
+    likes: Int!
+  }
 
-exports.RootQueryType = new GraphQLObjectType({
-  name: "RootQueryType",
-  fields: () => ({
-    posts: {
-      type: new GraphQLList(PostType),
-      resolve: getAllPosts,
-    },
-    post: {
-      type: PostType,
-      args: {
-        id: { type: GraphQLString },
-      },
-      resolve: getPostById,
-    },
-  }),
-});
+  # Queries
+  type Query {
+    posts: [Post]
+    post(id: String!): Post
+  }
 
-exports.RootMutationType = new GraphQLObjectType({
-  name: "RootMutationType",
-  fields: () => ({
-    addPost: {
-      type: PostType,
-      args: {
-        title: { type: GraphQLNonNull(GraphQLString) },
-        message: { type: GraphQLNonNull(GraphQLString) },
-      },
-      resolve: addPost,
-    },
-    deletePost: {
-      type: PostType,
-      args: {
-        id: { type: GraphQLNonNull(GraphQLString) },
-      },
-      resolve: deletePost,
-    },
-    likePost: {
-      type: PostType,
-      args: {
-        id: { type: GraphQLNonNull(GraphQLString) },
-      },
-      resolve: likePost,
-    },
-    login: {
-      type: AuthDataType,
-      args: {
-        username: { type: GraphQLNonNull(GraphQLString) },
-        password: { type: GraphQLNonNull(GraphQLString) },
-      },
-      resolve: login,
-    },
-    register: {
-      type: RegisterType,
-      args: {
-        username: { type: GraphQLNonNull(GraphQLString) },
-        password: { type: GraphQLNonNull(GraphQLString) },
-      },
-      resolve: register,
-    },
-  }),
-});
+  # Mutations
+  type Mutation {
+    # Auth mutations
+    register(username: String!, password: String!): Register
+    login(username: String!, password: String!): AuthData
+
+    # Post mutations
+    addPost(title: String!, message: String!): Post
+    deletePost(id: String!): Post
+    likePost(id: String!): Post
+  }
+`;
+
+module.exports = typeDefs;

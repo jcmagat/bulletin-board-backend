@@ -1,41 +1,28 @@
-const Post = require("../models/Post");
+const { register, login } = require("./auth");
+const {
+  getAllPosts,
+  getPostById,
+  addPost,
+  deletePost,
+  likePost,
+} = require("./post");
 
-/* Query Resolvers */
-exports.getAllPosts = async () => {
-  const posts = await Post.find();
-  return posts;
+const resolvers = {
+  Query: {
+    posts: getAllPosts,
+    post: getPostById,
+  },
+
+  Mutation: {
+    // Auth mutations
+    register: register,
+    login: login,
+
+    // Post mutations
+    addPost: addPost,
+    deletePost: deletePost,
+    likePost: likePost,
+  },
 };
 
-exports.getPostById = async (parent, args) => {
-  const post = await Post.findById(args.id);
-  return post;
-};
-
-/* Mutation Resolvers */
-exports.addPost = async (parent, args, req) => {
-  if (!req.isAuth) {
-    throw new Error("Not authenticated");
-  }
-
-  const post = await Post.create({
-    title: args.title,
-    message: args.message,
-    postedOn: Date.now(),
-    postedBy: req.user.username,
-  });
-  return post;
-};
-
-exports.deletePost = async (parent, args) => {
-  const post = await Post.findByIdAndDelete(args.id);
-  return post;
-};
-
-exports.likePost = async (parent, args) => {
-  const post = await Post.findByIdAndUpdate(
-    args.id,
-    { $inc: { likes: 1 } },
-    { new: true, useFindAndModify: false }
-  );
-  return post;
-};
+module.exports = resolvers;

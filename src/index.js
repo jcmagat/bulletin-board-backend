@@ -2,10 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const { GraphQLSchema } = require("graphql");
-const { graphqlHTTP } = require("express-graphql");
-const { RootQueryType, RootMutationType } = require("./typedefs");
-const { authenticateToken } = require("./resolvers/auth");
+const { ApolloServer } = require("apollo-server-express");
+const typeDefs = require("./typedefs");
+const resolvers = require("./resolvers");
 
 const app = express();
 app.use(express.json());
@@ -13,14 +12,17 @@ app.use(cors());
 
 dotenv.config({ path: "src/.env" });
 
-const schema = new GraphQLSchema({
-  query: RootQueryType,
-  mutation: RootMutationType,
-});
+// apollo-server-express
+async function startServer() {
+  const server = new ApolloServer({ typeDefs, resolvers });
 
-app.use(authenticateToken);
-app.use("/graphql", graphqlHTTP({ schema: schema, graphiql: true }));
+  await server.start();
+  server.applyMiddleware({ app });
+}
 
+startServer();
+
+// REST
 app.get("/", (req, res) => {
   res.send("Hello world!");
 });
