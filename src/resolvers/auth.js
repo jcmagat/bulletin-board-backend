@@ -40,39 +40,21 @@ exports.login = async (parent, args) => {
   const payload = {
     username: username,
   };
+
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.TOKEN_EXPIRES_IN,
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
+  });
+
+  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
   });
 
   const authData = {
     username: username,
     accessToken: accessToken,
-    tokenExpiration: process.env.TOKEN_EXPIRES_IN,
+    refreshToken: refreshToken,
+    accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION,
+    refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION,
   };
   return authData;
-};
-
-exports.authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    req.isAuth = false;
-    return next();
-  }
-
-  const token = authHeader.split(" ")[1]; // Authorization: Bearer token
-  if (!token) {
-    req.isAuth = false;
-    return next();
-  }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-    if (err) {
-      req.isAuth = false;
-      return next();
-    }
-
-    req.isAuth = true;
-    req.user = payload;
-    next();
-  });
 };

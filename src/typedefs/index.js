@@ -8,7 +8,9 @@ const typeDefs = gql`
   type AuthData {
     username: String!
     accessToken: String!
-    tokenExpiration: String!
+    refreshToken: String!
+    accessTokenExpiration: String!
+    refreshTokenExpiration: String!
   }
 
   type Post {

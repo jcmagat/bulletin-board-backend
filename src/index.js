@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const { ApolloServer } = require("apollo-server-express");
 const typeDefs = require("./typedefs");
 const resolvers = require("./resolvers");
+const { authenticateToken } = require("./middlewares/auth");
 
 const app = express();
 app.use(express.json());
@@ -14,7 +15,13 @@ dotenv.config({ path: "src/.env" });
 
 // apollo-server-express
 async function startServer() {
-  const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: ({ req, res }) => ({ req, res }),
+  });
+
+  app.use(authenticateToken);
 
   await server.start();
   server.applyMiddleware({ app });
