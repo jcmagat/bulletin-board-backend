@@ -1,8 +1,10 @@
 const Post = require("../models/Post");
+const { setPostedSince } = require("../helpers/post");
 
 /* Query Resolvers */
 exports.getAllPosts = async () => {
   const posts = await Post.find();
+  posts.forEach(setPostedSince);
   return posts;
 };
 

@@ -18,6 +18,7 @@ const typeDefs = gql`
     title: String!
     message: String!
     postedOn: String!
+    postedSince: String!
     postedBy: String!
     likes: Int!
   }
