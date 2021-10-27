@@ -25,6 +25,7 @@ exports.addPost = async (parent, args, { req, res }) => {
     postedOn: Date.now(),
     postedBy: req.user.username,
   });
+  post.postedSince = "just now";
   return post;
 };
 
