@@ -29,9 +29,18 @@ exports.addPost = async (parent, args, { req, res }) => {
   return post;
 };
 
-exports.deletePost = async (parent, args) => {
-  const post = await Post.findByIdAndDelete(args.id);
-  return post;
+exports.deletePost = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const post = await Post.findById(args.id);
+  if (post.postedBy !== req.user.username) {
+    throw new Error("User not authorized to delete this post");
+  }
+
+  const deletedPost = await Post.findByIdAndDelete(args.id);
+  return deletedPost;
 };
 
 exports.likePost = async (parent, args) => {
