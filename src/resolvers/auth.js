@@ -3,16 +3,23 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.register = async (parent, args) => {
+  const email = args.email;
   const username = args.username;
   const password = args.password;
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await User.findOne({ username: username });
-  if (user) {
+  const emailRegistered = await User.findOne({ email: email });
+  if (emailRegistered) {
+    throw new Error("Email is already registered");
+  }
+
+  const usernameTaken = await User.findOne({ username: username });
+  if (usernameTaken) {
     throw new Error("Username is already taken");
   }
 
   await User.create({
+    email: email,
     username: username,
     password: hashedPassword,
   });
