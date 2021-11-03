@@ -21,6 +21,7 @@ const typeDefs = gql`
     postedSince: String
     postedBy: String!
     likes: Int!
+    likedByMe: Boolean
   }
 
   # Queries

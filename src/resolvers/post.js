@@ -1,11 +1,16 @@
 const Post = require("../models/Post");
 const PostLike = require("../models/PostLike");
-const { setPostedSince } = require("../helpers/post");
+const { setPostedSince, setLikedByMe } = require("../helpers/post");
 
 /* Query Resolvers */
-exports.getAllPosts = async () => {
+exports.getAllPosts = async (parent, args, { req, res }) => {
   const posts = await Post.find();
   posts.forEach(setPostedSince);
+
+  for (const post of posts) {
+    await setLikedByMe(post, req.user);
+  }
+
   return posts;
 };
 

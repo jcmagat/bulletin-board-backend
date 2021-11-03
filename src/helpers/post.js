@@ -1,3 +1,5 @@
+const PostLike = require("../models/PostLike");
+
 // Sets the postedSince property of a post
 exports.setPostedSince = (post) => {
   const msPerMinute = 60 * 1000;
@@ -33,4 +35,19 @@ exports.setPostedSince = (post) => {
   }
 
   post.postedSince = time + ago;
+};
+
+exports.setLikedByMe = async (post, user) => {
+  if (user) {
+    const postLike = await PostLike.findOne({
+      postId: post.id,
+      userId: user.id,
+    });
+    if (postLike) {
+      post.likedByMe = true;
+      return;
+    }
+  }
+
+  post.likedByMe = false;
 };
