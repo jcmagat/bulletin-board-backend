@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const PostLike = require("../models/PostLike");
 const { setPostedSince } = require("../helpers/post");
 
 /* Query Resolvers */
@@ -43,11 +44,50 @@ exports.deletePost = async (parent, args, { req, res }) => {
   return deletedPost;
 };
 
-exports.likePost = async (parent, args) => {
+exports.likePost = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const postId = args.id;
+  const userId = req.user.id;
+
+  const postLike = await PostLike.findOne({ postId: postId, userId: userId });
+  if (postLike) {
+    throw new Error("User already liked this post");
+  }
+
   const post = await Post.findByIdAndUpdate(
-    args.id,
+    postId,
     { $inc: { likes: 1 } },
     { new: true, useFindAndModify: false }
   );
+
+  const newPostLike = await PostLike.create({ postId: postId, userId: userId });
+
+  return post;
+};
+
+exports.unlikePost = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const postId = args.id;
+  const userId = req.user.id;
+
+  const postLike = await PostLike.findOne({ postId: postId, userId: userId });
+  if (!postLike) {
+    throw new Error("User has not liked this post");
+  }
+
+  const post = await Post.findByIdAndUpdate(
+    postId,
+    { $inc: { likes: -1 } },
+    { new: true, useFindAndModify: false }
+  );
+
+  const deletedPostLike = await PostLike.findByIdAndDelete(postLike._id);
+
   return post;
 };

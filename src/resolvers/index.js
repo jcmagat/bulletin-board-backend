@@ -5,6 +5,7 @@ const {
   addPost,
   deletePost,
   likePost,
+  unlikePost,
 } = require("./post");
 
 const resolvers = {
@@ -22,6 +23,7 @@ const resolvers = {
     addPost: addPost,
     deletePost: deletePost,
     likePost: likePost,
+    unlikePost: unlikePost,
   },
 };
 

@@ -39,6 +39,7 @@ const typeDefs = gql`
     addPost(title: String!, message: String!): Post
     deletePost(id: String!): Post
     likePost(id: String!): Post
+    unlikePost(id: String!): Post
   }
 `;
 
