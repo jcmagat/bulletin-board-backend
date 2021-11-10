@@ -24,7 +24,7 @@ const typeDefs = gql`
   # Queries
   type Query {
     posts: [Post]
-    post(id: ID!): Post
+    post(post_id: Int!): Post
   }
 
   # Mutations
@@ -35,9 +35,9 @@ const typeDefs = gql`
 
     # Post mutations
     addPost(title: String!, description: String!): Post
-    deletePost(id: ID!): Post
-    likePost(id: ID!): Post
-    unlikePost(id: ID!): Post
+    deletePost(post_id: Int!): Post
+    likePost(post_id: Int!): Post
+    unlikePost(post_id: Int!): Post
   }
 `;
 

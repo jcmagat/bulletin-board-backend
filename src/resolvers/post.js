@@ -5,19 +5,20 @@ const { setPostedSince, setLikedByMe } = require("../helpers/post");
 
 /* Query Resolvers */
 exports.getAllPosts = async (parent, args, { req, res }) => {
-  const posts = await Post.find();
-  posts.forEach(setPostedSince);
+  // TODO: maybe set postedSince and likedByMe
 
-  for (const post of posts) {
-    await setLikedByMe(post, req.user);
-  }
-
-  return posts;
+  const posts = await pool.query("SELECT * FROM posts");
+  return posts.rows;
 };
 
 exports.getPostById = async (parent, args) => {
-  const post = await Post.findById(args.id);
-  return post;
+  const post_id = args.post_id;
+
+  const post = await pool.query("SELECT * FROM posts WHERE post_id = ($1)", [
+    post_id,
+  ]);
+
+  return post.rows[0];
 };
 
 /* Mutation Resolvers */
@@ -44,17 +45,18 @@ exports.addPost = async (parent, args, { req, res }) => {
 };
 
 exports.deletePost = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
-    throw new Error("Not authenticated");
-  }
+  // if (!req.isAuth) {
+  //   throw new Error("Not authenticated");
+  // }
 
-  const post = await Post.findById(args.id);
-  if (post.postedBy !== req.user.username) {
-    throw new Error("User not authorized to delete this post");
-  }
+  const post_id = args.post_id;
 
-  const deletedPost = await Post.findByIdAndDelete(args.id);
-  return deletedPost;
+  const deletedPost = await pool.query(
+    "DELETE FROM posts WHERE post_id = ($1) RETURNING *",
+    [post_id]
+  );
+
+  return deletedPost.rows[0];
 };
 
 exports.likePost = async (parent, args, { req, res }) => {
