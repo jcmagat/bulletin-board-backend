@@ -14,14 +14,11 @@ const typeDefs = gql`
   }
 
   type Post {
-    id: ID!
+    post_id: Int!
     title: String!
-    message: String!
-    postedOn: String!
-    postedSince: String
-    postedBy: String!
-    likes: Int!
-    likedByMe: Boolean
+    description: String!
+    created_at: String!
+    user_id: Int
   }
 
   # Queries
@@ -37,7 +34,7 @@ const typeDefs = gql`
     login(username: String!, password: String!): AuthData
 
     # Post mutations
-    addPost(title: String!, message: String!): Post
+    addPost(title: String!, description: String!): Post
     deletePost(id: ID!): Post
     likePost(id: ID!): Post
     unlikePost(id: ID!): Post

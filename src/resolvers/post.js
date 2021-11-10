@@ -1,3 +1,4 @@
+const pool = require("../db");
 const Post = require("../models/Post");
 const PostLike = require("../models/PostLike");
 const { setPostedSince, setLikedByMe } = require("../helpers/post");
@@ -21,18 +22,25 @@ exports.getPostById = async (parent, args) => {
 
 /* Mutation Resolvers */
 exports.addPost = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
-    throw new Error("Not authenticated");
+  // if (!req.isAuth) {
+  //   throw new Error("Not authenticated");
+  // }
+
+  // TODO: set user_id, maybe postedSince
+
+  const title = args.title;
+  const description = args.description;
+
+  const newPost = await pool.query(
+    "INSERT INTO posts (title, description) VALUES ($1, $2) RETURNING *",
+    [title, description]
+  );
+
+  if (!newPost) {
+    throw new Error("Failed to add post");
   }
 
-  const post = await Post.create({
-    title: args.title,
-    message: args.message,
-    postedOn: Date.now(),
-    postedBy: req.user.username,
-  });
-  post.postedSince = "just now";
-  return post;
+  return newPost.rows[0];
 };
 
 exports.deletePost = async (parent, args, { req, res }) => {
