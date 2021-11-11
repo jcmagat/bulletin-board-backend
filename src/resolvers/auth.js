@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -8,21 +8,12 @@ exports.register = async (parent, args) => {
   const password = args.password;
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const emailRegistered = await User.findOne({ email: email });
-  if (emailRegistered) {
-    throw new Error("Email is already registered");
-  }
+  // TODO: check if email or username is already registered
 
-  const usernameTaken = await User.findOne({ username: username });
-  if (usernameTaken) {
-    throw new Error("Username is already taken");
-  }
-
-  await User.create({
-    email: email,
-    username: username,
-    password: hashedPassword,
-  });
+  const query = await pool.query(
+    "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING *",
+    [email, username, hashedPassword]
+  );
 
   const register = {
     registered: true,
@@ -34,18 +25,21 @@ exports.login = async (parent, args) => {
   const username = args.username;
   const password = args.password;
 
-  const user = await User.findOne({ username: username });
+  const query = await pool.query("SELECT * FROM users WHERE username = ($1)", [
+    username,
+  ]);
+  const user = query.rows[0];
   if (!user) {
     throw new Error("User does not exist");
   }
 
-  const successfulLogin = await bcrypt.compare(password, user.password);
-  if (!successfulLogin) {
+  const isCorrectPassword = await bcrypt.compare(password, user.password);
+  if (!isCorrectPassword) {
     throw new Error("Incorrect password");
   }
 
   const payload = {
-    id: user._id,
+    user_id: user.id,
     username: user.username,
   };
 
