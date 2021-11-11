@@ -23,40 +23,48 @@ exports.getPostById = async (parent, args) => {
 
 /* Mutation Resolvers */
 exports.addPost = async (parent, args, { req, res }) => {
-  // if (!req.isAuth) {
-  //   throw new Error("Not authenticated");
-  // }
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
 
-  // TODO: set user_id, maybe postedSince
+  // TODO: maybe set postedSince
 
   const title = args.title;
   const description = args.description;
+  const user_id = req.user.user_id;
 
-  const newPost = await pool.query(
-    "INSERT INTO posts (title, description) VALUES ($1, $2) RETURNING *",
-    [title, description]
+  const query = await pool.query(
+    "INSERT INTO posts (title, description, user_id) VALUES ($1, $2, $3) RETURNING *",
+    [title, description, user_id]
   );
 
+  const newPost = query.rows[0];
   if (!newPost) {
     throw new Error("Failed to add post");
   }
 
-  return newPost.rows[0];
+  return newPost;
 };
 
 exports.deletePost = async (parent, args, { req, res }) => {
-  // if (!req.isAuth) {
-  //   throw new Error("Not authenticated");
-  // }
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
 
   const post_id = args.post_id;
+  const user_id = req.user.user_id;
 
-  const deletedPost = await pool.query(
-    "DELETE FROM posts WHERE post_id = ($1) RETURNING *",
-    [post_id]
+  const query = await pool.query(
+    "DELETE FROM posts WHERE post_id = ($1) AND user_id = ($2) RETURNING *",
+    [post_id, user_id]
   );
 
-  return deletedPost.rows[0];
+  const deletedPost = query.rows[0];
+  if (!deletedPost) {
+    throw new Error("User not authorized to delete this post");
+  }
+
+  return deletedPost;
 };
 
 exports.likePost = async (parent, args, { req, res }) => {

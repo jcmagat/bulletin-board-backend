@@ -18,7 +18,7 @@ const typeDefs = gql`
     title: String!
     description: String!
     created_at: String!
-    user_id: Int
+    user_id: Int!
   }
 
   # Queries

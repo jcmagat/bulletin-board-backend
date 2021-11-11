@@ -28,6 +28,7 @@ exports.login = async (parent, args) => {
   const query = await pool.query("SELECT * FROM users WHERE username = ($1)", [
     username,
   ]);
+
   const user = query.rows[0];
   if (!user) {
     throw new Error("User does not exist");
@@ -39,8 +40,7 @@ exports.login = async (parent, args) => {
   }
 
   const payload = {
-    user_id: user.id,
-    username: user.username,
+    user_id: user.user_id,
   };
 
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
