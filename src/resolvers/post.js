@@ -1,24 +1,41 @@
 const pool = require("../db");
 const Post = require("../models/Post");
 const PostLike = require("../models/PostLike");
-const { setPostedSince, setLikedByMe } = require("../helpers/post");
+const { reformatCreatedSince } = require("../helpers/post");
 
 /* Query Resolvers */
 exports.getAllPosts = async (parent, args, { req, res }) => {
-  // TODO: maybe set postedSince and likedByMe
+  const query = await pool.query(
+    `SELECT post_id, title, description, username, age(now(), created_at) as created_since
+    FROM posts 
+      INNER JOIN users 
+      ON (posts.user_id = users.user_id)`
+  );
 
-  const posts = await pool.query("SELECT * FROM posts");
-  return posts.rows;
+  const posts = query.rows;
+  posts.forEach(reformatCreatedSince);
+
+  return posts;
 };
 
 exports.getPostById = async (parent, args) => {
   const post_id = args.post_id;
 
-  const post = await pool.query("SELECT * FROM posts WHERE post_id = ($1)", [
-    post_id,
-  ]);
+  const query = await pool.query(
+    `SELECT post_id, title, description, username, age(now(), created_at) as created_since 
+    FROM posts 
+      INNER JOIN users 
+      ON (posts.user_id = users.user_id)
+    WHERE post_id = ($1)`,
+    [post_id]
+  );
 
-  return post.rows[0];
+  const post = query.rows[0];
+  if (post) {
+    reformatCreatedSince(post);
+  }
+
+  return post;
 };
 
 /* Mutation Resolvers */
@@ -27,21 +44,20 @@ exports.addPost = async (parent, args, { req, res }) => {
     throw new Error("Not authenticated");
   }
 
-  // TODO: maybe set postedSince
-
   const title = args.title;
   const description = args.description;
   const user_id = req.user.user_id;
 
   const query = await pool.query(
-    "INSERT INTO posts (title, description, user_id) VALUES ($1, $2, $3) RETURNING *",
+    `INSERT INTO posts (title, description, user_id) 
+    VALUES ($1, $2, $3) 
+    RETURNING post_id, title, description`,
     [title, description, user_id]
   );
 
   const newPost = query.rows[0];
-  if (!newPost) {
-    throw new Error("Failed to add post");
-  }
+  newPost.username = req.user.username;
+  newPost.created_since = "just now";
 
   return newPost;
 };

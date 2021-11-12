@@ -41,6 +41,7 @@ exports.login = async (parent, args) => {
 
   const payload = {
     user_id: user.user_id,
+    username: user.username,
   };
 
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {

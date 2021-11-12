@@ -17,8 +17,8 @@ const typeDefs = gql`
     post_id: Int!
     title: String!
     description: String!
-    created_at: String!
-    user_id: Int!
+    username: String!
+    created_since: String
   }
 
   # Queries
