@@ -1,6 +1,4 @@
 const pool = require("../db");
-const Post = require("../models/Post");
-const PostLike = require("../models/PostLike");
 const { reformatCreatedSince } = require("../helpers/post");
 
 /* Query Resolvers */

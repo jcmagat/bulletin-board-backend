@@ -1,5 +1,3 @@
-const PostLike = require("../models/PostLike");
-
 exports.reformatCreatedSince = (post) => {
   const { years, days, hours, minutes } = post.created_since;
 
@@ -24,19 +22,4 @@ exports.reformatCreatedSince = (post) => {
   }
 
   post.created_since = time + ago;
-};
-
-exports.setLikedByMe = async (post, user) => {
-  if (user) {
-    const postLike = await PostLike.findOne({
-      postId: post.id,
-      userId: user.id,
-    });
-    if (postLike) {
-      post.likedByMe = true;
-      return;
-    }
-  }
-
-  post.likedByMe = false;
 };

@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { ApolloServer } = require("apollo-server-express");
@@ -19,18 +18,6 @@ app.use(cors(corsOptions));
 dotenv.config({ path: "src/.env" });
 
 async function startServer() {
-  // Connect to database
-  mongoose
-    .connect(process.env.DB_CONNECTION, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-    })
-    .then(() => console.log("DB Connected!"))
-    .catch((err) => {
-      console.log(`DB Connection Error: ${err.message}`);
-    });
-
   // Apply auth middleware
   app.use(authenticateToken);
 
