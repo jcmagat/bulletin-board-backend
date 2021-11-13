@@ -6,7 +6,7 @@ const { reformatCreatedSince } = require("../helpers/post");
 /* Query Resolvers */
 exports.getAllPosts = async (parent, args, { req, res }) => {
   const query = await pool.query(
-    `SELECT post_id, title, description, username, age(now(), created_at) as created_since
+    `SELECT post_id, title, description, username, age(now(), posts.created_at) as created_since
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)`
@@ -22,7 +22,7 @@ exports.getPostById = async (parent, args) => {
   const post_id = args.post_id;
 
   const query = await pool.query(
-    `SELECT post_id, title, description, username, age(now(), created_at) as created_since 
+    `SELECT post_id, title, description, username, age(now(), posts.created_at) as created_since 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)
@@ -83,50 +83,48 @@ exports.deletePost = async (parent, args, { req, res }) => {
   return deletedPost;
 };
 
-exports.likePost = async (parent, args, { req, res }) => {
+exports.addPostReaction = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new Error("Not authenticated");
   }
 
-  const postId = args.id;
-  const userId = req.user.id;
+  const post_id = args.post_id;
+  const user_id = req.user.user_id;
 
-  const postLike = await PostLike.findOne({ postId: postId, userId: userId });
-  if (postLike) {
-    throw new Error("User already liked this post");
-  }
-
-  const post = await Post.findByIdAndUpdate(
-    postId,
-    { $inc: { likes: 1 } },
-    { new: true, useFindAndModify: false }
+  const query = await pool.query(
+    `INSERT INTO post_reactions (post_id, user_id) 
+    VALUES ($1, $2) 
+    RETURNING post_id`,
+    [post_id, user_id]
   );
 
-  const newPostLike = await PostLike.create({ postId: postId, userId: userId });
+  const newPostReaction = query.rows[0];
+  newPostReaction.username = req.user.username;
 
-  return post;
+  return newPostReaction;
 };
 
-exports.unlikePost = async (parent, args, { req, res }) => {
+exports.deletePostReaction = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new Error("Not authenticated");
   }
 
-  const postId = args.id;
-  const userId = req.user.id;
+  const post_id = args.post_id;
+  const user_id = req.user.user_id;
 
-  const postLike = await PostLike.findOne({ postId: postId, userId: userId });
-  if (!postLike) {
-    throw new Error("User has not liked this post");
-  }
-
-  const post = await Post.findByIdAndUpdate(
-    postId,
-    { $inc: { likes: -1 } },
-    { new: true, useFindAndModify: false }
+  const query = await pool.query(
+    `DELETE FROM post_reactions 
+    WHERE post_id = ($1) AND user_id = ($2) 
+    RETURNING post_id`,
+    [post_id, user_id]
   );
 
-  const deletedPostLike = await PostLike.findByIdAndDelete(postLike._id);
+  const deletedPostReaction = query.rows[0];
+  if (!deletedPostReaction) {
+    throw new Error("User has not reacted to this post");
+  }
 
-  return post;
+  deletedPostReaction.username = req.user.username;
+
+  return deletedPostReaction;
 };

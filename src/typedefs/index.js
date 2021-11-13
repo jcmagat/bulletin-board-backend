@@ -21,6 +21,11 @@ const typeDefs = gql`
     created_since: String
   }
 
+  type PostReaction {
+    post_id: Int!
+    username: String!
+  }
+
   # Queries
   type Query {
     posts: [Post]
@@ -36,8 +41,8 @@ const typeDefs = gql`
     # Post mutations
     addPost(title: String!, description: String!): Post
     deletePost(post_id: Int!): Post
-    likePost(post_id: Int!): Post
-    unlikePost(post_id: Int!): Post
+    addPostReaction(post_id: Int!): PostReaction
+    deletePostReaction(post_id: Int!): PostReaction
   }
 `;
 

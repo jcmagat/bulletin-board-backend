@@ -4,8 +4,8 @@ const {
   getPostById,
   addPost,
   deletePost,
-  likePost,
-  unlikePost,
+  addPostReaction,
+  deletePostReaction,
 } = require("./post");
 
 const resolvers = {
@@ -22,8 +22,8 @@ const resolvers = {
     // Post mutations
     addPost: addPost,
     deletePost: deletePost,
-    likePost: likePost,
-    unlikePost: unlikePost,
+    addPostReaction: addPostReaction,
+    deletePostReaction: deletePostReaction,
   },
 };
 
