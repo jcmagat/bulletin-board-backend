@@ -4,6 +4,7 @@ const {
   getPostById,
   addPost,
   deletePost,
+  getPostReactions,
   addPostReaction,
   deletePostReaction,
 } = require("./post");
@@ -24,6 +25,10 @@ const resolvers = {
     deletePost: deletePost,
     addPostReaction: addPostReaction,
     deletePostReaction: deletePostReaction,
+  },
+
+  Post: {
+    reactions: getPostReactions,
   },
 };
 

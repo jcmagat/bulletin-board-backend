@@ -81,6 +81,23 @@ exports.deletePost = async (parent, args, { req, res }) => {
   return deletedPost;
 };
 
+exports.getPostReactions = async (parent, args, { req, res }) => {
+  const post_id = parent.post_id;
+
+  const query = await pool.query(
+    `SELECT username  
+    FROM post_reactions 
+      INNER JOIN users 
+      ON (post_reactions.user_id = users.user_id)
+    WHERE post_id = ($1)`,
+    [post_id]
+  );
+
+  const postReactions = query.rows;
+
+  return postReactions;
+};
+
 exports.addPostReaction = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new Error("Not authenticated");

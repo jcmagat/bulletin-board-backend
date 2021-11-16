@@ -17,12 +17,12 @@ const typeDefs = gql`
     post_id: Int!
     title: String!
     description: String!
-    username: String!
+    username: String
     created_since: String
+    reactions: [PostReaction]
   }
 
   type PostReaction {
-    post_id: Int!
     username: String!
   }
 
