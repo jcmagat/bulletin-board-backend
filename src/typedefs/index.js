@@ -22,8 +22,18 @@ const typeDefs = gql`
     reactions: [PostReaction]
   }
 
+  type PostReactionsCount {
+    like: Int!
+    love: Int!
+    laugh: Int!
+    dislike: Int!
+    hate: Int!
+  }
+
   type PostReaction {
+    post_id: Int!
     username: String!
+    reaction: String!
   }
 
   # Queries
@@ -41,7 +51,7 @@ const typeDefs = gql`
     # Post mutations
     addPost(title: String!, description: String!): Post
     deletePost(post_id: Int!): Post
-    addPostReaction(post_id: Int!): PostReaction
+    addPostReaction(post_id: Int!, reaction: String!): PostReaction
     deletePostReaction(post_id: Int!): PostReaction
   }
 `;

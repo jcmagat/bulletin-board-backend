@@ -85,7 +85,7 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
   const post_id = parent.post_id;
 
   const query = await pool.query(
-    `SELECT username  
+    `SELECT post_id, username, reaction  
     FROM post_reactions 
       INNER JOIN users 
       ON (post_reactions.user_id = users.user_id)
@@ -94,6 +94,9 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
   );
 
   const postReactions = query.rows;
+
+  // TODO:
+  // Instead of returning PostReactions return PostReactionsCount
 
   return postReactions;
 };
@@ -105,12 +108,13 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
 
   const post_id = args.post_id;
   const user_id = req.user.user_id;
+  const reaction = args.reaction;
 
   const query = await pool.query(
-    `INSERT INTO post_reactions (post_id, user_id) 
-    VALUES ($1, $2) 
-    RETURNING post_id`,
-    [post_id, user_id]
+    `INSERT INTO post_reactions (post_id, user_id, reaction) 
+    VALUES ($1, $2, $3) 
+    RETURNING post_id, reaction`,
+    [post_id, user_id, reaction]
   );
 
   const newPostReaction = query.rows[0];
@@ -130,7 +134,7 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
   const query = await pool.query(
     `DELETE FROM post_reactions 
     WHERE post_id = ($1) AND user_id = ($2) 
-    RETURNING post_id`,
+    RETURNING post_id, reaction`,
     [post_id, user_id]
   );
 
