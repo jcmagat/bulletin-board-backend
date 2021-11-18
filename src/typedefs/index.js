@@ -19,10 +19,11 @@ const typeDefs = gql`
     description: String!
     username: String
     created_since: String
-    reactions: [PostReaction]
+    reactions: PostReactions
   }
 
-  type PostReactionsCount {
+  type PostReactions {
+    total: Int!
     like: Int!
     love: Int!
     laugh: Int!

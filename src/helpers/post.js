@@ -23,3 +23,21 @@ exports.reformatCreatedSince = (post) => {
 
   post.created_since = time + ago;
 };
+
+exports.formatPostReactions = (postReactions) => {
+  const newPostReactions = {
+    total: 0,
+    like: 0,
+    love: 0,
+    laugh: 0,
+    dislike: 0,
+    hate: 0,
+  };
+
+  postReactions.forEach((reaction) => {
+    newPostReactions.total += parseInt(reaction.count);
+    newPostReactions[reaction.reaction] = parseInt(reaction.count);
+  });
+
+  return newPostReactions;
+};

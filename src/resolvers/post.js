@@ -1,5 +1,8 @@
 const pool = require("../db");
-const { reformatCreatedSince } = require("../helpers/post");
+const {
+  reformatCreatedSince,
+  formatPostReactions,
+} = require("../helpers/post");
 
 /* Query Resolvers */
 exports.getAllPosts = async (parent, args, { req, res }) => {
@@ -85,18 +88,14 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
   const post_id = parent.post_id;
 
   const query = await pool.query(
-    `SELECT post_id, username, reaction  
+    `SELECT reaction, COUNT(*) 
     FROM post_reactions 
-      INNER JOIN users 
-      ON (post_reactions.user_id = users.user_id)
-    WHERE post_id = ($1)`,
+    WHERE post_id = ($1) 
+    GROUP BY reaction`,
     [post_id]
   );
 
-  const postReactions = query.rows;
-
-  // TODO:
-  // Instead of returning PostReactions return PostReactionsCount
+  const postReactions = formatPostReactions(query.rows);
 
   return postReactions;
 };
