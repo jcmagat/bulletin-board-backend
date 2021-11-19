@@ -23,12 +23,9 @@ const typeDefs = gql`
   }
 
   type PostReactions {
+    likes: Int!
+    dislikes: Int!
     total: Int!
-    like: Int!
-    love: Int!
-    laugh: Int!
-    dislike: Int!
-    hate: Int!
   }
 
   type PostReaction {
