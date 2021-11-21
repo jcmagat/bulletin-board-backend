@@ -95,7 +95,20 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
     [post_id]
   );
 
-  const postReactions = formatPostReactions(query.rows);
+  let postReactions = formatPostReactions(query.rows);
+
+  if (req.isAuth) {
+    const user_id = req.user.user_id;
+
+    const auth_query = await pool.query(
+      `SELECT reaction as auth_user_reaction
+      FROM post_reactions
+      WHERE post_id = ($1) AND user_id = ($2)`,
+      [post_id, user_id]
+    );
+
+    postReactions = { ...postReactions, ...auth_query.rows[0] };
+  }
 
   return postReactions;
 };

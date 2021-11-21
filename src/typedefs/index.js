@@ -26,6 +26,7 @@ const typeDefs = gql`
     likes: Int!
     dislikes: Int!
     total: Int!
+    auth_user_reaction: String
   }
 
   type PostReaction {
