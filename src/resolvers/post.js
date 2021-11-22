@@ -125,6 +125,8 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
   const query = await pool.query(
     `INSERT INTO post_reactions (post_id, user_id, reaction) 
     VALUES ($1, $2, $3) 
+    ON CONFLICT ON CONSTRAINT post_reactions_pkey
+    DO UPDATE SET reaction = ($3)
     RETURNING post_id, reaction`,
     [post_id, user_id, reaction]
   );
