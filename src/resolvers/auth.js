@@ -1,6 +1,7 @@
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { UserInputError } = require("apollo-server-errors");
 
 exports.register = async (parent, args) => {
   const email = args.email;
@@ -31,12 +32,12 @@ exports.login = async (parent, args) => {
 
   const user = query.rows[0];
   if (!user) {
-    throw new Error("User does not exist");
+    throw new UserInputError("Incorrect username or password");
   }
 
   const isCorrectPassword = await bcrypt.compare(password, user.password);
   if (!isCorrectPassword) {
-    throw new Error("Incorrect password");
+    throw new UserInputError("Incorrect username or password");
   }
 
   const payload = {
