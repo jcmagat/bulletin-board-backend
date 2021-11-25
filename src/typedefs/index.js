@@ -6,7 +6,7 @@ const typeDefs = gql`
   }
 
   type AuthData {
-    username: String!
+    user_id: Int!
     accessToken: String!
     refreshToken: String!
     accessTokenExpiration: String!
@@ -17,6 +17,7 @@ const typeDefs = gql`
     post_id: Int!
     title: String!
     description: String!
+    user_id: Int!
     username: String
     created_since: String
     reactions: PostReactions

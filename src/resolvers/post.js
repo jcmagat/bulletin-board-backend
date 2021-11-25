@@ -7,7 +7,8 @@ const {
 /* Query Resolvers */
 exports.getAllPosts = async (parent, args, { req, res }) => {
   const query = await pool.query(
-    `SELECT post_id, title, description, username, age(now(), posts.created_at) as created_since
+    `SELECT post_id, title, description, posts.user_id, username, 
+      age(now(), posts.created_at) as created_since
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)`
@@ -23,7 +24,8 @@ exports.getPostById = async (parent, args) => {
   const post_id = args.post_id;
 
   const query = await pool.query(
-    `SELECT post_id, title, description, username, age(now(), posts.created_at) as created_since 
+    `SELECT post_id, title, description, posts.user_id, username, 
+      age(now(), posts.created_at) as created_since 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)
@@ -52,7 +54,7 @@ exports.addPost = async (parent, args, { req, res }) => {
   const query = await pool.query(
     `INSERT INTO posts (title, description, user_id) 
     VALUES ($1, $2, $3) 
-    RETURNING post_id, title, description`,
+    RETURNING post_id, title, description, user_id`,
     [title, description, user_id]
   );
 

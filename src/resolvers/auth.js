@@ -54,11 +54,12 @@ exports.login = async (parent, args) => {
   });
 
   const authData = {
-    username: username,
+    user_id: user.user_id,
     accessToken: accessToken,
     refreshToken: refreshToken,
     accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION,
     refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION,
   };
+
   return authData;
 };
