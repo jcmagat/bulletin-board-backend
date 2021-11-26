@@ -1,21 +1,17 @@
 const pool = require("../db");
-const {
-  reformatCreatedSince,
-  formatPostReactions,
-} = require("../helpers/post");
+const { formatPostReactions } = require("../helpers/post");
 
 /* Query Resolvers */
 exports.getAllPosts = async (parent, args, { req, res }) => {
   const query = await pool.query(
     `SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) as created_since
+      age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)`
   );
 
   const posts = query.rows;
-  posts.forEach(reformatCreatedSince);
 
   return posts;
 };
@@ -25,7 +21,7 @@ exports.getPostById = async (parent, args) => {
 
   const query = await pool.query(
     `SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) as created_since 
+      age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)
@@ -34,9 +30,6 @@ exports.getPostById = async (parent, args) => {
   );
 
   const post = query.rows[0];
-  if (post) {
-    reformatCreatedSince(post);
-  }
 
   return post;
 };
@@ -54,13 +47,12 @@ exports.addPost = async (parent, args, { req, res }) => {
   const query = await pool.query(
     `INSERT INTO posts (title, description, user_id) 
     VALUES ($1, $2, $3) 
-    RETURNING post_id, title, description, user_id`,
+    RETURNING post_id, title, description, user_id, age(now(), created_at)`,
     [title, description, user_id]
   );
 
   const newPost = query.rows[0];
   newPost.username = req.user.username;
-  newPost.created_since = "just now";
 
   return newPost;
 };
@@ -86,6 +78,37 @@ exports.deletePost = async (parent, args, { req, res }) => {
   return deletedPost;
 };
 
+// Child resolver for Post to set created_since
+exports.setCreatedSince = async (parent, args, { req, res }) => {
+  const age = parent.age;
+  if (!age) {
+    return null;
+  }
+
+  const { years, days, hours, minutes } = age;
+  let time;
+  let ago;
+
+  if (years) {
+    time = years;
+    ago = years > 1 ? " years ago" : " year ago";
+  } else if (days) {
+    time = days;
+    ago = days > 1 ? " days ago" : " day ago";
+  } else if (hours) {
+    time = hours;
+    ago = hours > 1 ? " hours ago" : " hour ago";
+  } else if (minutes) {
+    time = minutes;
+    ago = minutes > 1 ? " minutes ago" : " minute ago";
+  } else {
+    return "just now";
+  }
+
+  return time + ago;
+};
+
+// Child resolver for Post to set reactions
 exports.getPostReactions = async (parent, args, { req, res }) => {
   const post_id = parent.post_id;
 

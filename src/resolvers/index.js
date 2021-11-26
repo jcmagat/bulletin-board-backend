@@ -4,6 +4,7 @@ const {
   getPostById,
   addPost,
   deletePost,
+  setCreatedSince,
   getPostReactions,
   addPostReaction,
   deletePostReaction,
@@ -28,6 +29,7 @@ const resolvers = {
   },
 
   Post: {
+    created_since: setCreatedSince,
     reactions: getPostReactions,
   },
 };
