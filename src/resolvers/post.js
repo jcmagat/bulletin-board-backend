@@ -8,7 +8,8 @@ exports.getAllPosts = async (parent, args, { req, res }) => {
       age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
-      ON (posts.user_id = users.user_id)`
+      ON (posts.user_id = users.user_id) 
+    ORDER BY posts.created_at`
   );
 
   const posts = query.rows;

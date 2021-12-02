@@ -1,24 +1,33 @@
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { UserInputError } = require("apollo-server-errors");
+const { ApolloError, UserInputError } = require("apollo-server-errors");
 
 exports.register = async (parent, args) => {
-  const email = args.email;
-  const username = args.username;
-  const password = args.password;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const email = args.email;
+    const username = args.username;
+    const password = args.password;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  // TODO: check if email or username is already registered
-
-  const query = await pool.query(
-    "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING *",
-    [email, username, hashedPassword]
-  );
+    const query = await pool.query(
+      "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING *",
+      [email, username, hashedPassword]
+    );
+  } catch (error) {
+    if (error.constraint === "users_email_key") {
+      throw new UserInputError("Email is already registered");
+    } else if (error.constraint === "users_username_key") {
+      throw new UserInputError("Username is already taken");
+    } else {
+      throw new ApolloError("Internal server error");
+    }
+  }
 
   const register = {
     registered: true,
   };
+
   return register;
 };
 
