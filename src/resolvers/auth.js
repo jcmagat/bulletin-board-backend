@@ -31,7 +31,7 @@ exports.register = async (parent, args) => {
   return register;
 };
 
-exports.login = async (parent, args) => {
+exports.login = async (parent, args, { req, res }) => {
   const username = args.username;
   const password = args.password;
 
@@ -55,19 +55,31 @@ exports.login = async (parent, args) => {
   };
 
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
+    expiresIn: "1h",
   });
 
   const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
+    expiresIn: "7d",
+  });
+
+  res.cookie("access_token", accessToken, {
+    maxAge: 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: "strict",
+  });
+
+  res.cookie("refresh_token", refreshToken, {
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: "strict",
   });
 
   const authData = {
     user_id: user.user_id,
     accessToken: accessToken,
     refreshToken: refreshToken,
-    accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION,
-    refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION,
+    accessTokenExpiration: "1h",
+    refreshTokenExpiration: "7d",
   };
 
   return authData;

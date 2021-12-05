@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+var cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const { ApolloServer } = require("apollo-server-express");
 const typeDefs = require("./typedefs");
@@ -14,6 +15,8 @@ var corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+app.use(cookieParser());
 
 dotenv.config({ path: "src/.env" });
 
