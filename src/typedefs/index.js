@@ -36,6 +36,15 @@ const typeDefs = gql`
     reaction: String!
   }
 
+  type Comment {
+    comment_id: Int!
+    parent_comment_id: Int
+    post_id: Int!
+    username: String!
+    message: String!
+    created_since: String!
+  }
+
   # Queries
   type Query {
     posts: [Post]
@@ -53,6 +62,7 @@ const typeDefs = gql`
     deletePost(post_id: Int!): Post
     addPostReaction(post_id: Int!, reaction: String!): PostReaction
     deletePostReaction(post_id: Int!): PostReaction
+    addComment(parent_comment_id: Int, post_id: Int!, message: String!): Comment
   }
 `;
 

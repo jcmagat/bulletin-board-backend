@@ -79,7 +79,7 @@ exports.deletePost = async (parent, args, { req, res }) => {
   return deletedPost;
 };
 
-// Child resolver for Post to set created_since
+// Child resolver for Post and Comment to set created_since
 exports.setCreatedSince = async (parent, args, { req, res }) => {
   const age = parent.age;
   if (!age) {
@@ -186,4 +186,29 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
   deletedPostReaction.username = req.user.username;
 
   return deletedPostReaction;
+};
+
+// TODO: getPostComments and getUserComments
+
+exports.addComment = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const post_id = args.post_id;
+  const parent_comment_id = args.parent_comment_id;
+  const user_id = req.user.user_id;
+  const message = args.message;
+
+  const query = await pool.query(
+    `INSERT INTO comments (post_id, parent_comment_id, user_id, message)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *, age(now(), created_at)`,
+    [post_id, parent_comment_id, user_id, message]
+  );
+
+  const newComment = query.rows[0];
+  newComment.username = req.user.username;
+
+  return newComment;
 };

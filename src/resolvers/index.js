@@ -8,6 +8,7 @@ const {
   getPostReactions,
   addPostReaction,
   deletePostReaction,
+  addComment,
 } = require("./post");
 
 const resolvers = {
@@ -26,11 +27,16 @@ const resolvers = {
     deletePost: deletePost,
     addPostReaction: addPostReaction,
     deletePostReaction: deletePostReaction,
+    addComment: addComment,
   },
 
   Post: {
     created_since: setCreatedSince,
     reactions: getPostReactions,
+  },
+
+  Comment: {
+    created_since: setCreatedSince,
   },
 };
 
