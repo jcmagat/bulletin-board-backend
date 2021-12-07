@@ -35,6 +35,24 @@ exports.getPostById = async (parent, args) => {
   return post;
 };
 
+exports.getPostComments = async (parent, args) => {
+  const post_id = args.post_id;
+
+  const query = await pool.query(
+    `SELECT comment_id, parent_comment_id, post_id, username, message, 
+      age(now(), comments.created_at) 
+    FROM comments 
+      INNER JOIN users
+      ON (comments.user_id = users.user_id)
+    WHERE post_id = ($1)`,
+    [post_id]
+  );
+
+  const comments = query.rows;
+
+  return comments;
+};
+
 /* Mutation Resolvers */
 exports.addPost = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
@@ -188,23 +206,22 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
   return deletedPostReaction;
 };
 
-// TODO: getPostComments and getUserComments
-
 exports.addComment = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new Error("Not authenticated");
   }
 
-  const post_id = args.post_id;
   const parent_comment_id = args.parent_comment_id;
+  const post_id = args.post_id;
   const user_id = req.user.user_id;
   const message = args.message;
 
   const query = await pool.query(
-    `INSERT INTO comments (post_id, parent_comment_id, user_id, message)
+    `INSERT INTO comments (parent_comment_id, post_id, user_id, message)
     VALUES ($1, $2, $3, $4)
-    RETURNING *, age(now(), created_at)`,
-    [post_id, parent_comment_id, user_id, message]
+    RETURNING comment_id, parent_comment_id, post_id, message, 
+      age(now(), created_at)`,
+    [parent_comment_id, post_id, user_id, message]
   );
 
   const newComment = query.rows[0];

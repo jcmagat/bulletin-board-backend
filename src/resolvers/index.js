@@ -2,6 +2,7 @@ const { register, login } = require("./auth");
 const {
   getAllPosts,
   getPostById,
+  getPostComments,
   addPost,
   deletePost,
   setCreatedSince,
@@ -15,6 +16,7 @@ const resolvers = {
   Query: {
     posts: getAllPosts,
     post: getPostById,
+    comments: getPostComments,
   },
 
   Mutation: {

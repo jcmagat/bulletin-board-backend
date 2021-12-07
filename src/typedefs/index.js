@@ -49,6 +49,7 @@ const typeDefs = gql`
   type Query {
     posts: [Post]
     post(post_id: Int!): Post
+    comments(post_id: Int!): [Comment]
   }
 
   # Mutations
