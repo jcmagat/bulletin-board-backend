@@ -62,18 +62,6 @@ exports.login = async (parent, args, { req, res }) => {
     expiresIn: "7d",
   });
 
-  res.cookie("access_token", accessToken, {
-    maxAge: 60 * 60 * 1000,
-    httpOnly: true,
-    sameSite: "strict",
-  });
-
-  res.cookie("refresh_token", refreshToken, {
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    sameSite: "strict",
-  });
-
   const authData = {
     user_id: user.user_id,
     accessToken: accessToken,
