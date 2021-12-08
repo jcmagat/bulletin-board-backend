@@ -43,6 +43,7 @@ const typeDefs = gql`
     username: String!
     message: String!
     created_since: String!
+    child_comments: [Comment]
   }
 
   # Queries

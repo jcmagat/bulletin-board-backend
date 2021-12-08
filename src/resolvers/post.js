@@ -44,8 +44,26 @@ exports.getPostComments = async (parent, args) => {
     FROM comments 
       INNER JOIN users
       ON (comments.user_id = users.user_id)
-    WHERE post_id = ($1)`,
+    WHERE parent_comment_id IS NULL AND post_id = ($1)`,
     [post_id]
+  );
+
+  const comments = query.rows;
+
+  return comments;
+};
+
+exports.getChildComments = async (parent, args) => {
+  const parent_comment_id = parent.comment_id;
+
+  const query = await pool.query(
+    `SELECT comment_id, parent_comment_id, post_id, username, message, 
+      age(now(), comments.created_at) 
+    FROM comments 
+      INNER JOIN users
+      ON (comments.user_id = users.user_id)
+    WHERE parent_comment_id = ($1)`,
+    [parent_comment_id]
   );
 
   const comments = query.rows;
