@@ -11,6 +11,7 @@ const {
   addPostReaction,
   deletePostReaction,
   addComment,
+  addCommentReaction,
 } = require("./post");
 
 const resolvers = {
@@ -31,6 +32,7 @@ const resolvers = {
     addPostReaction: addPostReaction,
     deletePostReaction: deletePostReaction,
     addComment: addComment,
+    addCommentReaction: addCommentReaction,
   },
 
   Post: {

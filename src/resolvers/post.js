@@ -12,6 +12,8 @@ exports.getAllPosts = async (parent, args, { req, res }) => {
     ORDER BY posts.created_at`
   );
 
+  // TODO: return number of comments and list of comment_ids
+
   const posts = query.rows;
 
   return posts;
@@ -31,6 +33,8 @@ exports.getPostById = async (parent, args) => {
   );
 
   const post = query.rows[0];
+
+  // TODO: return number of comments
 
   return post;
 };
@@ -246,4 +250,28 @@ exports.addComment = async (parent, args, { req, res }) => {
   newComment.username = req.user.username;
 
   return newComment;
+};
+
+exports.addCommentReaction = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const comment_id = args.comment_id;
+  const user_id = req.user.user_id;
+  const reaction = args.reaction;
+
+  const query = await pool.query(
+    `INSERT INTO comment_reactions (comment_id, user_id, reaction) 
+    VALUES ($1, $2, $3) 
+    ON CONFLICT ON CONSTRAINT comment_reactions_pkey
+    DO UPDATE SET reaction = ($3)
+    RETURNING comment_id, reaction`,
+    [comment_id, user_id, reaction]
+  );
+
+  const newCommentReaction = query.rows[0];
+  newCommentReaction.username = req.user.username;
+
+  return newCommentReaction;
 };
