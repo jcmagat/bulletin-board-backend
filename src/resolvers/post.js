@@ -1,5 +1,5 @@
 const pool = require("../db");
-const { formatPostReactions } = require("../helpers/post");
+const { formatReactions } = require("../helpers/post");
 
 /* Query Resolvers */
 exports.getAllPosts = async (parent, args, { req, res }) => {
@@ -161,7 +161,7 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
     [post_id]
   );
 
-  let postReactions = formatPostReactions(query.rows);
+  let postReactions = formatReactions(query.rows);
 
   if (req.isAuth) {
     const user_id = req.user.user_id;
@@ -250,6 +250,35 @@ exports.addComment = async (parent, args, { req, res }) => {
   newComment.username = req.user.username;
 
   return newComment;
+};
+
+exports.getCommentReactions = async (parent, args, { req, res }) => {
+  const comment_id = parent.comment_id;
+
+  const query = await pool.query(
+    `SELECT reaction, COUNT(*) 
+    FROM comment_reactions 
+    WHERE comment_id = ($1) 
+    GROUP BY reaction`,
+    [comment_id]
+  );
+
+  let commentReactions = formatReactions(query.rows);
+
+  if (req.isAuth) {
+    const user_id = req.user.user_id;
+
+    const auth_query = await pool.query(
+      `SELECT reaction as auth_user_reaction
+      FROM comment_reactions
+      WHERE comment_id = ($1) AND user_id = ($2)`,
+      [comment_id, user_id]
+    );
+
+    commentReactions = { ...commentReactions, ...auth_query.rows[0] };
+  }
+
+  return commentReactions;
 };
 
 exports.addCommentReaction = async (parent, args, { req, res }) => {

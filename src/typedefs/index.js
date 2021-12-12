@@ -20,10 +20,10 @@ const typeDefs = gql`
     user_id: Int!
     username: String
     created_since: String
-    reactions: PostReactions
+    reactions: Reactions
   }
 
-  type PostReactions {
+  type Reactions {
     likes: Int!
     dislikes: Int!
     total: Int!
@@ -43,6 +43,7 @@ const typeDefs = gql`
     username: String!
     message: String!
     created_since: String!
+    reactions: Reactions
     child_comments: [Comment]
   }
 

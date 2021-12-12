@@ -1,14 +1,17 @@
-exports.formatPostReactions = (postReactions) => {
-  const newPostReactions = {
+exports.formatReactions = (reactions) => {
+  const formattedReactions = {
     likes: 0,
     dislikes: 0,
     total: 0,
   };
 
-  postReactions.forEach((reaction) => {
-    newPostReactions[reaction.reaction.concat("s")] = parseInt(reaction.count);
+  reactions.forEach((reaction) => {
+    formattedReactions[reaction.reaction.concat("s")] = parseInt(
+      reaction.count
+    );
   });
-  newPostReactions.total = newPostReactions.likes - newPostReactions.dislikes;
+  formattedReactions.total =
+    formattedReactions.likes - formattedReactions.dislikes;
 
-  return newPostReactions;
+  return formattedReactions;
 };

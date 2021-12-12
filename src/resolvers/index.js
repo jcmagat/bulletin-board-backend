@@ -12,6 +12,7 @@ const {
   deletePostReaction,
   addComment,
   addCommentReaction,
+  getCommentReactions,
 } = require("./post");
 
 const resolvers = {
@@ -42,6 +43,7 @@ const resolvers = {
 
   Comment: {
     created_since: setCreatedSince,
+    reactions: getCommentReactions,
     child_comments: getChildComments,
   },
 };
