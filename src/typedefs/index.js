@@ -21,6 +21,7 @@ const typeDefs = gql`
     username: String
     created_since: String
     reactions: Reactions
+    comments_info: CommentsInfo
   }
 
   type Reactions {
@@ -28,6 +29,11 @@ const typeDefs = gql`
     dislikes: Int!
     total: Int!
     auth_user_reaction: String
+  }
+
+  type CommentsInfo {
+    total: Int!
+    comment_ids: [Int]
   }
 
   type PostReaction {

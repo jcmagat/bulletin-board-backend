@@ -12,8 +12,6 @@ exports.getAllPosts = async (parent, args, { req, res }) => {
     ORDER BY posts.created_at`
   );
 
-  // TODO: return number of comments and list of comment_ids
-
   const posts = query.rows;
 
   return posts;
@@ -34,8 +32,6 @@ exports.getPostById = async (parent, args) => {
 
   const post = query.rows[0];
 
-  // TODO: return number of comments
-
   return post;
 };
 
@@ -55,6 +51,22 @@ exports.getPostComments = async (parent, args) => {
   const comments = query.rows;
 
   return comments;
+};
+
+// Child resolver for Post to get info on comments
+exports.getPostCommentsInfo = async (parent, args) => {
+  const post_id = parent.post_id;
+
+  const query = await pool.query(
+    `SELECT ARRAY_AGG(comment_id) AS comment_ids, COUNT(*) AS total
+    FROM comments 
+    WHERE post_id = ($1)`,
+    [post_id]
+  );
+
+  const commentsInfo = query.rows[0];
+
+  return commentsInfo;
 };
 
 exports.getChildComments = async (parent, args) => {

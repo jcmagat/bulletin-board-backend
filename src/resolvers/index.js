@@ -3,6 +3,7 @@ const {
   getAllPosts,
   getPostById,
   getPostComments,
+  getPostCommentsInfo,
   getChildComments,
   addPost,
   deletePost,
@@ -42,6 +43,7 @@ const resolvers = {
   Post: {
     created_since: setCreatedSince,
     reactions: getPostReactions,
+    comments_info: getPostCommentsInfo,
   },
 
   Comment: {
