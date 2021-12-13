@@ -304,3 +304,28 @@ exports.addCommentReaction = async (parent, args, { req, res }) => {
 
   return newCommentReaction;
 };
+
+exports.deleteCommentReaction = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const comment_id = args.comment_id;
+  const user_id = req.user.user_id;
+
+  const query = await pool.query(
+    `DELETE FROM comment_reactions 
+    WHERE comment_id = ($1) AND user_id = ($2) 
+    RETURNING comment_id, reaction`,
+    [comment_id, user_id]
+  );
+
+  const deletedCommentReaction = query.rows[0];
+  if (!deletedCommentReaction) {
+    throw new Error("User has not reacted to this post");
+  }
+
+  deletedCommentReaction.username = req.user.username;
+
+  return deletedCommentReaction;
+};
