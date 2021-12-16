@@ -2,20 +2,22 @@ const { register, login } = require("./auth");
 const {
   getAllPosts,
   getPostById,
-  getPostComments,
   getPostCommentsInfo,
-  getChildComments,
   addPost,
   deletePost,
-  setCreatedSince,
   getPostReactions,
   addPostReaction,
   deletePostReaction,
-  addComment,
-  addCommentReaction,
-  getCommentReactions,
-  deleteCommentReaction,
 } = require("./post");
+const {
+  getPostComments,
+  getChildComments,
+  addComment,
+  getCommentReactions,
+  addCommentReaction,
+  deleteCommentReaction,
+} = require("./comment");
+const { setCreatedSince } = require("./common");
 
 const resolvers = {
   Query: {
