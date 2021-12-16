@@ -40,32 +40,7 @@ exports.getChildComments = async (parent, args) => {
   return comments;
 };
 
-/* ========== Mutation Resolvers ========== */
-
-exports.addComment = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
-    throw new Error("Not authenticated");
-  }
-
-  const parent_comment_id = args.parent_comment_id;
-  const post_id = args.post_id;
-  const user_id = req.user.user_id;
-  const message = args.message;
-
-  const query = await pool.query(
-    `INSERT INTO comments (parent_comment_id, post_id, user_id, message)
-    VALUES ($1, $2, $3, $4)
-    RETURNING comment_id, parent_comment_id, post_id, message, 
-      age(now(), created_at)`,
-    [parent_comment_id, post_id, user_id, message]
-  );
-
-  const newComment = query.rows[0];
-  newComment.username = req.user.username;
-
-  return newComment;
-};
-
+// Child resolver for Comment to get comment reactions
 exports.getCommentReactions = async (parent, args, { req, res }) => {
   const comment_id = parent.comment_id;
 
@@ -93,6 +68,32 @@ exports.getCommentReactions = async (parent, args, { req, res }) => {
   }
 
   return commentReactions;
+};
+
+/* ========== Mutation Resolvers ========== */
+
+exports.addComment = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const parent_comment_id = args.parent_comment_id;
+  const post_id = args.post_id;
+  const user_id = req.user.user_id;
+  const message = args.message;
+
+  const query = await pool.query(
+    `INSERT INTO comments (parent_comment_id, post_id, user_id, message)
+    VALUES ($1, $2, $3, $4)
+    RETURNING comment_id, parent_comment_id, post_id, message, 
+      age(now(), created_at)`,
+    [parent_comment_id, post_id, user_id, message]
+  );
+
+  const newComment = query.rows[0];
+  newComment.username = req.user.username;
+
+  return newComment;
 };
 
 exports.addCommentReaction = async (parent, args, { req, res }) => {
