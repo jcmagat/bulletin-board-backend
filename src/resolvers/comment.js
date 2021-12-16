@@ -96,6 +96,27 @@ exports.addComment = async (parent, args, { req, res }) => {
   return newComment;
 };
 
+exports.deleteComment = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const comment_id = args.comment_id;
+  const user_id = req.user.user_id;
+
+  const query = await pool.query(
+    "DELETE FROM comments WHERE comment_id = ($1) AND user_id = ($2) RETURNING *",
+    [comment_id, user_id]
+  );
+
+  const deletedComment = query.rows[0];
+  if (!deletedComment) {
+    throw new Error("User not authorized to delete this comment");
+  }
+
+  return deletedComment;
+};
+
 exports.addCommentReaction = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new Error("Not authenticated");

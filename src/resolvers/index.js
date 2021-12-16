@@ -3,17 +3,18 @@ const {
   getAllPosts,
   getPostById,
   getPostCommentsInfo,
+  getPostReactions,
   addPost,
   deletePost,
-  getPostReactions,
   addPostReaction,
   deletePostReaction,
 } = require("./post");
 const {
   getPostComments,
   getChildComments,
-  addComment,
   getCommentReactions,
+  addComment,
+  deleteComment,
   addCommentReaction,
   deleteCommentReaction,
 } = require("./comment");
@@ -38,6 +39,7 @@ const resolvers = {
     deletePostReaction: deletePostReaction,
 
     addComment: addComment,
+    deleteComment: deleteComment,
     addCommentReaction: addCommentReaction,
     deleteCommentReaction: deleteCommentReaction,
   },

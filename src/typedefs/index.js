@@ -46,9 +46,9 @@ const typeDefs = gql`
     comment_id: Int!
     parent_comment_id: Int
     post_id: Int!
-    username: String!
+    username: String
     message: String!
-    created_since: String!
+    created_since: String
     reactions: Reactions
     child_comments: [Comment]
   }
@@ -78,7 +78,9 @@ const typeDefs = gql`
     addPostReaction(post_id: Int!, reaction: String!): PostReaction
     deletePostReaction(post_id: Int!): PostReaction
 
+    # Comment mutations
     addComment(parent_comment_id: Int, post_id: Int!, message: String!): Comment
+    deleteComment(comment_id: Int!): Comment
     addCommentReaction(comment_id: Int!, reaction: String!): CommentReaction
     deleteCommentReaction(comment_id: Int!): CommentReaction
   }
