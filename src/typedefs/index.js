@@ -46,6 +46,7 @@ const typeDefs = gql`
     comment_id: Int!
     parent_comment_id: Int
     post_id: Int!
+    user_id: Int!
     username: String
     message: String!
     created_since: String

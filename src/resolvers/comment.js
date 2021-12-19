@@ -7,8 +7,8 @@ exports.getPostComments = async (parent, args) => {
   const post_id = args.post_id;
 
   const query = await pool.query(
-    `SELECT comment_id, parent_comment_id, post_id, username, message, 
-      age(now(), comments.created_at) 
+    `SELECT comment_id, parent_comment_id, post_id, comments.user_id, 
+      username, message, age(now(), comments.created_at) 
     FROM comments 
       INNER JOIN users
       ON (comments.user_id = users.user_id)
@@ -26,8 +26,8 @@ exports.getChildComments = async (parent, args) => {
   const parent_comment_id = parent.comment_id;
 
   const query = await pool.query(
-    `SELECT comment_id, parent_comment_id, post_id, username, message, 
-      age(now(), comments.created_at) 
+    `SELECT comment_id, parent_comment_id, post_id, comments.user_id, 
+      username, message, age(now(), comments.created_at) 
     FROM comments 
       INNER JOIN users
       ON (comments.user_id = users.user_id)
@@ -85,7 +85,7 @@ exports.addComment = async (parent, args, { req, res }) => {
   const query = await pool.query(
     `INSERT INTO comments (parent_comment_id, post_id, user_id, message)
     VALUES ($1, $2, $3, $4)
-    RETURNING comment_id, parent_comment_id, post_id, message, 
+    RETURNING comment_id, parent_comment_id, post_id, user_id, message, 
       age(now(), created_at)`,
     [parent_comment_id, post_id, user_id, message]
   );
