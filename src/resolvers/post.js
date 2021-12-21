@@ -137,18 +137,24 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
   const reaction = args.reaction;
 
   const query = await pool.query(
-    `INSERT INTO post_reactions (post_id, user_id, reaction) 
-    VALUES ($1, $2, $3) 
-    ON CONFLICT ON CONSTRAINT post_reactions_pkey
-    DO UPDATE SET reaction = ($3)
-    RETURNING post_id, reaction`,
+    `WITH x AS (
+      INSERT INTO post_reactions (post_id, user_id, reaction) 
+      VALUES ($1, $2, $3) 
+      ON CONFLICT ON CONSTRAINT post_reactions_pkey
+      DO UPDATE SET reaction = ($3)
+    )
+    SELECT post_id, title, description, posts.user_id, username, 
+      age(now(), posts.created_at) 
+    FROM posts 
+      INNER JOIN users 
+      ON (posts.user_id = users.user_id)
+    WHERE post_id = ($1)`,
     [post_id, user_id, reaction]
   );
 
-  const newPostReaction = query.rows[0];
-  newPostReaction.username = req.user.username;
+  const post = query.rows[0];
 
-  return newPostReaction;
+  return post;
 };
 
 exports.deletePostReaction = async (parent, args, { req, res }) => {
@@ -160,18 +166,20 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
   const user_id = req.user.user_id;
 
   const query = await pool.query(
-    `DELETE FROM post_reactions 
-    WHERE post_id = ($1) AND user_id = ($2) 
-    RETURNING post_id, reaction`,
+    `WITH x AS (
+      DELETE FROM post_reactions 
+      WHERE post_id = ($1) AND user_id = ($2) 
+    )
+    SELECT post_id, title, description, posts.user_id, username, 
+      age(now(), posts.created_at) 
+    FROM posts 
+      INNER JOIN users 
+      ON (posts.user_id = users.user_id)
+    WHERE post_id = ($1)`,
     [post_id, user_id]
   );
 
-  const deletedPostReaction = query.rows[0];
-  if (!deletedPostReaction) {
-    throw new Error("User has not reacted to this post");
-  }
+  const post = query.rows[0];
 
-  deletedPostReaction.username = req.user.username;
-
-  return deletedPostReaction;
+  return post;
 };
