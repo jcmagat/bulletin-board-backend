@@ -48,12 +48,6 @@ const typeDefs = gql`
     child_comments: [Comment]
   }
 
-  type CommentReaction {
-    comment_id: Int!
-    username: String!
-    reaction: String!
-  }
-
   # Queries
   type Query {
     posts: [Post]
@@ -76,8 +70,8 @@ const typeDefs = gql`
     # Comment mutations
     addComment(parent_comment_id: Int, post_id: Int!, message: String!): Comment
     deleteComment(comment_id: Int!): Comment
-    addCommentReaction(comment_id: Int!, reaction: String!): CommentReaction
-    deleteCommentReaction(comment_id: Int!): CommentReaction
+    addCommentReaction(comment_id: Int!, reaction: String!): Comment
+    deleteCommentReaction(comment_id: Int!): Comment
   }
 `;
 

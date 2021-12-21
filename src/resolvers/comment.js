@@ -127,18 +127,24 @@ exports.addCommentReaction = async (parent, args, { req, res }) => {
   const reaction = args.reaction;
 
   const query = await pool.query(
-    `INSERT INTO comment_reactions (comment_id, user_id, reaction) 
-    VALUES ($1, $2, $3) 
-    ON CONFLICT ON CONSTRAINT comment_reactions_pkey
-    DO UPDATE SET reaction = ($3)
-    RETURNING comment_id, reaction`,
+    `WITH x AS (
+      INSERT INTO comment_reactions (comment_id, user_id, reaction) 
+      VALUES ($1, $2, $3) 
+      ON CONFLICT ON CONSTRAINT comment_reactions_pkey
+      DO UPDATE SET reaction = ($3)
+    )
+    SELECT comment_id, parent_comment_id, post_id, comments.user_id, 
+      username, message, age(now(), comments.created_at) 
+    FROM comments 
+      INNER JOIN users
+      ON (comments.user_id = users.user_id)
+    WHERE comment_id = ($1)`,
     [comment_id, user_id, reaction]
   );
 
-  const newCommentReaction = query.rows[0];
-  newCommentReaction.username = req.user.username;
+  const comment = query.rows[0];
 
-  return newCommentReaction;
+  return comment;
 };
 
 exports.deleteCommentReaction = async (parent, args, { req, res }) => {
@@ -150,18 +156,20 @@ exports.deleteCommentReaction = async (parent, args, { req, res }) => {
   const user_id = req.user.user_id;
 
   const query = await pool.query(
-    `DELETE FROM comment_reactions 
-    WHERE comment_id = ($1) AND user_id = ($2) 
-    RETURNING comment_id, reaction`,
+    `WITH x AS (
+      DELETE FROM comment_reactions 
+      WHERE comment_id = ($1) AND user_id = ($2) 
+    )
+    SELECT comment_id, parent_comment_id, post_id, comments.user_id, 
+      username, message, age(now(), comments.created_at) 
+    FROM comments 
+      INNER JOIN users
+      ON (comments.user_id = users.user_id)
+    WHERE comment_id = ($1)`,
     [comment_id, user_id]
   );
 
-  const deletedCommentReaction = query.rows[0];
-  if (!deletedCommentReaction) {
-    throw new Error("User has not reacted to this post");
-  }
+  const comment = query.rows[0];
 
-  deletedCommentReaction.username = req.user.username;
-
-  return deletedCommentReaction;
+  return comment;
 };
