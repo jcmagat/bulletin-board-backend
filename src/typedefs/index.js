@@ -13,6 +13,18 @@ const typeDefs = gql`
     refreshTokenExpiration: String!
   }
 
+  type User {
+    username: String!
+    created_at: String!
+    following: Users!
+    followers: Users!
+  }
+
+  type Users {
+    count: Int!
+    usernames: [String]
+  }
+
   type Post {
     post_id: Int!
     title: String!
@@ -50,6 +62,7 @@ const typeDefs = gql`
 
   # Queries
   type Query {
+    user(user_id: Int!): User
     posts: [Post]
     post(post_id: Int!): Post
     comments(post_id: Int!): [Comment]

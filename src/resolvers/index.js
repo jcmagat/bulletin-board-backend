@@ -1,4 +1,5 @@
 const { register, login } = require("./auth");
+const { getUser, getFollowing, getFollowers } = require("./user");
 const {
   getAllPosts,
   getPostById,
@@ -22,6 +23,7 @@ const { setCreatedSince } = require("./common");
 
 const resolvers = {
   Query: {
+    user: getUser,
     posts: getAllPosts,
     post: getPostById,
     comments: getPostComments,
@@ -38,10 +40,16 @@ const resolvers = {
     addPostReaction: addPostReaction,
     deletePostReaction: deletePostReaction,
 
+    // Comment mutations
     addComment: addComment,
     deleteComment: deleteComment,
     addCommentReaction: addCommentReaction,
     deleteCommentReaction: deleteCommentReaction,
+  },
+
+  User: {
+    following: getFollowing,
+    followers: getFollowers,
   },
 
   Post: {
