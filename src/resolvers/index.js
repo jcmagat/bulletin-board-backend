@@ -1,5 +1,11 @@
 const { register, login } = require("./auth");
-const { getUser, getFollowing, getFollowers } = require("./user");
+const {
+  getUser,
+  getFollowing,
+  getFollowers,
+  follow,
+  unfollow,
+} = require("./user");
 const {
   getAllPosts,
   getPostById,
@@ -33,6 +39,10 @@ const resolvers = {
     // Auth mutations
     register: register,
     login: login,
+
+    // User mutations
+    follow: follow,
+    unfollow: unfollow,
 
     // Post mutations
     addPost: addPost,

@@ -3,13 +3,13 @@ const pool = require("../db");
 /* ========== Query Resolvers ========== */
 
 exports.getUser = async (parent, args) => {
-  const user_id = args.user_id;
+  const username = args.username;
 
   const query = await pool.query(
     `SELECT user_id, username, created_at 
     FROM users 
-    WHERE user_id = ($1)`,
-    [user_id]
+    WHERE username = ($1)`,
+    [username]
   );
 
   const user = query.rows[0];
@@ -25,7 +25,7 @@ exports.getFollowing = async (parent, args) => {
     `SELECT COUNT(*), COALESCE(ARRAY_AGG(username), '{}') as usernames 
     FROM follows
       INNER JOIN users
-      ON (following_id = user_id)
+      ON (followed_id = user_id)
     WHERE follower_id = ($1)`,
     [user_id]
   );
@@ -44,7 +44,7 @@ exports.getFollowers = async (parent, args) => {
     FROM follows
       INNER JOIN users
       ON (follower_id = user_id)
-    WHERE following_id = ($1)`,
+    WHERE followed_id = ($1)`,
     [user_id]
   );
 
@@ -54,3 +54,48 @@ exports.getFollowers = async (parent, args) => {
 };
 
 /* ========== Query Resolvers ========== */
+exports.follow = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const follower_id = req.user.user_id;
+  const followed_username = args.username;
+
+  const query = await pool.query(
+    `INSERT INTO follows (follower_id, followed_id) 
+      SELECT ($1), user_id 
+      FROM users 
+      WHERE username = ($2)
+    RETURNING *`,
+    [follower_id, followed_username]
+  );
+
+  const follow = query.rows[0];
+
+  return follow;
+};
+
+exports.unfollow = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const follower_id = req.user.user_id;
+  const followed_username = args.username;
+
+  const query = await pool.query(
+    `DELETE FROM follows
+    WHERE follower_id = ($1) AND followed_id IN (
+      SELECT user_id
+      FROM users 
+      WHERE username = ($2)
+    )
+    RETURNING *`,
+    [follower_id, followed_username]
+  );
+
+  const unfollow = query.rows[0];
+
+  return unfollow;
+};
