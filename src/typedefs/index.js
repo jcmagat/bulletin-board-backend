@@ -15,7 +15,7 @@ const typeDefs = gql`
 
   type User {
     username: String!
-    created_at: String!
+    created_at: DateTime!
     following: Users!
     followers: Users!
   }

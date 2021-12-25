@@ -3,6 +3,7 @@ const cors = require("cors");
 var cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const { ApolloServer } = require("apollo-server-express");
+const { typeDefs: scalarTypeDefs } = require("graphql-scalars");
 const typeDefs = require("./typedefs");
 const resolvers = require("./resolvers");
 const { authenticateToken } = require("./middlewares/auth");
@@ -26,7 +27,7 @@ async function startServer() {
 
   // Start Apollo server
   const server = new ApolloServer({
-    typeDefs,
+    typeDefs: [...scalarTypeDefs, typeDefs],
     resolvers,
     context: ({ req, res }) => ({ req, res }),
   });
