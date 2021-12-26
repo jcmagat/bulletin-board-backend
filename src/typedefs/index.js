@@ -18,6 +18,7 @@ const typeDefs = gql`
     created_at: DateTime!
     following: Users!
     followers: Users!
+    posts: [Post]
   }
 
   type Users {

@@ -3,6 +3,7 @@ const {
   getUser,
   getFollowing,
   getFollowers,
+  getPostsByUser,
   follow,
   unfollow,
 } = require("./user");
@@ -60,6 +61,7 @@ const resolvers = {
   User: {
     following: getFollowing,
     followers: getFollowers,
+    posts: getPostsByUser,
   },
 
   Post: {
