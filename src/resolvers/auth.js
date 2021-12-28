@@ -63,7 +63,7 @@ exports.login = async (parent, args, { req, res }) => {
   });
 
   const authData = {
-    user_id: user.user_id,
+    username: user.username,
     accessToken: accessToken,
     refreshToken: refreshToken,
     accessTokenExpiration: "1h",

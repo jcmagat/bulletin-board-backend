@@ -5,8 +5,7 @@ const { formatReactions } = require("../helpers/common");
 
 exports.getAllPosts = async (parent, args, { req, res }) => {
   const query = await pool.query(
-    `SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) 
+    `SELECT post_id, title, description, username, age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id) 
@@ -22,8 +21,7 @@ exports.getPostById = async (parent, args) => {
   const post_id = args.post_id;
 
   const query = await pool.query(
-    `SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) 
+    `SELECT post_id, title, description, username, age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)
@@ -96,7 +94,7 @@ exports.addPost = async (parent, args, { req, res }) => {
   const query = await pool.query(
     `INSERT INTO posts (title, description, user_id) 
     VALUES ($1, $2, $3) 
-    RETURNING post_id, title, description, user_id, age(now(), created_at)`,
+    RETURNING post_id, title, description, age(now(), created_at)`,
     [title, description, user_id]
   );
 
@@ -143,8 +141,7 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
       ON CONFLICT ON CONSTRAINT post_reactions_pkey
       DO UPDATE SET reaction = ($3)
     )
-    SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) 
+    SELECT post_id, title, description, username, age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)
@@ -170,8 +167,7 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
       DELETE FROM post_reactions 
       WHERE post_id = ($1) AND user_id = ($2) 
     )
-    SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) 
+    SELECT post_id, title, description, username, age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)
