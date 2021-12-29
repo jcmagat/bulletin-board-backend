@@ -66,9 +66,14 @@ const typeDefs = gql`
 
   # Queries
   type Query {
+    # User queries
     user(username: String!): User
+
+    # Post queries
     posts: [Post]
     post(post_id: Int!): Post
+
+    # Comment queries
     comments(post_id: Int!): [Comment]
   }
 
@@ -79,8 +84,8 @@ const typeDefs = gql`
     login(username: String!, password: String!): AuthData
 
     # User mutations
-    follow(username: String!): Follow
-    unfollow(username: String!): Follow
+    follow(username: String!): User
+    unfollow(username: String!): User
 
     # Post mutations
     addPost(title: String!, description: String!): Post

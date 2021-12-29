@@ -82,17 +82,21 @@ exports.follow = async (parent, args, { req, res }) => {
   const followed_username = args.username;
 
   const query = await pool.query(
-    `INSERT INTO follows (follower_id, followed_id) 
+    `WITH x AS (
+    INSERT INTO follows (follower_id, followed_id) 
       SELECT ($1), user_id 
       FROM users 
       WHERE username = ($2)
-    RETURNING *`,
+    )
+    SELECT user_id, username, created_at 
+    FROM users 
+    WHERE username = ($2)`,
     [follower_id, followed_username]
   );
 
-  const follow = query.rows[0];
+  const followedUser = query.rows[0];
 
-  return follow;
+  return followedUser;
 };
 
 exports.unfollow = async (parent, args, { req, res }) => {
@@ -104,17 +108,20 @@ exports.unfollow = async (parent, args, { req, res }) => {
   const followed_username = args.username;
 
   const query = await pool.query(
-    `DELETE FROM follows
+    `WITH x AS (
+    DELETE FROM follows
     WHERE follower_id = ($1) AND followed_id IN (
       SELECT user_id
       FROM users 
       WHERE username = ($2)
-    )
-    RETURNING *`,
+    ))
+    SELECT user_id, username, created_at 
+    FROM users 
+    WHERE username = ($2)`,
     [follower_id, followed_username]
   );
 
-  const unfollow = query.rows[0];
+  const unfollowedUser = query.rows[0];
 
-  return unfollow;
+  return unfollowedUser;
 };
