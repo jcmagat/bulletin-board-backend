@@ -22,7 +22,7 @@ exports.getFollowing = async (parent, args) => {
   const user_id = parent.user_id;
 
   const query = await pool.query(
-    `SELECT username, follows.created_at as follow_at 
+    `SELECT username, follows.created_at as followed_at 
     FROM follows
       INNER JOIN users
       ON (followed_id = user_id)
@@ -40,7 +40,7 @@ exports.getFollowers = async (parent, args) => {
   const user_id = parent.user_id;
 
   const query = await pool.query(
-    `SELECT username, follows.created_at as follow_at 
+    `SELECT username, follows.created_at as followed_at 
     FROM follows
       INNER JOIN users
       ON (follower_id = user_id)

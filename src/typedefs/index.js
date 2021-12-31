@@ -23,7 +23,7 @@ const typeDefs = gql`
 
   type Follow {
     username: String!
-    follow_at: DateTime!
+    followed_at: DateTime!
   }
 
   type Post {
