@@ -22,7 +22,7 @@ exports.getFollowing = async (parent, args) => {
   const user_id = parent.user_id;
 
   const query = await pool.query(
-    `SELECT COUNT(*), COALESCE(ARRAY_AGG(username), '{}') as usernames 
+    `SELECT username, follows.created_at as follow_at 
     FROM follows
       INNER JOIN users
       ON (followed_id = user_id)
@@ -30,7 +30,7 @@ exports.getFollowing = async (parent, args) => {
     [user_id]
   );
 
-  const following = query.rows[0];
+  const following = query.rows;
 
   return following;
 };
@@ -40,7 +40,7 @@ exports.getFollowers = async (parent, args) => {
   const user_id = parent.user_id;
 
   const query = await pool.query(
-    `SELECT COUNT(*), COALESCE(ARRAY_AGG(username), '{}') as usernames 
+    `SELECT username, follows.created_at as follow_at 
     FROM follows
       INNER JOIN users
       ON (follower_id = user_id)
@@ -48,7 +48,7 @@ exports.getFollowers = async (parent, args) => {
     [user_id]
   );
 
-  const followers = query.rows[0];
+  const followers = query.rows;
 
   return followers;
 };
@@ -72,7 +72,8 @@ exports.getPostsByUser = async (parent, args) => {
   return posts;
 };
 
-/* ========== Query Resolvers ========== */
+/* ========== Mutation Resolvers ========== */
+
 exports.follow = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new Error("Not authenticated");

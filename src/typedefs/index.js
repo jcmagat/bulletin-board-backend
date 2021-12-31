@@ -16,19 +16,14 @@ const typeDefs = gql`
   type User {
     username: String!
     created_at: DateTime!
-    following: Users!
-    followers: Users!
+    following: [Follow]
+    followers: [Follow]
     posts: [Post]
   }
 
-  type Users {
-    count: Int!
-    usernames: [String]
-  }
-
   type Follow {
-    follower_id: Int!
-    followed_id: Int!
+    username: String!
+    follow_at: DateTime!
   }
 
   type Post {
