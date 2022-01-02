@@ -17,6 +17,25 @@ exports.getUser = async (parent, args) => {
   return user;
 };
 
+exports.getAuthUser = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const user_id = req.user.user_id;
+
+  const query = await pool.query(
+    `SELECT user_id, username, created_at 
+    FROM users 
+    WHERE user_id = ($1)`,
+    [user_id]
+  );
+
+  const user = query.rows[0];
+
+  return user;
+};
+
 // Child resolver for User to get following
 exports.getFollowing = async (parent, args) => {
   const user_id = parent.user_id;

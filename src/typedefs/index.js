@@ -63,6 +63,7 @@ const typeDefs = gql`
   type Query {
     # User queries
     user(username: String!): User
+    authUser: User
 
     # Post queries
     posts: [Post]

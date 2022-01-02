@@ -1,6 +1,7 @@
 const { register, login } = require("./auth");
 const {
   getUser,
+  getAuthUser,
   getFollowing,
   getFollowers,
   getPostsByUser,
@@ -30,9 +31,15 @@ const { setCreatedSince } = require("./common");
 
 const resolvers = {
   Query: {
+    // User queries
     user: getUser,
+    authUser: getAuthUser,
+
+    // Post queries
     posts: getAllPosts,
     post: getPostById,
+
+    // Comment queries
     comments: getPostComments,
   },
 
