@@ -145,3 +145,28 @@ exports.unfollow = async (parent, args, { req, res }) => {
 
   return unfollowedUser;
 };
+
+exports.removeFollower = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const followed_id = req.user.user_id;
+  const follower_username = args.username;
+
+  const query = await pool.query(
+    `DELETE FROM follows
+    WHERE followed_id = ($1) AND follower_id IN (
+      SELECT user_id
+      FROM users 
+      WHERE username = ($2)
+    )
+    RETURNING created_at as followed_at`,
+    [followed_id, follower_username]
+  );
+
+  const unfollow = query.rows[0];
+  unfollow.username = follower_username;
+
+  return unfollow;
+};

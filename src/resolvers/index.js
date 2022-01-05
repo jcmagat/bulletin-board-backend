@@ -7,6 +7,7 @@ const {
   getPostsByUser,
   follow,
   unfollow,
+  removeFollower,
 } = require("./user");
 const {
   getAllPosts,
@@ -51,6 +52,7 @@ const resolvers = {
     // User mutations
     follow: follow,
     unfollow: unfollow,
+    removeFollower: removeFollower,
 
     // Post mutations
     addPost: addPost,
