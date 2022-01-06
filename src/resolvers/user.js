@@ -155,18 +155,20 @@ exports.removeFollower = async (parent, args, { req, res }) => {
   const follower_username = args.username;
 
   const query = await pool.query(
-    `DELETE FROM follows
+    `WITH x AS (
+    DELETE FROM follows
     WHERE followed_id = ($1) AND follower_id IN (
       SELECT user_id
       FROM users 
       WHERE username = ($2)
-    )
-    RETURNING created_at as followed_at`,
+    ))
+    SELECT user_id, username, created_at 
+    FROM users 
+    WHERE username = ($2)`,
     [followed_id, follower_username]
   );
 
-  const unfollow = query.rows[0];
-  unfollow.username = follower_username;
+  const removedFollower = query.rows[0];
 
-  return unfollow;
+  return removedFollower;
 };

@@ -82,7 +82,7 @@ const typeDefs = gql`
     # User mutations
     follow(username: String!): User
     unfollow(username: String!): User
-    removeFollower(username: String!): Follow
+    removeFollower(username: String!): User
 
     # Post mutations
     addPost(title: String!, description: String!): Post
