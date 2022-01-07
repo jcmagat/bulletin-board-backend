@@ -18,6 +18,8 @@ const {
   deletePost,
   addPostReaction,
   deletePostReaction,
+  savePost,
+  unsavePost,
 } = require("./post");
 const {
   getPostComments,
@@ -59,6 +61,8 @@ const resolvers = {
     deletePost: deletePost,
     addPostReaction: addPostReaction,
     deletePostReaction: deletePostReaction,
+    savePost: savePost,
+    unsavePost: unsavePost,
 
     // Comment mutations
     addComment: addComment,

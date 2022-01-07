@@ -179,3 +179,55 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
 
   return post;
 };
+
+exports.savePost = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const user_id = req.user.user_id;
+  const post_id = args.post_id;
+
+  const query = await pool.query(
+    `WITH x AS (
+      INSERT INTO saved_posts (user_id, post_id) 
+      VALUES ($1, $2) 
+    )
+    SELECT post_id, title, description, username, age(now(), posts.created_at) 
+    FROM posts 
+      INNER JOIN users 
+      ON (posts.user_id = users.user_id)
+    WHERE post_id = ($2)`,
+    [user_id, post_id]
+  );
+
+  const savedPost = query.rows[0];
+
+  return savedPost;
+};
+
+exports.unsavePost = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const user_id = req.user.user_id;
+  const post_id = args.post_id;
+
+  const query = await pool.query(
+    `WITH x AS (
+      DELETE FROM saved_posts 
+      WHERE user_id = ($1) AND post_id = ($2) 
+    )
+    SELECT post_id, title, description, username, age(now(), posts.created_at) 
+    FROM posts 
+      INNER JOIN users 
+      ON (posts.user_id = users.user_id)
+    WHERE post_id = ($2)`,
+    [user_id, post_id]
+  );
+
+  const unsavedPost = query.rows[0];
+
+  return unsavedPost;
+};

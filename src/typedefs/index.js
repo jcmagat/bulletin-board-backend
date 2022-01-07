@@ -89,6 +89,8 @@ const typeDefs = gql`
     deletePost(post_id: Int!): Post
     addPostReaction(post_id: Int!, reaction: String!): Post
     deletePostReaction(post_id: Int!): Post
+    savePost(post_id: Int!): Post
+    unsavePost(post_id: Int!): Post
 
     # Comment mutations
     addComment(parent_comment_id: Int, post_id: Int!, message: String!): Comment
