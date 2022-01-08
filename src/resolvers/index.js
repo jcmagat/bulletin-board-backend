@@ -5,6 +5,7 @@ const {
   getFollowing,
   getFollowers,
   getPostsByUser,
+  getSavedPosts,
   follow,
   unfollow,
   removeFollower,
@@ -75,6 +76,7 @@ const resolvers = {
     following: getFollowing,
     followers: getFollowers,
     posts: getPostsByUser,
+    saved_posts: getSavedPosts,
   },
 
   Post: {

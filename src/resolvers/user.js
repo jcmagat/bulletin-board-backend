@@ -91,6 +91,33 @@ exports.getPostsByUser = async (parent, args) => {
   return posts;
 };
 
+// Child resolver for User to get authenticated user's saved posts
+exports.getSavedPosts = async (parent, args, { req, res }) => {
+  if (!req.isAuth || parent.user_id !== req.user.user_id) {
+    throw new Error("Not authenticated");
+  }
+
+  const user_id = req.user.user_id;
+
+  const query = await pool.query(
+    `SELECT post_id, title, description, posts.user_id, username, 
+      age(now(), posts.created_at) 
+    FROM posts 
+      INNER JOIN users 
+      ON (posts.user_id = users.user_id) 
+    WHERE post_id IN (
+      SELECT post_id 
+      FROM saved_posts 
+      WHERE user_id = ($1)
+    )`,
+    [user_id]
+  );
+
+  const savedPosts = query.rows;
+
+  return savedPosts;
+};
+
 /* ========== Mutation Resolvers ========== */
 
 exports.follow = async (parent, args, { req, res }) => {
