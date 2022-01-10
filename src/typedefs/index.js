@@ -27,6 +27,15 @@ const typeDefs = gql`
     followed_at: DateTime!
   }
 
+  type Community {
+    community_id: Int!
+    name: String!
+    title: String!
+    description: String!
+    created_at: DateTime!
+    posts: [Post]
+  }
+
   type Post {
     post_id: Int!
     title: String!
@@ -65,6 +74,9 @@ const typeDefs = gql`
     # User queries
     user(username: String!): User
     authUser: User
+
+    # Community queries
+    community(community_id: Int!): Community
 
     # Post queries
     posts: [Post]

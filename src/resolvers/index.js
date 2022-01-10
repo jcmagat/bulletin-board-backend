@@ -10,6 +10,7 @@ const {
   unfollow,
   removeFollower,
 } = require("./user");
+const { getCommunity, getCommunityPosts } = require("./community");
 const {
   getAllPosts,
   getPostById,
@@ -38,6 +39,9 @@ const resolvers = {
     // User queries
     user: getUser,
     authUser: getAuthUser,
+
+    // Community queries
+    community: getCommunity,
 
     // Post queries
     posts: getAllPosts,
@@ -77,6 +81,10 @@ const resolvers = {
     followers: getFollowers,
     posts: getPostsByUser,
     saved_posts: getSavedPosts,
+  },
+
+  Community: {
+    posts: getCommunityPosts,
   },
 
   Post: {
