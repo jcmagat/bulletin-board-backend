@@ -4,7 +4,7 @@ const {
   getAuthUser,
   getFollowing,
   getFollowers,
-  getPostsByUser,
+  getUserPosts,
   getSavedPosts,
   follow,
   unfollow,
@@ -14,6 +14,7 @@ const { getCommunity, getCommunityPosts } = require("./community");
 const {
   getAllPosts,
   getPostById,
+  getPostCommunity,
   getPostCommentsInfo,
   getPostReactions,
   addPost,
@@ -79,7 +80,7 @@ const resolvers = {
   User: {
     following: getFollowing,
     followers: getFollowers,
-    posts: getPostsByUser,
+    posts: getUserPosts,
     saved_posts: getSavedPosts,
   },
 
@@ -89,6 +90,7 @@ const resolvers = {
 
   Post: {
     created_since: setCreatedSince,
+    community: getPostCommunity,
     reactions: getPostReactions,
     comments_info: getPostCommentsInfo,
   },

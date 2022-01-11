@@ -73,12 +73,12 @@ exports.getFollowers = async (parent, args) => {
 };
 
 // Child resolver for User to get user's posts
-exports.getPostsByUser = async (parent, args) => {
+exports.getUserPosts = async (parent, args) => {
   const user_id = parent.user_id;
 
   const query = await pool.query(
     `SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) 
+      community_id, age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id)
@@ -101,7 +101,7 @@ exports.getSavedPosts = async (parent, args, { req, res }) => {
 
   const query = await pool.query(
     `SELECT post_id, title, description, posts.user_id, username, 
-      age(now(), posts.created_at) 
+      community_id, age(now(), posts.created_at) 
     FROM posts 
       INNER JOIN users 
       ON (posts.user_id = users.user_id) 

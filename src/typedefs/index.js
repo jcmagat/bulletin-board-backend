@@ -40,8 +40,9 @@ const typeDefs = gql`
     post_id: Int!
     title: String!
     description: String!
-    username: String
     created_since: String
+    username: String
+    community: Community
     reactions: Reactions
     comments_info: CommentsInfo
   }
@@ -98,7 +99,7 @@ const typeDefs = gql`
     removeFollower(username: String!): User
 
     # Post mutations
-    addPost(title: String!, description: String!): Post
+    addPost(title: String!, description: String!, community_id: Int!): Post
     deletePost(post_id: Int!): Post
     addPostReaction(post_id: Int!, reaction: String!): Post
     deletePostReaction(post_id: Int!): Post
