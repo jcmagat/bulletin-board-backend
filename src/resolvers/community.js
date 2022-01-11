@@ -2,6 +2,17 @@ const pool = require("../db");
 
 /* ========== Query Resolvers ========== */
 
+exports.getAllCommunities = async (parent, args) => {
+  const query = await pool.query(
+    `SELECT community_id, name, title, description, created_at 
+    FROM communities`
+  );
+
+  const communities = query.rows;
+
+  return communities;
+};
+
 exports.getCommunity = async (parent, args) => {
   const community_id = args.community_id;
 

@@ -77,6 +77,7 @@ const typeDefs = gql`
     authUser: User
 
     # Community queries
+    communities: [Community]
     community(community_id: Int!): Community
 
     # Post queries
