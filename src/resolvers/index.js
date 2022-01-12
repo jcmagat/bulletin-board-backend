@@ -14,6 +14,8 @@ const {
   getAllCommunities,
   getCommunity,
   getCommunityPosts,
+  join,
+  leave,
 } = require("./community");
 const {
   getAllPosts,
@@ -66,6 +68,10 @@ const resolvers = {
     follow: follow,
     unfollow: unfollow,
     removeFollower: removeFollower,
+
+    // Community mutations
+    join: join,
+    leave: leave,
 
     // Post mutations
     addPost: addPost,

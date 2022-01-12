@@ -99,6 +99,10 @@ const typeDefs = gql`
     unfollow(username: String!): User
     removeFollower(username: String!): User
 
+    # Community mutations
+    join(community_id: Int!): Community
+    leave(community_id: Int!): Community
+
     # Post mutations
     addPost(title: String!, description: String!, community_id: Int!): Post
     deletePost(post_id: Int!): Post

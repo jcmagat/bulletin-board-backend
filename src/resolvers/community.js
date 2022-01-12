@@ -48,3 +48,51 @@ exports.getCommunityPosts = async (parent, args) => {
 };
 
 /* ========== Mutation Resolvers ========== */
+
+exports.join = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const community_id = args.community_id;
+  const user_id = req.user.user_id;
+
+  const query = await pool.query(
+    `WITH x AS (
+      INSERT INTO members (community_id, user_id) 
+      VALUES ($1, $2)
+    )
+    SELECT community_id, name, title, description, created_at 
+    FROM communities 
+    WHERE community_id = ($1)`,
+    [community_id, user_id]
+  );
+
+  const community = query.rows[0];
+
+  return community;
+};
+
+exports.leave = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated");
+  }
+
+  const community_id = args.community_id;
+  const user_id = req.user.user_id;
+
+  const query = await pool.query(
+    `WITH x AS (
+      DELETE FROM members 
+      WHERE community_id = ($1) AND user_id = ($2)
+    )
+    SELECT community_id, name, title, description, created_at 
+    FROM communities 
+    WHERE community_id = ($1)`,
+    [community_id, user_id]
+  );
+
+  const community = query.rows[0];
+
+  return community;
+};
