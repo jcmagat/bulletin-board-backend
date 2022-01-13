@@ -78,7 +78,7 @@ const typeDefs = gql`
 
     # Community queries
     communities: [Community]
-    community(community_id: Int!): Community
+    community(name: String!): Community
 
     # Post queries
     posts: [Post]

@@ -14,13 +14,13 @@ exports.getAllCommunities = async (parent, args) => {
 };
 
 exports.getCommunity = async (parent, args) => {
-  const community_id = args.community_id;
+  const name = args.name;
 
   const query = await pool.query(
     `SELECT community_id, name, title, description, created_at 
     FROM communities 
-    WHERE community_id = ($1)`,
-    [community_id]
+    WHERE name = ($1)`,
+    [name]
   );
 
   const community = query.rows[0];
