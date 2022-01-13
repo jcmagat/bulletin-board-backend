@@ -33,6 +33,7 @@ const typeDefs = gql`
     title: String!
     description: String!
     created_at: DateTime!
+    members: [User]
     posts: [Post]
   }
 

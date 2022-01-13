@@ -47,6 +47,26 @@ exports.getCommunityPosts = async (parent, args) => {
   return posts;
 };
 
+// Child resolver for Community to get community's members
+exports.getCommunityMembers = async (parent, args) => {
+  const community_id = parent.community_id;
+
+  const query = await pool.query(
+    `SELECT user_id, username, created_at 
+    FROM users 
+    WHERE user_id IN (
+      SELECT user_id 
+      FROM members 
+      WHERE community_id = ($1)
+    )`,
+    [community_id]
+  );
+
+  const members = query.rows;
+
+  return members;
+};
+
 /* ========== Mutation Resolvers ========== */
 
 exports.join = async (parent, args, { req, res }) => {

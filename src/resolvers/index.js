@@ -13,6 +13,7 @@ const {
 const {
   getAllCommunities,
   getCommunity,
+  getCommunityMembers,
   getCommunityPosts,
   join,
   leave,
@@ -96,6 +97,7 @@ const resolvers = {
   },
 
   Community: {
+    members: getCommunityMembers,
     posts: getCommunityPosts,
   },
 
