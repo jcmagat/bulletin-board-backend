@@ -24,8 +24,8 @@ exports.getCommunity = async (parent, args) => {
 
     const query = await pool.query(
       `SELECT community_id, name, title, description, created_at 
-    FROM communities 
-    WHERE name = ($1)`,
+      FROM communities 
+      WHERE name = ($1)`,
       [name]
     );
 
@@ -44,11 +44,11 @@ exports.getCommunityPosts = async (parent, args) => {
 
     const query = await pool.query(
       `SELECT post_id, title, description, posts.user_id, username, 
-      community_id, age(now(), posts.created_at) 
-    FROM posts 
-      INNER JOIN users 
-      ON (posts.user_id = users.user_id)
-    WHERE community_id = ($1)`,
+        community_id, age(now(), posts.created_at) 
+      FROM posts 
+        INNER JOIN users 
+        ON (posts.user_id = users.user_id)
+      WHERE community_id = ($1)`,
       [community_id]
     );
 
@@ -67,12 +67,12 @@ exports.getCommunityMembers = async (parent, args) => {
 
     const query = await pool.query(
       `SELECT user_id, username, created_at 
-    FROM users 
-    WHERE user_id IN (
-      SELECT user_id 
-      FROM members 
-      WHERE community_id = ($1)
-    )`,
+      FROM users 
+      WHERE user_id IN (
+        SELECT user_id 
+        FROM members 
+        WHERE community_id = ($1)
+      )`,
       [community_id]
     );
 
@@ -97,14 +97,14 @@ exports.join = async (parent, args, { req, res }) => {
 
     const query = await pool.query(
       `WITH x AS (
-      INSERT INTO members (community_id, user_id) 
-      VALUES ($1, $2) 
-      ON CONFLICT ON CONSTRAINT members_pkey 
-      DO NOTHING
-    )
-    SELECT community_id, name, title, description, created_at 
-    FROM communities 
-    WHERE community_id = ($1)`,
+        INSERT INTO members (community_id, user_id) 
+        VALUES ($1, $2) 
+        ON CONFLICT ON CONSTRAINT members_pkey 
+        DO NOTHING
+      )
+      SELECT community_id, name, title, description, created_at 
+      FROM communities 
+      WHERE community_id = ($1)`,
       [community_id, user_id]
     );
 
@@ -127,12 +127,12 @@ exports.leave = async (parent, args, { req, res }) => {
 
     const query = await pool.query(
       `WITH x AS (
-      DELETE FROM members 
-      WHERE community_id = ($1) AND user_id = ($2)
-    )
-    SELECT community_id, name, title, description, created_at 
-    FROM communities 
-    WHERE community_id = ($1)`,
+        DELETE FROM members 
+        WHERE community_id = ($1) AND user_id = ($2)
+      )
+      SELECT community_id, name, title, description, created_at 
+      FROM communities 
+      WHERE community_id = ($1)`,
       [community_id, user_id]
     );
 
