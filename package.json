@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "16.11.1",
+    "npm": "8.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=test nodemon src/index.js"
+    "startDev": "NODE_ENV=test nodemon src/index.js",
+    "start": "node src/index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Juan Carlo Magat",
+  "license": "",
   "dependencies": {
     "apollo-server-express": "^3.4.0",
     "bcrypt": "^5.0.1",

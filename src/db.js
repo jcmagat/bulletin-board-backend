@@ -1,11 +1,22 @@
 const pg = require("pg");
+const dotenv = require("dotenv");
 
-const pool = new pg.Pool({
-  user: "postgres",
-  password: "password",
-  database: "bulletin_board_db",
-  host: "localhost",
-  port: 5432,
-});
+dotenv.config({ path: "src/.env" });
+
+const devConfig = {
+  user: process.env.PG_USER,
+  password: process.env.PG_PASSWORD,
+  host: process.env.PG_HOST,
+  port: process.env.PG_PORT,
+  database: process.env.PG_DATABASE,
+};
+
+const prodConfig = {
+  connectionString: process.env.DATABASE_URL,
+};
+
+const pool = new pg.Pool(
+  process.env.NODE_ENV === "production" ? prodConfig : devConfig
+);
 
 module.exports = pool;
