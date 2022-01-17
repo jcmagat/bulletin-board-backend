@@ -23,7 +23,7 @@ exports.getAllPosts = async (parent, args, { req, res }) => {
 
     return posts;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
