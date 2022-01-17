@@ -1,4 +1,4 @@
-const pool = require("../db");
+const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
 
 /* ========== Query Resolvers ========== */

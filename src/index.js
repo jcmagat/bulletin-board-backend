@@ -8,6 +8,8 @@ const typeDefs = require("./typedefs");
 const resolvers = require("./resolvers");
 const { authenticateToken } = require("./middlewares/auth");
 
+dotenv.config();
+
 const app = express();
 app.use(express.json());
 
@@ -18,8 +20,6 @@ var corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(cookieParser());
-
-dotenv.config({ path: "src/.env" });
 
 async function startServer() {
   // Apply auth middleware

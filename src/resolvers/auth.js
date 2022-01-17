@@ -1,4 +1,4 @@
-const pool = require("../db");
+const pool = require("../database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { ApolloError, UserInputError } = require("apollo-server-errors");

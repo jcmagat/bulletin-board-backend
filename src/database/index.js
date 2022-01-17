@@ -1,7 +1,7 @@
 const pg = require("pg");
 const dotenv = require("dotenv");
 
-dotenv.config({ path: "src/.env" });
+dotenv.config();
 
 const devConfig = {
   user: process.env.PG_USER,

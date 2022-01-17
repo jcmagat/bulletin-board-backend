@@ -1,4 +1,4 @@
-const pool = require("../db");
+const pool = require("../database");
 const { formatReactions } = require("../helpers/common");
 const {
   ApolloError,
