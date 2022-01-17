@@ -120,6 +120,18 @@ CREATE TABLE public."comments" (
 );
 
 
+-- public.reaction definition
+
+-- Drop type
+
+-- DROP TYPE public.reaction;
+
+CREATE TYPE public.reaction AS ENUM (
+	'like',
+	'dislike'
+);
+
+
 -- public.post_reactions definition
 
 -- Drop table
