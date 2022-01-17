@@ -26,7 +26,7 @@ exports.register = async (parent, args) => {
     } else if (error.constraint === "users_username_key") {
       throw new UserInputError("Username is already taken");
     } else {
-      throw new ApolloError("Internal server error");
+      throw new ApolloError(error);
     }
   }
 };
@@ -74,6 +74,6 @@ exports.login = async (parent, args, { req, res }) => {
 
     return authData;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };

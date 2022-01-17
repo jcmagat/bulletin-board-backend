@@ -14,7 +14,7 @@ exports.getAllCommunities = async (parent, args) => {
 
     return communities;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -33,7 +33,7 @@ exports.getCommunity = async (parent, args) => {
 
     return community;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -56,7 +56,7 @@ exports.getCommunityPosts = async (parent, args) => {
 
     return posts;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -80,7 +80,7 @@ exports.getCommunityMembers = async (parent, args) => {
 
     return members;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -112,7 +112,7 @@ exports.join = async (parent, args, { req, res }) => {
 
     return community;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -140,6 +140,6 @@ exports.leave = async (parent, args, { req, res }) => {
 
     return community;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };

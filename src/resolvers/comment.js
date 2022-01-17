@@ -26,7 +26,7 @@ exports.getPostComments = async (parent, args) => {
 
     return comments;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -49,7 +49,7 @@ exports.getChildComments = async (parent, args) => {
 
     return comments;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -83,7 +83,7 @@ exports.getCommentReactions = async (parent, args, { req, res }) => {
 
     return commentReactions;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -113,7 +113,7 @@ exports.addComment = async (parent, args, { req, res }) => {
 
     return newComment;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -143,7 +143,7 @@ exports.deleteComment = async (parent, args, { req, res }) => {
 
     return deletedComment;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -177,7 +177,7 @@ exports.addCommentReaction = async (parent, args, { req, res }) => {
 
     return comment;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -208,6 +208,6 @@ exports.deleteCommentReaction = async (parent, args, { req, res }) => {
 
     return comment;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };

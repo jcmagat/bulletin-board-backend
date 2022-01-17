@@ -22,7 +22,7 @@ exports.getUser = async (parent, args) => {
 
     return user;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -45,7 +45,7 @@ exports.getAuthUser = async (parent, args, { req, res }) => {
 
     return user;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -67,7 +67,7 @@ exports.getFollowing = async (parent, args) => {
 
     return following;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -89,7 +89,7 @@ exports.getFollowers = async (parent, args) => {
 
     return followers;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -112,7 +112,7 @@ exports.getUserPosts = async (parent, args) => {
 
     return posts;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -147,7 +147,7 @@ exports.getSavedPosts = async (parent, args, { req, res }) => {
 
     return savedPosts;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -181,7 +181,7 @@ exports.follow = async (parent, args, { req, res }) => {
 
     return followedUser;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -212,7 +212,7 @@ exports.unfollow = async (parent, args, { req, res }) => {
 
     return unfollowedUser;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -243,6 +243,6 @@ exports.removeFollower = async (parent, args, { req, res }) => {
 
     return removedFollower;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };

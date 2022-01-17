@@ -23,7 +23,7 @@ exports.getAllPosts = async (parent, args, { req, res }) => {
 
     return posts;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -45,7 +45,7 @@ exports.getPostById = async (parent, args) => {
 
     return post;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -65,7 +65,7 @@ exports.getPostCommunity = async (parent, args) => {
 
     return community;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -85,7 +85,7 @@ exports.getPostCommentsInfo = async (parent, args) => {
 
     return commentsInfo;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -119,7 +119,7 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
 
     return postReactions;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -148,7 +148,7 @@ exports.addPost = async (parent, args, { req, res }) => {
 
     return newPost;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -177,7 +177,7 @@ exports.deletePost = async (parent, args, { req, res }) => {
 
     return deletedPost;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -211,7 +211,7 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
 
     return post;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -242,7 +242,7 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
 
     return post;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -273,7 +273,7 @@ exports.savePost = async (parent, args, { req, res }) => {
 
     return savedPost;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
 
@@ -304,6 +304,6 @@ exports.unsavePost = async (parent, args, { req, res }) => {
 
     return unsavedPost;
   } catch (error) {
-    throw new ApolloError("Internal server error");
+    throw new ApolloError(error);
   }
 };
