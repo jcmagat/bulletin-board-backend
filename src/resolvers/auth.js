@@ -1,9 +1,17 @@
 const pool = require("../database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { ApolloError, UserInputError } = require("apollo-server-errors");
+const {
+  ApolloError,
+  ForbiddenError,
+  UserInputError,
+} = require("apollo-server-errors");
 
-exports.register = async (parent, args) => {
+exports.register = async (parent, args, { req, res }) => {
+  if (req.isAuth) {
+    throw new ForbiddenError("User is already registered and logged in");
+  }
+
   try {
     const email = args.email;
     const username = args.username;
@@ -32,6 +40,10 @@ exports.register = async (parent, args) => {
 };
 
 exports.login = async (parent, args, { req, res }) => {
+  if (req.isAuth) {
+    throw new ForbiddenError("User is already logged in");
+  }
+
   try {
     const username = args.username;
     const password = args.password;
