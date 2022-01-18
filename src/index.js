@@ -14,7 +14,11 @@ const app = express();
 app.use(express.json());
 
 var corsOptions = {
-  origin: "*",
+  origin: [
+    "http://localhost:3000/",
+    "https://kind-brattain-40fab6.netlify.app/",
+    "https://cirqls.app/",
+  ],
   credentials: true,
 };
 app.use(cors(corsOptions));
