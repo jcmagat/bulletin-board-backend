@@ -13,14 +13,18 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-var corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "https://kind-brattain-40fab6.netlify.app",
-    "https://cirqls.app",
-  ],
+const devCorsOptions = {
+  origin: "*",
   credentials: true,
 };
+
+const prodCorsOptions = {
+  origin: ["https://kind-brattain-40fab6.netlify.app", "https://cirqls.app"],
+  credentials: true,
+};
+
+const corsOptions =
+  process.env.NODE_ENV === "production" ? prodCorsOptions : devCorsOptions;
 app.use(cors(corsOptions));
 
 app.use(cookieParser());

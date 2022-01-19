@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "startDev": "NODE_ENV=test nodemon src/index.js",
+    "startDev": "nodemon src/index.js",
     "start": "node src/index.js"
   },
   "author": "Juan Carlo Magat",
