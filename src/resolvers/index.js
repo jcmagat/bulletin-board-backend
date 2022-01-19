@@ -1,3 +1,4 @@
+const { setCreatedSince } = require("./common");
 const { register, login } = require("./auth");
 const {
   getUser,
@@ -40,7 +41,12 @@ const {
   addCommentReaction,
   deleteCommentReaction,
 } = require("./comment");
-const { setCreatedSince } = require("./common");
+const {
+  getMessages,
+  sendMessage,
+  getSender,
+  getRecipient,
+} = require("./message");
 
 const resolvers = {
   Query: {
@@ -58,6 +64,9 @@ const resolvers = {
 
     // Comment queries
     comments: getPostComments,
+
+    // Message queries
+    messages: getMessages,
   },
 
   Mutation: {
@@ -87,6 +96,9 @@ const resolvers = {
     deleteComment: deleteComment,
     addCommentReaction: addCommentReaction,
     deleteCommentReaction: deleteCommentReaction,
+
+    // Message mutations
+    sendMessage: sendMessage,
   },
 
   User: {
@@ -112,6 +124,11 @@ const resolvers = {
     created_since: setCreatedSince,
     reactions: getCommentReactions,
     child_comments: getChildComments,
+  },
+
+  Message: {
+    sender: getSender,
+    recipient: getRecipient,
   },
 };
 

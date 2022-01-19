@@ -71,6 +71,14 @@ const typeDefs = gql`
     child_comments: [Comment]
   }
 
+  type Message {
+    message_id: Int!
+    sender: User!
+    recipient: User!
+    message: String!
+    sent_at: DateTime!
+  }
+
   # Queries
   type Query {
     # User queries
@@ -87,6 +95,9 @@ const typeDefs = gql`
 
     # Comment queries
     comments(post_id: Int!): [Comment]
+
+    # Message queries
+    messages(user_id: Int!): [Message]
   }
 
   # Mutations
@@ -117,6 +128,9 @@ const typeDefs = gql`
     deleteComment(comment_id: Int!): Comment
     addCommentReaction(comment_id: Int!, reaction: String!): Comment
     deleteCommentReaction(comment_id: Int!): Comment
+
+    # Message mutations
+    sendMessage(recipient_id: Int!, message: String!): Message
   }
 `;
 
