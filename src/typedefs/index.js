@@ -97,7 +97,7 @@ const typeDefs = gql`
     comments(post_id: Int!): [Comment]
 
     # Message queries
-    messages(user_id: Int!): [Message]
+    messages(username: String!): [Message]
   }
 
   # Mutations

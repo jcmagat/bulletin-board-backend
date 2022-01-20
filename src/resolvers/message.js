@@ -10,15 +10,23 @@ exports.getMessages = async (parent, args, { req, res }) => {
 
   try {
     const auth_user_id = req.user.user_id;
-    const user_id = args.user_id;
+    const username = args.username;
 
     const query = await pool.query(
       `SELECT message_id, sender_id, recipient_id, message, sent_at 
       FROM messages 
-      WHERE (sender_id = ($1) AND recipient_id = ($2)) OR 
-        (sender_id = ($2) AND recipient_id = ($1)) 
+      WHERE (sender_id = ($1) AND recipient_id IN (
+        SELECT user_id 
+        FROM users 
+        WHERE username = ($2)
+      )) OR 
+      (sender_id IN (
+        SELECT user_id 
+        FROM users 
+        WHERE username = ($2)
+      ) AND recipient_id = ($1)) 
       ORDER BY sent_at DESC`,
-      [auth_user_id, user_id]
+      [auth_user_id, username]
     );
 
     const messages = query.rows;
