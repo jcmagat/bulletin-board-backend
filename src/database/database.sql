@@ -162,3 +162,21 @@ CREATE TABLE public.comment_reactions (
 	CONSTRAINT comment_reactions_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public."comments"(comment_id) ON DELETE CASCADE,
 	CONSTRAINT comment_reactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE
 );
+
+
+-- public.messages definition
+
+-- Drop table
+
+-- DROP TABLE public.messages;
+
+CREATE TABLE public.messages (
+	message_id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
+	sender_id int4 NOT NULL,
+	recipient_id int4 NOT NULL,
+	message varchar(255) NULL,
+	sent_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT messages_pkey PRIMARY KEY (message_id),
+	CONSTRAINT messages_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES public.users(user_id) ON DELETE CASCADE,
+	CONSTRAINT messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(user_id) ON DELETE CASCADE
+);
