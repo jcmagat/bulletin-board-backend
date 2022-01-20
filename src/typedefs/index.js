@@ -130,7 +130,7 @@ const typeDefs = gql`
     deleteCommentReaction(comment_id: Int!): Comment
 
     # Message mutations
-    sendMessage(recipient_id: Int!, message: String!): Message
+    sendMessage(recipient: String!, message: String!): Message
   }
 `;
 

@@ -86,14 +86,16 @@ exports.sendMessage = async (parent, args, { req, res }) => {
 
   try {
     const sender_id = req.user.user_id;
-    const recipient_id = args.recipient_id;
     const message = args.message;
+    const recipient = args.recipient;
 
     const query = await pool.query(
-      `INSERT INTO messages (sender_id, recipient_id, message) 
-      VALUES ($1, $2, $3) 
+      `INSERT INTO messages (sender_id, message, recipient_id) 
+        SELECT ($1), ($2), user_id 
+        FROM users 
+        WHERE username = ($3) 
       RETURNING message_id, sender_id, recipient_id, message, sent_at`,
-      [sender_id, recipient_id, message]
+      [sender_id, message, recipient]
     );
 
     const newMessage = query.rows[0];
