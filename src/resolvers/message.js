@@ -1,5 +1,10 @@
 const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
+const { PubSub } = require("graphql-subscriptions");
+
+const pubsub = new PubSub();
+
+const NEW_MESSAGE = "NEW_MESSAGE";
 
 /* ========== Query Resolvers ========== */
 
@@ -100,8 +105,16 @@ exports.sendMessage = async (parent, args, { req, res }) => {
 
     const newMessage = query.rows[0];
 
+    pubsub.publish(NEW_MESSAGE, { newMessage: newMessage });
+
     return newMessage;
   } catch (error) {
     throw new ApolloError(error);
   }
+};
+
+/* ========== Subscription Resolvers ========== */
+
+exports.newMessage = (parent, args, context) => {
+  return pubsub.asyncIterator([NEW_MESSAGE]);
 };

@@ -46,10 +46,9 @@ const {
   sendMessage,
   getSender,
   getRecipient,
+  newMessage,
 } = require("./message");
-const { PubSub } = require("graphql-subscriptions");
-
-const pubsub = new PubSub();
+const { withFilter } = require("graphql-subscriptions");
 
 const resolvers = {
   Query: {
@@ -101,15 +100,17 @@ const resolvers = {
     deleteCommentReaction: deleteCommentReaction,
 
     // Message mutations
-    sendMessage(parent, args, { req, res }) {
-      pubsub.publish("NEW_MESSAGE", { newMessage: { hello: "hello" } });
-      return sendMessage(parent, args, { req, res });
-    },
+    sendMessage: sendMessage,
   },
 
   Subscription: {
     newMessage: {
-      subscribe: () => pubsub.asyncIterator(["NEW_MESSAGE"]),
+      subscribe: withFilter(newMessage, (payload, variables, context) => {
+        console.log(payload.newMessage.recipient_id);
+        // TODO: check if ^ === auth user's user_id from context
+
+        return true;
+      }),
     },
   },
 

@@ -49,7 +49,23 @@ async function startServer() {
 
   // Create Subscription server
   const subscriptionServer = SubscriptionServer.create(
-    { schema, execute, subscribe },
+    {
+      schema,
+      execute,
+      subscribe,
+      onConnect: (connectionParams) => {
+        if (connectionParams.authorization) {
+          // Authorization: Bearer token
+          const token = connectionParams.authorization.split(" ")[1];
+
+          // TODO: authenticate token
+        } else {
+          return { isAuth: false };
+        }
+
+        // Returned can be accessed as context in the subscription resolver
+      },
+    },
     { server: httpServer, path: "/subscriptions" }
   );
 

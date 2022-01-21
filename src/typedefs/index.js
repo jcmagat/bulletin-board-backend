@@ -133,12 +133,8 @@ const typeDefs = gql`
     sendMessage(recipient: String!, message: String!): Message
   }
 
-  type Hello {
-    hello: String!
-  }
-
   type Subscription {
-    newMessage(sender: String!): Hello
+    newMessage: Message
   }
 
   schema {
