@@ -132,6 +132,20 @@ const typeDefs = gql`
     # Message mutations
     sendMessage(recipient: String!, message: String!): Message
   }
+
+  type Hello {
+    hello: String!
+  }
+
+  type Subscription {
+    newMessage(sender: String!): Hello
+  }
+
+  schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+  }
 `;
 
 module.exports = typeDefs;

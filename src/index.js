@@ -2,6 +2,10 @@ const express = require("express");
 const cors = require("cors");
 var cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+const { createServer } = require("http");
+const { makeExecutableSchema } = require("@graphql-tools/schema");
+const { execute, subscribe } = require("graphql");
+const { SubscriptionServer } = require("subscriptions-transport-ws");
 const { ApolloServer } = require("apollo-server-express");
 const { typeDefs: scalarTypeDefs } = require("graphql-scalars");
 const typeDefs = require("./typedefs");
@@ -13,6 +17,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+// Set up CORS
 const devCorsOptions = {
   origin: "*",
   credentials: true,
@@ -27,24 +32,49 @@ const corsOptions =
   process.env.NODE_ENV === "production" ? prodCorsOptions : devCorsOptions;
 app.use(cors(corsOptions));
 
+// Use cookie-parser
 app.use(cookieParser());
 
-async function startServer() {
-  // Apply auth middleware
-  app.use(authenticateToken);
+// Use auth middleware
+app.use(authenticateToken);
 
-  // Start Apollo server
-  const server = new ApolloServer({
+// Create and start GraphQL server
+async function startServer() {
+  const httpServer = createServer(app);
+
+  const schema = makeExecutableSchema({
     typeDefs: [...scalarTypeDefs, typeDefs],
-    resolvers,
+    resolvers: resolvers,
+  });
+
+  // Create Subscription server
+  const subscriptionServer = SubscriptionServer.create(
+    { schema, execute, subscribe },
+    { server: httpServer, path: "/subscriptions" }
+  );
+
+  // Create Query and Mutation server
+  const server = new ApolloServer({
+    schema,
     context: ({ req, res }) => ({ req, res }),
+    plugins: [
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
+    ],
   });
 
   await server.start();
   server.applyMiddleware({ app });
 
   const port = process.env.PORT || 8080;
-  app.listen(port, () => console.log(`Listening on port ${port}...`));
+  httpServer.listen(port, () => console.log(`Listening on port ${port}...`));
 }
 
 startServer();

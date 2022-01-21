@@ -47,6 +47,9 @@ const {
   getSender,
   getRecipient,
 } = require("./message");
+const { PubSub } = require("graphql-subscriptions");
+
+const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -98,7 +101,16 @@ const resolvers = {
     deleteCommentReaction: deleteCommentReaction,
 
     // Message mutations
-    sendMessage: sendMessage,
+    sendMessage(parent, args, { req, res }) {
+      pubsub.publish("NEW_MESSAGE", { newMessage: { hello: "hello" } });
+      return sendMessage(parent, args, { req, res });
+    },
+  },
+
+  Subscription: {
+    newMessage: {
+      subscribe: () => pubsub.asyncIterator(["NEW_MESSAGE"]),
+    },
   },
 
   User: {
