@@ -11,6 +11,7 @@ const { typeDefs: scalarTypeDefs } = require("graphql-scalars");
 const typeDefs = require("./typedefs");
 const resolvers = require("./resolvers");
 const { authenticateToken } = require("./middlewares/auth");
+const { authenticateToken: authenticateTokenNew } = require("./services/auth");
 
 dotenv.config();
 
@@ -54,16 +55,8 @@ async function startServer() {
       execute,
       subscribe,
       onConnect: (connectionParams) => {
-        if (connectionParams.authorization) {
-          // Authorization: Bearer token
-          const token = connectionParams.authorization.split(" ")[1];
-
-          // TODO: authenticate token
-        } else {
-          return { isAuth: false };
-        }
-
-        // Returned can be accessed as context in the subscription resolver
+        // Can be accessed as context in the subscription resolver
+        return authenticateTokenNew(connectionParams.headers);
       },
     },
     { server: httpServer, path: "/subscriptions" }

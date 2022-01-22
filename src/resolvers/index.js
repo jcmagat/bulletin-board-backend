@@ -106,8 +106,13 @@ const resolvers = {
   Subscription: {
     newMessage: {
       subscribe: withFilter(newMessage, (payload, variables, context) => {
-        console.log(payload.newMessage.recipient_id);
-        // TODO: check if ^ === auth user's user_id from context
+        if (!context.isAuthenticated) {
+          return false;
+        }
+
+        if (context.authUser.user_id !== payload.newMessage.recipient_id) {
+          return false;
+        }
 
         return true;
       }),
