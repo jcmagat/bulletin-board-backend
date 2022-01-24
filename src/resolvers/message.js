@@ -1,14 +1,39 @@
 const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
 const { PubSub } = require("graphql-subscriptions");
+const { formatConversations } = require("../helpers/message");
 
 const pubsub = new PubSub();
 
 const NEW_MESSAGE = "NEW_MESSAGE";
 
 /* ========== Query Resolvers ========== */
+exports.getConversations = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
 
-exports.getMessages = async (parent, args, { req, res }) => {
+  try {
+    const auth_user_id = req.user.user_id;
+
+    const query = await pool.query(
+      `SELECT message_id, sender_id, recipient_id, message, sent_at 
+      FROM messages 
+      WHERE sender_id = ($1) OR recipient_id = ($1)
+      ORDER BY sent_at DESC`,
+      [auth_user_id]
+    );
+
+    const messages = query.rows;
+    const conversations = formatConversations(messages, auth_user_id);
+
+    return conversations;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.getConversation = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");
   }
@@ -37,6 +62,26 @@ exports.getMessages = async (parent, args, { req, res }) => {
     const messages = query.rows;
 
     return messages;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+// Child resolver for Conversation to get User
+exports.getConversationUser = async (parent, args) => {
+  try {
+    const user_id = parent.user_id;
+
+    const query = await pool.query(
+      `SELECT user_id, username, created_at 
+      FROM users 
+      WHERE user_id = ($1)`,
+      [user_id]
+    );
+
+    const user = query.rows[0];
+
+    return user;
   } catch (error) {
     throw new ApolloError(error);
   }
@@ -117,4 +162,16 @@ exports.sendMessage = async (parent, args, { req, res }) => {
 
 exports.newMessage = (parent, args, context) => {
   return pubsub.asyncIterator([NEW_MESSAGE]);
+};
+
+exports.newMessageFilter = (payload, variables, context) => {
+  if (!context.isAuthenticated) {
+    return false;
+  }
+
+  if (context.authUser.user_id !== payload.newMessage.recipient_id) {
+    return false;
+  }
+
+  return true;
 };

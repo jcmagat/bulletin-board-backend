@@ -42,11 +42,14 @@ const {
   deleteCommentReaction,
 } = require("./comment");
 const {
-  getMessages,
+  getConversations,
+  getConversation,
   sendMessage,
+  getConversationUser,
   getSender,
   getRecipient,
   newMessage,
+  newMessageFilter,
 } = require("./message");
 const { withFilter } = require("graphql-subscriptions");
 
@@ -68,7 +71,8 @@ const resolvers = {
     comments: getPostComments,
 
     // Message queries
-    messages: getMessages,
+    conversations: getConversations,
+    conversation: getConversation,
   },
 
   Mutation: {
@@ -105,17 +109,7 @@ const resolvers = {
 
   Subscription: {
     newMessage: {
-      subscribe: withFilter(newMessage, (payload, variables, context) => {
-        if (!context.isAuthenticated) {
-          return false;
-        }
-
-        if (context.authUser.user_id !== payload.newMessage.recipient_id) {
-          return false;
-        }
-
-        return true;
-      }),
+      subscribe: withFilter(newMessage, newMessageFilter),
     },
   },
 
@@ -147,6 +141,10 @@ const resolvers = {
   Message: {
     sender: getSender,
     recipient: getRecipient,
+  },
+
+  Conversation: {
+    user: getConversationUser,
   },
 };
 

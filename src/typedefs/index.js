@@ -79,6 +79,11 @@ const typeDefs = gql`
     sent_at: DateTime!
   }
 
+  type Conversation {
+    user: User!
+    messages: [Message]
+  }
+
   # Queries
   type Query {
     # User queries
@@ -97,7 +102,8 @@ const typeDefs = gql`
     comments(post_id: Int!): [Comment]
 
     # Message queries
-    messages(username: String!): [Message]
+    conversations: [Conversation]
+    conversation(username: String!): [Message]
   }
 
   # Mutations
