@@ -1,7 +1,8 @@
 const express = require("express");
-const cors = require("cors");
-var cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const { graphqlUploadExpress } = require("graphql-upload");
 const { createServer } = require("http");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 const { execute, subscribe } = require("graphql");
@@ -33,11 +34,14 @@ const corsOptions =
   process.env.NODE_ENV === "production" ? prodCorsOptions : devCorsOptions;
 app.use(cors(corsOptions));
 
-// Use cookie-parser
+// Cookie parser
 app.use(cookieParser());
 
-// Use auth middleware
+// Auth middleware
 app.use(authenticateToken);
+
+// File upload middleware
+app.use(graphqlUploadExpress());
 
 // Create and start GraphQL server
 async function startServer() {

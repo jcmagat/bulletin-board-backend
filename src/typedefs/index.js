@@ -1,6 +1,12 @@
 const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
+  scalar Upload
+
+  type File {
+    url: String!
+  }
+
   type Register {
     registered: Boolean!
   }
@@ -137,6 +143,8 @@ const typeDefs = gql`
 
     # Message mutations
     sendMessage(recipient: String!, message: String!): Message
+
+    uploadFile(file: Upload!): File!
   }
 
   type Subscription {

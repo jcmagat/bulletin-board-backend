@@ -5,6 +5,7 @@ const {
   AuthenticationError,
   ForbiddenError,
 } = require("apollo-server-errors");
+const fs = require("fs");
 
 /* ========== Query Resolvers ========== */
 
@@ -306,4 +307,14 @@ exports.unsavePost = async (parent, args, { req, res }) => {
   } catch (error) {
     throw new ApolloError(error);
   }
+};
+
+exports.uploadFile = async (parent, args, { req, res }) => {
+  const { createReadStream, filename, mimetype, encoding } = await args.file;
+
+  const stream = createReadStream();
+
+  await stream.pipe(fs.createWriteStream("local-file-output.jpg"));
+
+  return { url: "hello" };
 };

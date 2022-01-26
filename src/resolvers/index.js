@@ -1,3 +1,4 @@
+const { GraphQLUpload } = require("graphql-upload");
 const { setCreatedSince } = require("./common");
 const { register, login } = require("./auth");
 const {
@@ -31,6 +32,7 @@ const {
   deletePostReaction,
   savePost,
   unsavePost,
+  uploadFile,
 } = require("./post");
 const {
   getPostComments,
@@ -54,6 +56,8 @@ const {
 const { withFilter } = require("graphql-subscriptions");
 
 const resolvers = {
+  Upload: GraphQLUpload,
+
   Query: {
     // User queries
     user: getUser,
@@ -105,6 +109,8 @@ const resolvers = {
 
     // Message mutations
     sendMessage: sendMessage,
+
+    uploadFile: uploadFile,
   },
 
   Subscription: {
