@@ -17,6 +17,7 @@
   "dependencies": {
     "@graphql-tools/schema": "^8.3.1",
     "apollo-server-express": "^3.4.0",
+    "aws-sdk": "^2.1064.0",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -28,7 +29,8 @@
     "graphql-upload": "^13.0.0",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.1",
-    "subscriptions-transport-ws": "^0.11.0"
+    "subscriptions-transport-ws": "^0.11.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"

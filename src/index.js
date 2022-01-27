@@ -13,6 +13,7 @@ const typeDefs = require("./typedefs");
 const resolvers = require("./resolvers");
 const { authenticateToken } = require("./middlewares/auth");
 const { authenticateToken: authenticateTokenNew } = require("./services/auth");
+const { getFileStream } = require("./services/s3");
 
 dotenv.config();
 
@@ -42,6 +43,14 @@ app.use(authenticateToken);
 
 // File upload middleware
 app.use(graphqlUploadExpress());
+
+// Serve media from S3
+app.get("/media/:key", (req, res) => {
+  const key = req.params.key;
+  const readStream = getFileStream(key);
+
+  readStream.pipe(res);
+});
 
 // Create and start GraphQL server
 async function startServer() {

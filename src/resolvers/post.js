@@ -1,11 +1,11 @@
 const pool = require("../database");
 const { formatReactions } = require("../helpers/common");
+const { uploadFile } = require("../services/s3");
 const {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
 } = require("apollo-server-errors");
-const fs = require("fs");
 
 /* ========== Query Resolvers ========== */
 
@@ -310,11 +310,11 @@ exports.unsavePost = async (parent, args, { req, res }) => {
 };
 
 exports.uploadFile = async (parent, args, { req, res }) => {
-  const { createReadStream, filename, mimetype, encoding } = await args.file;
+  try {
+    const result = await uploadFile(args.file);
 
-  const stream = createReadStream();
-
-  await stream.pipe(fs.createWriteStream("local-file-output.jpg"));
-
-  return { url: "hello" };
+    return { url: `/media/${result.Key}` };
+  } catch (error) {
+    throw new ApolloError(error);
+  }
 };
