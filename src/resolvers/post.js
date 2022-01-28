@@ -167,7 +167,6 @@ exports.addMediaPost = async (parent, args, { req, res }) => {
     const community_id = args.community_id;
 
     const uploadedMedia = await uploadFile(args.media);
-    console.log(uploadedMedia);
     const media_src = `/media/${uploadedMedia.Key}`;
 
     const query = await pool.query(
