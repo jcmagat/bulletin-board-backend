@@ -26,13 +26,13 @@ const {
   getPostCommunity,
   getPostCommentsInfo,
   getPostReactions,
-  addPost,
+  addTextPost,
+  addMediaPost,
   deletePost,
   addPostReaction,
   deletePostReaction,
   savePost,
   unsavePost,
-  uploadFile,
 } = require("./post");
 const {
   getPostComments,
@@ -94,7 +94,8 @@ const resolvers = {
     leave: leave,
 
     // Post mutations
-    addPost: addPost,
+    addTextPost: addTextPost,
+    addMediaPost: addMediaPost,
     deletePost: deletePost,
     addPostReaction: addPostReaction,
     deletePostReaction: deletePostReaction,
@@ -109,8 +110,6 @@ const resolvers = {
 
     // Message mutations
     sendMessage: sendMessage,
-
-    uploadFile: uploadFile,
   },
 
   Subscription: {

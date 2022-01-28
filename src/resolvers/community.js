@@ -43,8 +43,8 @@ exports.getCommunityPosts = async (parent, args) => {
     const community_id = parent.community_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, posts.user_id, username, 
-        community_id, age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, posts.user_id, 
+        username, community_id, age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
         ON (posts.user_id = users.user_id)

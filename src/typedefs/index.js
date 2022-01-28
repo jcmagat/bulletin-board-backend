@@ -3,10 +3,6 @@ const { gql } = require("apollo-server-express");
 const typeDefs = gql`
   scalar Upload
 
-  type File {
-    url: String!
-  }
-
   type Register {
     registered: Boolean!
   }
@@ -149,7 +145,8 @@ const typeDefs = gql`
     leave(community_id: Int!): Community
 
     # Post mutations
-    addPost(title: String!, description: String!, community_id: Int!): Post
+    addTextPost(title: String!, description: String!, community_id: Int!): Post
+    addMediaPost(title: String!, media: Upload!, community_id: Int!): Post
     deletePost(post_id: Int!): Post
     addPostReaction(post_id: Int!, reaction: String!): Post
     deletePostReaction(post_id: Int!): Post
@@ -164,8 +161,6 @@ const typeDefs = gql`
 
     # Message mutations
     sendMessage(recipient: String!, message: String!): Message
-
-    uploadFile(file: Upload!): File!
   }
 
   type Subscription {

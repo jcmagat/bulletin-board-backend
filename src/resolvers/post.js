@@ -12,8 +12,8 @@ const {
 exports.getAllPosts = async (parent, args, { req, res }) => {
   try {
     const query = await pool.query(
-      `SELECT type, post_id, title, description, username, community_id, 
-        age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, username, 
+        community_id, age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
         ON (posts.user_id = users.user_id) 
@@ -33,8 +33,8 @@ exports.getPostById = async (parent, args) => {
     const post_id = args.post_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, username, community_id, 
-        age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, username, 
+        community_id, age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
         ON (posts.user_id = users.user_id)
@@ -126,7 +126,7 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.addPost = async (parent, args, { req, res }) => {
+exports.addTextPost = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");
   }
@@ -155,6 +155,38 @@ exports.addPost = async (parent, args, { req, res }) => {
   }
 };
 
+exports.addMediaPost = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const type = "MediaPost";
+    const title = args.title;
+    const user_id = req.user.user_id;
+    const community_id = args.community_id;
+
+    const uploadedMedia = await uploadFile(args.media);
+    console.log(uploadedMedia);
+    const media_src = `/media/${uploadedMedia.Key}`;
+
+    const query = await pool.query(
+      `INSERT INTO posts (type, title, media_src, user_id, community_id) 
+      VALUES ($1, $2, $3, $4, $5) 
+      RETURNING type, post_id, title, media_src, community_id, 
+        age(now(), created_at)`,
+      [type, title, media_src, user_id, community_id]
+    );
+
+    const newPost = query.rows[0];
+    newPost.username = req.user.username;
+
+    return newPost;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
 exports.deletePost = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");
@@ -167,7 +199,7 @@ exports.deletePost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `DELETE FROM posts 
       WHERE post_id = ($1) AND user_id = ($2) 
-      RETURNING type, post_id, title, description, community_id, 
+      RETURNING type, post_id, title, description, media_src, community_id, 
         age(now(), created_at)`,
       [post_id, user_id]
     );
@@ -202,8 +234,8 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
         ON CONFLICT ON CONSTRAINT post_reactions_pkey
         DO UPDATE SET reaction = ($3)
       )
-      SELECT type, post_id, title, description, username, community_id, 
-        age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, username, 
+        community_id, age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
         ON (posts.user_id = users.user_id)
@@ -233,8 +265,8 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
         DELETE FROM post_reactions 
         WHERE post_id = ($1) AND user_id = ($2) 
       )
-      SELECT type, post_id, title, description, username, community_id, 
-        age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, username, 
+        community_id, age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
         ON (posts.user_id = users.user_id)
@@ -264,8 +296,8 @@ exports.savePost = async (parent, args, { req, res }) => {
         INSERT INTO saved_posts (user_id, post_id) 
         VALUES ($1, $2) 
       )
-      SELECT type, post_id, title, description, username, community_id, 
-        age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, username, 
+        community_id, age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
         ON (posts.user_id = users.user_id)
@@ -295,8 +327,8 @@ exports.unsavePost = async (parent, args, { req, res }) => {
         DELETE FROM saved_posts 
         WHERE user_id = ($1) AND post_id = ($2) 
       )
-      SELECT type, post_id, title, description, username, community_id, 
-        age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, username, 
+        community_id, age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
         ON (posts.user_id = users.user_id)
@@ -307,16 +339,6 @@ exports.unsavePost = async (parent, args, { req, res }) => {
     const unsavedPost = query.rows[0];
 
     return unsavedPost;
-  } catch (error) {
-    throw new ApolloError(error);
-  }
-};
-
-exports.uploadFile = async (parent, args, { req, res }) => {
-  try {
-    const result = await uploadFile(args.file);
-
-    return { url: `/media/${result.Key}` };
   } catch (error) {
     throw new ApolloError(error);
   }
