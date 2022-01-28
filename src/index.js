@@ -46,10 +46,12 @@ app.use(graphqlUploadExpress());
 
 // Serve media from S3
 app.get("/media/:key", (req, res) => {
-  const key = req.params.key;
-  const readStream = getFileStream(key);
+  // const key = req.params.key;
+  // const readStream = getFileStream(key);
 
-  readStream.pipe(res);
+  // readStream.pipe(res);
+
+  res.send({ hello: "world" });
 });
 
 // Create and start GraphQL server

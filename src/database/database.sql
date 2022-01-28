@@ -65,6 +65,17 @@ CREATE TABLE public.members (
 );
 
 
+-- reaction definition
+
+-- Drop type
+
+-- DROP TYPE post_type;
+
+CREATE TYPE post_type AS ENUM (
+	'TextPost',
+	'MediaPost');
+
+
 -- public.posts definition
 
 -- Drop table
@@ -78,6 +89,8 @@ CREATE TABLE public.posts (
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
 	user_id int4 NOT NULL,
 	community_id int4 NOT NULL,
+	"type" post_type NOT NULL,
+	media_src varchar(64) NULL,
 	CONSTRAINT posts_pkey PRIMARY KEY (post_id),
 	CONSTRAINT posts_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(community_id) ON DELETE CASCADE,
 	CONSTRAINT posts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE
@@ -120,16 +133,15 @@ CREATE TABLE public."comments" (
 );
 
 
--- public.reaction definition
+-- reaction definition
 
 -- Drop type
 
--- DROP TYPE public.reaction;
+-- DROP TYPE reaction;
 
-CREATE TYPE public.reaction AS ENUM (
+CREATE TYPE reaction AS ENUM (
 	'like',
-	'dislike'
-);
+	'dislike');
 
 
 -- public.post_reactions definition
