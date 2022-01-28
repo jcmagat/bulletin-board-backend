@@ -12,7 +12,7 @@ const {
 exports.getAllPosts = async (parent, args, { req, res }) => {
   try {
     const query = await pool.query(
-      `SELECT post_id, title, description, username, community_id, 
+      `SELECT type, post_id, title, description, username, community_id, 
         age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
@@ -33,7 +33,7 @@ exports.getPostById = async (parent, args) => {
     const post_id = args.post_id;
 
     const query = await pool.query(
-      `SELECT post_id, title, description, username, community_id, 
+      `SELECT type, post_id, title, description, username, community_id, 
         age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
@@ -132,16 +132,18 @@ exports.addPost = async (parent, args, { req, res }) => {
   }
 
   try {
+    const type = "TextPost";
     const title = args.title;
     const description = args.description;
     const user_id = req.user.user_id;
     const community_id = args.community_id;
 
     const query = await pool.query(
-      `INSERT INTO posts (title, description, user_id, community_id) 
-      VALUES ($1, $2, $3, $4) 
-      RETURNING post_id, title, description, community_id, age(now(), created_at)`,
-      [title, description, user_id, community_id]
+      `INSERT INTO posts (type, title, description, user_id, community_id) 
+      VALUES ($1, $2, $3, $4, $5) 
+      RETURNING type, post_id, title, description, community_id, 
+        age(now(), created_at)`,
+      [type, title, description, user_id, community_id]
     );
 
     const newPost = query.rows[0];
@@ -165,7 +167,8 @@ exports.deletePost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `DELETE FROM posts 
       WHERE post_id = ($1) AND user_id = ($2) 
-      RETURNING post_id, title, description, community_id, age(now(), created_at)`,
+      RETURNING type, post_id, title, description, community_id, 
+        age(now(), created_at)`,
       [post_id, user_id]
     );
 
@@ -199,7 +202,7 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
         ON CONFLICT ON CONSTRAINT post_reactions_pkey
         DO UPDATE SET reaction = ($3)
       )
-      SELECT post_id, title, description, username, community_id, 
+      SELECT type, post_id, title, description, username, community_id, 
         age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
@@ -230,7 +233,7 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
         DELETE FROM post_reactions 
         WHERE post_id = ($1) AND user_id = ($2) 
       )
-      SELECT post_id, title, description, username, community_id, 
+      SELECT type, post_id, title, description, username, community_id, 
         age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
@@ -261,7 +264,7 @@ exports.savePost = async (parent, args, { req, res }) => {
         INSERT INTO saved_posts (user_id, post_id) 
         VALUES ($1, $2) 
       )
-      SELECT post_id, title, description, username, community_id, 
+      SELECT type, post_id, title, description, username, community_id, 
         age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 
@@ -292,7 +295,7 @@ exports.unsavePost = async (parent, args, { req, res }) => {
         DELETE FROM saved_posts 
         WHERE user_id = ($1) AND post_id = ($2) 
       )
-      SELECT post_id, title, description, username, community_id, 
+      SELECT type, post_id, title, description, username, community_id, 
         age(now(), posts.created_at) 
       FROM posts 
         INNER JOIN users 

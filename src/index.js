@@ -59,6 +59,7 @@ async function startServer() {
   const schema = makeExecutableSchema({
     typeDefs: [...scalarTypeDefs, typeDefs],
     resolvers: resolvers,
+    inheritResolversFromInterfaces: true,
   });
 
   // Create Subscription server

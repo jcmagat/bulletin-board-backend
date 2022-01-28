@@ -132,6 +132,9 @@ const resolvers = {
   },
 
   Post: {
+    __resolveType(post) {
+      return post.type;
+    },
     created_since: setCreatedSince,
     community: getPostCommunity,
     reactions: getPostReactions,

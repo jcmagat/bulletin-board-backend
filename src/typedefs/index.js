@@ -43,15 +43,36 @@ const typeDefs = gql`
     posts: [Post]
   }
 
-  type Post {
+  interface Post {
     post_id: Int!
     title: String!
-    description: String!
     created_since: String
     username: String
     community: Community
     reactions: Reactions
     comments_info: CommentsInfo
+  }
+
+  type TextPost implements Post {
+    post_id: Int!
+    title: String!
+    created_since: String
+    username: String
+    community: Community
+    reactions: Reactions
+    comments_info: CommentsInfo
+    description: String!
+  }
+
+  type MediaPost implements Post {
+    post_id: Int!
+    title: String!
+    created_since: String
+    username: String
+    community: Community
+    reactions: Reactions
+    comments_info: CommentsInfo
+    media_src: String!
   }
 
   type Reactions {
