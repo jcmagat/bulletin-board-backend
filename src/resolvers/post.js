@@ -1,11 +1,16 @@
 const pool = require("../database");
 const { formatReactions } = require("../helpers/common");
-const { uploadFile } = require("../services/s3");
+const { uploadFile, deleteFile } = require("../services/s3");
 const {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
 } = require("apollo-server-errors");
+
+const POST_TYPE = {
+  TEXT_POST: "TextPost",
+  MEDIA_POST: "MediaPost",
+};
 
 /* ========== Query Resolvers ========== */
 
@@ -132,7 +137,7 @@ exports.addTextPost = async (parent, args, { req, res }) => {
   }
 
   try {
-    const type = "TextPost";
+    const type = POST_TYPE.TEXT_POST;
     const title = args.title;
     const description = args.description;
     const user_id = req.user.user_id;
@@ -161,7 +166,7 @@ exports.addMediaPost = async (parent, args, { req, res }) => {
   }
 
   try {
-    const type = "MediaPost";
+    const type = POST_TYPE.MEDIA_POST;
     const title = args.title;
     const user_id = req.user.user_id;
     const community_id = args.community_id;
@@ -206,6 +211,11 @@ exports.deletePost = async (parent, args, { req, res }) => {
     const deletedPost = query.rows[0];
     if (!deletedPost) {
       throw new ForbiddenError("User not authorized to delete this post");
+    }
+
+    if (deletedPost.type === POST_TYPE.MEDIA_POST) {
+      const key = deletedPost.media_src.split("/")[2];
+      await deleteFile(key);
     }
 
     deletedPost.username = req.user.username;

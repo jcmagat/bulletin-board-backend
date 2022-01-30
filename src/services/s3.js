@@ -10,6 +10,15 @@ const s3 = new S3({
   secretAccessKey: process.env.AWS_SECRET_KEY,
 });
 
+exports.getFileStream = (key) => {
+  const downloadParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key,
+  };
+
+  return s3.getObject(downloadParams).createReadStream();
+};
+
 exports.uploadFile = async (file) => {
   const { createReadStream, filename, mimetype, encoding } = await file;
 
@@ -28,11 +37,11 @@ exports.uploadFile = async (file) => {
   return s3.upload(uploadParams).promise();
 };
 
-exports.getFileStream = (key) => {
-  const downloadParams = {
+exports.deleteFile = (key) => {
+  const deleteParams = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: key,
   };
 
-  return s3.getObject(downloadParams).createReadStream();
+  return s3.deleteObject(deleteParams).promise();
 };
