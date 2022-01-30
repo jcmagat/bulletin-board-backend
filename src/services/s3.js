@@ -1,6 +1,5 @@
 const dotenv = require("dotenv");
 const S3 = require("aws-sdk/clients/s3");
-const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
 dotenv.config();

@@ -47,7 +47,10 @@ app.use(graphqlUploadExpress());
 // Serve media from S3
 app.get("/media/:key", (req, res) => {
   const key = req.params.key;
-  const readStream = getFileStream(key);
+
+  const readStream = getFileStream(key).on("error", (error) => {
+    res.sendStatus(404);
+  });
 
   readStream.pipe(res);
 });
