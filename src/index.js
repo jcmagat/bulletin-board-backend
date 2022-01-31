@@ -27,7 +27,7 @@ const devCorsOptions = {
 };
 
 const prodCorsOptions = {
-  origin: ["https://kind-brattain-40fab6.netlify.app", "https://cirqls.app"],
+  origin: ["https://cirqls.app"],
   credentials: true,
 };
 

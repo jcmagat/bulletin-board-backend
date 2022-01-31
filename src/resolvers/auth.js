@@ -1,4 +1,5 @@
 const pool = require("../database");
+const { sendEmailVerification } = require("../services/nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {
@@ -7,10 +8,42 @@ const {
   UserInputError,
 } = require("apollo-server-errors");
 
+exports.signup = async (parent, args, { req, res }) => {
+  if (req.isAuth) {
+    throw new ForbiddenError("User is already registered and logged in");
+  }
+
+  const email = args.email;
+
+  const query = await pool.query("SELECT * FROM users WHERE email = ($1)", [
+    email,
+  ]);
+
+  const user = query.rows[0];
+  if (user) {
+    throw new UserInputError("Email is already registered");
+  }
+
+  const payload = {
+    email: email,
+  };
+
+  const emailToken = jwt.sign(payload, process.env.EMAIL_TOKEN_SECRET, {
+    expiresIn: "3d",
+  });
+
+  sendEmailVerification(email, emailToken);
+
+  return { registered: true };
+};
+
 exports.register = async (parent, args, { req, res }) => {
   if (req.isAuth) {
     throw new ForbiddenError("User is already registered and logged in");
   }
+
+  // verify email token
+  // get email from payload
 
   try {
     const email = args.email;
