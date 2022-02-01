@@ -3,8 +3,8 @@ const { gql } = require("apollo-server-express");
 const typeDefs = gql`
   scalar Upload
 
-  type Register {
-    registered: Boolean!
+  type Success {
+    success: Boolean!
   }
 
   type AuthData {
@@ -132,8 +132,8 @@ const typeDefs = gql`
   # Mutations
   type Mutation {
     # Auth mutations
-    signup(email: String!): Register
-    register(email: String!, username: String!, password: String!): Register
+    signup(email: String!): Success
+    register(token: String!, username: String!, password: String!): Success
     login(username: String!, password: String!): AuthData
 
     # User mutations

@@ -12,7 +12,7 @@ const { typeDefs: scalarTypeDefs } = require("graphql-scalars");
 const typeDefs = require("./typedefs");
 const resolvers = require("./resolvers");
 const { authenticateToken } = require("./middlewares/auth");
-const { authenticateToken: authenticateTokenNew } = require("./services/auth");
+const { verifyAuthToken } = require("./services/jwt");
 const { getFileStream } = require("./services/s3");
 
 dotenv.config();
@@ -73,7 +73,7 @@ async function startServer() {
       subscribe,
       onConnect: (connectionParams) => {
         // Can be accessed as context in the subscription resolver
-        return authenticateTokenNew(connectionParams.headers);
+        return verifyAuthToken(connectionParams.headers);
       },
     },
     { server: httpServer, path: "/subscriptions" }

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-exports.authenticateToken = (headers) => {
+exports.verifyAuthToken = (headers) => {
   const authorization = headers.authorization;
   if (!authorization) {
     return { isAuthenticated: false };
@@ -22,5 +22,19 @@ exports.authenticateToken = (headers) => {
     return { isAuthenticated: true, authUser: authUser };
   } catch (error) {
     return { isAuthenticated: false };
+  }
+};
+
+exports.verifyEmailToken = (token) => {
+  if (!token) {
+    return { isValid: false };
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET);
+
+    return { isValid: true, email: payload.email };
+  } catch (error) {
+    return { isValid: false };
   }
 };

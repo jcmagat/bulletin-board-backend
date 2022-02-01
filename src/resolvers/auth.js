@@ -1,5 +1,6 @@
 const pool = require("../database");
 const { sendEmailVerification } = require("../services/nodemailer");
+const { verifyEmailToken } = require("../services/jwt");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {
@@ -13,28 +14,32 @@ exports.signup = async (parent, args, { req, res }) => {
     throw new ForbiddenError("User is already registered and logged in");
   }
 
-  const email = args.email;
+  try {
+    const email = args.email;
 
-  const query = await pool.query("SELECT * FROM users WHERE email = ($1)", [
-    email,
-  ]);
+    const query = await pool.query("SELECT * FROM users WHERE email = ($1)", [
+      email,
+    ]);
 
-  const user = query.rows[0];
-  if (user) {
-    throw new UserInputError("Email is already registered");
+    const user = query.rows[0];
+    if (user) {
+      throw new UserInputError("Email is already registered");
+    }
+
+    const payload = {
+      email: email,
+    };
+
+    const token = jwt.sign(payload, process.env.EMAIL_TOKEN_SECRET, {
+      expiresIn: "1d",
+    });
+
+    sendEmailVerification(email, token); // asynchronous
+
+    return { success: true };
+  } catch (error) {
+    throw new ApolloError(error);
   }
-
-  const payload = {
-    email: email,
-  };
-
-  const emailToken = jwt.sign(payload, process.env.EMAIL_TOKEN_SECRET, {
-    expiresIn: "3d",
-  });
-
-  sendEmailVerification(email, emailToken);
-
-  return { registered: true };
 };
 
 exports.register = async (parent, args, { req, res }) => {
@@ -42,11 +47,15 @@ exports.register = async (parent, args, { req, res }) => {
     throw new ForbiddenError("User is already registered and logged in");
   }
 
-  // verify email token
-  // get email from payload
-
   try {
-    const email = args.email;
+    const token = args.token;
+
+    const verification = verifyEmailToken(token);
+    if (!verification.isValid) {
+      throw new ApolloError("Invalid token");
+    }
+
+    const email = verification.email;
     const username = args.username;
     const password = args.password;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,11 +65,7 @@ exports.register = async (parent, args, { req, res }) => {
       [email, username, hashedPassword]
     );
 
-    const register = {
-      registered: true,
-    };
-
-    return register;
+    return { success: true };
   } catch (error) {
     if (error.constraint === "users_email_key") {
       throw new UserInputError("Email is already registered");
