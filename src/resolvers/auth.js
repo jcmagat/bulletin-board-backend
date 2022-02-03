@@ -1,5 +1,5 @@
 const pool = require("../database");
-const { sendEmailVerification } = require("../services/nodemailer");
+const { sendEmailVerification } = require("../services/sendgrid");
 const { verifyEmailToken } = require("../services/jwt");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
