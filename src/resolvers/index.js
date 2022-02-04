@@ -23,6 +23,7 @@ const {
 const {
   getAllPosts,
   getPostById,
+  getHomePagePosts,
   getPostCommunity,
   getPostCommentsInfo,
   getPostReactions,
@@ -70,6 +71,7 @@ const resolvers = {
     // Post queries
     posts: getAllPosts,
     post: getPostById,
+    homePagePosts: getHomePagePosts,
 
     // Comment queries
     comments: getPostComments,

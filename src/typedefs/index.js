@@ -120,6 +120,7 @@ const typeDefs = gql`
     # Post queries
     posts: [Post]
     post(post_id: Int!): Post
+    homePagePosts: [Post]
 
     # Comment queries
     comments(post_id: Int!): [Comment]

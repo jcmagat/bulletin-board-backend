@@ -55,6 +55,37 @@ exports.getPostById = async (parent, args) => {
   }
 };
 
+exports.getHomePagePosts = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+
+    const query = await pool.query(
+      `SELECT type, post_id, title, description, media_src, posts.user_id, 
+        username, community_id, age(now(), posts.created_at) 
+      FROM posts 
+        INNER JOIN users 
+        ON (posts.user_id = users.user_id) 
+      WHERE community_id IN (
+        SELECT community_id 
+        FROM members 
+        WHERE user_id = ($1)
+      )
+      ORDER BY posts.created_at`,
+      [user_id]
+    );
+
+    const posts = query.rows;
+
+    return posts;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
 // Child resolver for Post to get the community that the post is in
 exports.getPostCommunity = async (parent, args) => {
   try {
