@@ -43,7 +43,7 @@ const typeDefs = gql`
     post_id: Int!
     title: String!
     created_since: String
-    username: String
+    poster: User
     community: Community
     reactions: Reactions
     comments_info: CommentsInfo
@@ -53,7 +53,7 @@ const typeDefs = gql`
     post_id: Int!
     title: String!
     created_since: String
-    username: String
+    poster: User
     community: Community
     reactions: Reactions
     comments_info: CommentsInfo
@@ -64,7 +64,7 @@ const typeDefs = gql`
     post_id: Int!
     title: String!
     created_since: String
-    username: String
+    poster: User
     community: Community
     reactions: Reactions
     comments_info: CommentsInfo

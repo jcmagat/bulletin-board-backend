@@ -17,12 +17,10 @@ const POST_TYPE = {
 exports.getAllPosts = async (parent, args, { req, res }) => {
   try {
     const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, username, 
-        community_id, age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id) 
-      ORDER BY posts.created_at`
+      ORDER BY created_at`
     );
 
     const posts = query.rows;
@@ -38,11 +36,9 @@ exports.getPostById = async (parent, args) => {
     const post_id = args.post_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, username, 
-        community_id, age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id)
       WHERE post_id = ($1)`,
       [post_id]
     );
@@ -64,23 +60,41 @@ exports.getHomePagePosts = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, posts.user_id, 
-        username, community_id, age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id) 
       WHERE community_id IN (
         SELECT community_id 
         FROM members 
         WHERE user_id = ($1)
       )
-      ORDER BY posts.created_at`,
+      ORDER BY created_at`,
       [user_id]
     );
 
     const posts = query.rows;
 
     return posts;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+// Child resolver for Post to get the poster
+exports.getPoster = async (parent, args) => {
+  try {
+    const user_id = parent.user_id;
+
+    const query = await pool.query(
+      `SELECT user_id, username, created_at 
+      FROM users 
+      WHERE user_id = ($1)`,
+      [user_id]
+    );
+
+    const user = query.rows[0];
+
+    return user;
   } catch (error) {
     throw new ApolloError(error);
   }
@@ -177,13 +191,12 @@ exports.addTextPost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `INSERT INTO posts (type, title, description, user_id, community_id) 
       VALUES ($1, $2, $3, $4, $5) 
-      RETURNING type, post_id, title, description, community_id, 
+      RETURNING type, post_id, title, description, user_id, community_id, 
         age(now(), created_at)`,
       [type, title, description, user_id, community_id]
     );
 
     const newPost = query.rows[0];
-    newPost.username = req.user.username;
 
     return newPost;
   } catch (error) {
@@ -208,13 +221,12 @@ exports.addMediaPost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `INSERT INTO posts (type, title, media_src, user_id, community_id) 
       VALUES ($1, $2, $3, $4, $5) 
-      RETURNING type, post_id, title, media_src, community_id, 
+      RETURNING type, post_id, title, media_src, user_id, community_id, 
         age(now(), created_at)`,
       [type, title, media_src, user_id, community_id]
     );
 
     const newPost = query.rows[0];
-    newPost.username = req.user.username;
 
     return newPost;
   } catch (error) {
@@ -234,8 +246,8 @@ exports.deletePost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `DELETE FROM posts 
       WHERE post_id = ($1) AND user_id = ($2) 
-      RETURNING type, post_id, title, description, media_src, community_id, 
-        age(now(), created_at)`,
+      RETURNING type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at)`,
       [post_id, user_id]
     );
 
@@ -248,8 +260,6 @@ exports.deletePost = async (parent, args, { req, res }) => {
       const key = deletedPost.media_src.split("/")[2];
       await deleteFile(key);
     }
-
-    deletedPost.username = req.user.username;
 
     return deletedPost;
   } catch (error) {
@@ -274,11 +284,9 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
         ON CONFLICT ON CONSTRAINT post_reactions_pkey
         DO UPDATE SET reaction = ($3)
       )
-      SELECT type, post_id, title, description, media_src, username, 
-        community_id, age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id)
       WHERE post_id = ($1)`,
       [post_id, user_id, reaction]
     );
@@ -305,11 +313,9 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
         DELETE FROM post_reactions 
         WHERE post_id = ($1) AND user_id = ($2) 
       )
-      SELECT type, post_id, title, description, media_src, username, 
-        community_id, age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id)
       WHERE post_id = ($1)`,
       [post_id, user_id]
     );
@@ -336,11 +342,9 @@ exports.savePost = async (parent, args, { req, res }) => {
         INSERT INTO saved_posts (user_id, post_id) 
         VALUES ($1, $2) 
       )
-      SELECT type, post_id, title, description, media_src, username, 
-        community_id, age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id)
       WHERE post_id = ($2)`,
       [user_id, post_id]
     );
@@ -367,11 +371,9 @@ exports.unsavePost = async (parent, args, { req, res }) => {
         DELETE FROM saved_posts 
         WHERE user_id = ($1) AND post_id = ($2) 
       )
-      SELECT type, post_id, title, description, media_src, username, 
-        community_id, age(now(), posts.created_at) 
+      SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id)
       WHERE post_id = ($2)`,
       [user_id, post_id]
     );

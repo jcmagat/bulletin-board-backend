@@ -24,6 +24,7 @@ const {
   getAllPosts,
   getPostById,
   getHomePagePosts,
+  getPoster,
   getPostCommunity,
   getPostCommentsInfo,
   getPostReactions,
@@ -138,6 +139,7 @@ const resolvers = {
       return post.type;
     },
     created_since: setCreatedSince,
+    poster: getPoster,
     community: getPostCommunity,
     reactions: getPostReactions,
     comments_info: getPostCommentsInfo,

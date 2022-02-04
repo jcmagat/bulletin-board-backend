@@ -99,12 +99,10 @@ exports.getUserPosts = async (parent, args) => {
     const user_id = parent.user_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, posts.user_id, 
-        username, community_id, age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id)
-      WHERE posts.user_id = ($1)`,
+      WHERE user_id = ($1)`,
       [user_id]
     );
 
@@ -130,11 +128,9 @@ exports.getSavedPosts = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, posts.user_id, 
-        username, community_id, age(now(), posts.created_at) 
+      `SELECT type, post_id, title, description, media_src, user_id, 
+        community_id, age(now(), created_at) 
       FROM posts 
-        INNER JOIN users 
-        ON (posts.user_id = users.user_id) 
       WHERE post_id IN (
         SELECT post_id 
         FROM saved_posts 
