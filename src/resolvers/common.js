@@ -1,3 +1,5 @@
+const pool = require("../database");
+
 // Child resolver for Post and Comment to set created_since
 exports.setCreatedSince = async (parent, args, { req, res }) => {
   const age = parent.age;
@@ -26,4 +28,26 @@ exports.setCreatedSince = async (parent, args, { req, res }) => {
   }
 
   return time + ago;
+};
+
+// Child resolver for Comment to get the commenter
+exports.getUserById = async (parent, args, context, { path }) => {
+  // console.log(path);
+
+  try {
+    const user_id = parent.user_id;
+
+    const query = await pool.query(
+      `SELECT user_id, username, created_at 
+      FROM users 
+      WHERE user_id = ($1)`,
+      [user_id]
+    );
+
+    const user = query.rows[0];
+
+    return user;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
 };

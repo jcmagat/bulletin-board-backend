@@ -87,9 +87,9 @@ const typeDefs = gql`
     comment_id: Int!
     parent_comment_id: Int
     post_id: Int!
-    username: String
     message: String!
     created_since: String
+    commenter: User
     reactions: Reactions
     child_comments: [Comment]
   }

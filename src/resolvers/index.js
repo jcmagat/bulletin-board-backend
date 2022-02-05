@@ -1,5 +1,5 @@
 const { GraphQLUpload } = require("graphql-upload");
-const { setCreatedSince } = require("./common");
+const { setCreatedSince, getUserById } = require("./common");
 const { signup, register, login } = require("./auth");
 const {
   getUser,
@@ -38,8 +38,8 @@ const {
 } = require("./post");
 const {
   getPostComments,
-  getChildComments,
   getCommentReactions,
+  getChildComments,
   addComment,
   deleteComment,
   addCommentReaction,
@@ -147,6 +147,7 @@ const resolvers = {
 
   Comment: {
     created_since: setCreatedSince,
+    commenter: getUserById,
     reactions: getCommentReactions,
     child_comments: getChildComments,
   },

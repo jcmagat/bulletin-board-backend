@@ -13,36 +13,11 @@ exports.getPostComments = async (parent, args) => {
     const post_id = args.post_id;
 
     const query = await pool.query(
-      `SELECT comment_id, parent_comment_id, post_id, username, message, 
-        age(now(), comments.created_at) 
+      `SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
       FROM comments 
-        INNER JOIN users
-        ON (comments.user_id = users.user_id)
       WHERE parent_comment_id IS NULL AND post_id = ($1)`,
       [post_id]
-    );
-
-    const comments = query.rows;
-
-    return comments;
-  } catch (error) {
-    throw new ApolloError(error);
-  }
-};
-
-// Child resolver for Comment to get child_comments
-exports.getChildComments = async (parent, args) => {
-  try {
-    const parent_comment_id = parent.comment_id;
-
-    const query = await pool.query(
-      `SELECT comment_id, parent_comment_id, post_id, username, message, 
-        age(now(), comments.created_at) 
-      FROM comments 
-        INNER JOIN users
-        ON (comments.user_id = users.user_id)
-      WHERE parent_comment_id = ($1)`,
-      [parent_comment_id]
     );
 
     const comments = query.rows;
@@ -87,6 +62,27 @@ exports.getCommentReactions = async (parent, args, { req, res }) => {
   }
 };
 
+// Child resolver for Comment to get child_comments
+exports.getChildComments = async (parent, args) => {
+  try {
+    const parent_comment_id = parent.comment_id;
+
+    const query = await pool.query(
+      `SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
+      FROM comments 
+      WHERE parent_comment_id = ($1)`,
+      [parent_comment_id]
+    );
+
+    const comments = query.rows;
+
+    return comments;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
 /* ========== Mutation Resolvers ========== */
 
 exports.addComment = async (parent, args, { req, res }) => {
@@ -103,13 +99,12 @@ exports.addComment = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `INSERT INTO comments (parent_comment_id, post_id, user_id, message)
       VALUES ($1, $2, $3, $4)
-      RETURNING comment_id, parent_comment_id, post_id, message, 
+      RETURNING comment_id, parent_comment_id, post_id, user_id, message, 
         age(now(), created_at)`,
       [parent_comment_id, post_id, user_id, message]
     );
 
     const newComment = query.rows[0];
-    newComment.username = req.user.username;
 
     return newComment;
   } catch (error) {
@@ -129,7 +124,7 @@ exports.deleteComment = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `DELETE FROM comments 
       WHERE comment_id = ($1) AND user_id = ($2) 
-      RETURNING comment_id, parent_comment_id, post_id, message, 
+      RETURNING comment_id, parent_comment_id, post_id, user_id, message, 
         age(now(), created_at)`,
       [comment_id, user_id]
     );
@@ -138,8 +133,6 @@ exports.deleteComment = async (parent, args, { req, res }) => {
     if (!deletedComment) {
       throw new ForbiddenError("User not authorized to delete this comment");
     }
-
-    deletedComment.username = req.user.username;
 
     return deletedComment;
   } catch (error) {
@@ -164,11 +157,9 @@ exports.addCommentReaction = async (parent, args, { req, res }) => {
         ON CONFLICT ON CONSTRAINT comment_reactions_pkey
         DO UPDATE SET reaction = ($3)
       )
-      SELECT comment_id, parent_comment_id, post_id, username, message, 
-        age(now(), comments.created_at) 
+      SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
       FROM comments 
-        INNER JOIN users
-        ON (comments.user_id = users.user_id)
       WHERE comment_id = ($1)`,
       [comment_id, user_id, reaction]
     );
@@ -195,11 +186,9 @@ exports.deleteCommentReaction = async (parent, args, { req, res }) => {
         DELETE FROM comment_reactions 
         WHERE comment_id = ($1) AND user_id = ($2) 
       )
-      SELECT comment_id, parent_comment_id, post_id, username, message, 
-        age(now(), comments.created_at) 
+      SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
       FROM comments 
-        INNER JOIN users
-        ON (comments.user_id = users.user_id)
       WHERE comment_id = ($1)`,
       [comment_id, user_id]
     );
