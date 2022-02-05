@@ -1,4 +1,5 @@
 const pool = require("../database");
+const { ApolloError } = require("apollo-server-express");
 
 // Child resolver for Post and Comment to set created_since
 exports.setCreatedSince = async (parent, args, { req, res }) => {
@@ -30,12 +31,23 @@ exports.setCreatedSince = async (parent, args, { req, res }) => {
   return time + ago;
 };
 
-// Child resolver for Comment to get the commenter
+// Child resolver for:
+// Post to get the poster
+// Comment to get the commenter
+// Conversation to get the user
+// Message to get the sender
+// Message to get the recipient
 exports.getUserById = async (parent, args, context, { path }) => {
-  // console.log(path);
-
   try {
-    const user_id = parent.user_id;
+    let user_id;
+
+    if (path.typename === "Message" && path.key === "sender") {
+      user_id = parent.sender_id;
+    } else if (path.typename === "Message" && path.key === "recipient") {
+      user_id = parent.recipient_id;
+    } else {
+      user_id = parent.user_id;
+    }
 
     const query = await pool.query(
       `SELECT user_id, username, created_at 

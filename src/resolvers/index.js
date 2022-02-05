@@ -24,7 +24,6 @@ const {
   getAllPosts,
   getPostById,
   getHomePagePosts,
-  getPoster,
   getPostCommunity,
   getPostCommentsInfo,
   getPostReactions,
@@ -49,9 +48,6 @@ const {
   getConversations,
   getConversation,
   sendMessage,
-  getConversationUser,
-  getSender,
-  getRecipient,
   newMessage,
   newMessageFilter,
 } = require("./message");
@@ -139,7 +135,7 @@ const resolvers = {
       return post.type;
     },
     created_since: setCreatedSince,
-    poster: getPoster,
+    poster: getUserById,
     community: getPostCommunity,
     reactions: getPostReactions,
     comments_info: getPostCommentsInfo,
@@ -153,12 +149,12 @@ const resolvers = {
   },
 
   Message: {
-    sender: getSender,
-    recipient: getRecipient,
+    sender: getUserById,
+    recipient: getUserById,
   },
 
   Conversation: {
-    user: getConversationUser,
+    user: getUserById,
   },
 };
 

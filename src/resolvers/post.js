@@ -7,7 +7,7 @@ const {
   ForbiddenError,
 } = require("apollo-server-errors");
 
-const POST_TYPE = {
+const POST_TYPES = {
   TEXT_POST: "TextPost",
   MEDIA_POST: "MediaPost",
 };
@@ -75,26 +75,6 @@ exports.getHomePagePosts = async (parent, args, { req, res }) => {
     const posts = query.rows;
 
     return posts;
-  } catch (error) {
-    throw new ApolloError(error);
-  }
-};
-
-// Child resolver for Post to get the poster
-exports.getPoster = async (parent, args) => {
-  try {
-    const user_id = parent.user_id;
-
-    const query = await pool.query(
-      `SELECT user_id, username, created_at 
-      FROM users 
-      WHERE user_id = ($1)`,
-      [user_id]
-    );
-
-    const user = query.rows[0];
-
-    return user;
   } catch (error) {
     throw new ApolloError(error);
   }
@@ -182,7 +162,7 @@ exports.addTextPost = async (parent, args, { req, res }) => {
   }
 
   try {
-    const type = POST_TYPE.TEXT_POST;
+    const type = POST_TYPES.TEXT_POST;
     const title = args.title;
     const description = args.description;
     const user_id = req.user.user_id;
@@ -210,7 +190,7 @@ exports.addMediaPost = async (parent, args, { req, res }) => {
   }
 
   try {
-    const type = POST_TYPE.MEDIA_POST;
+    const type = POST_TYPES.MEDIA_POST;
     const title = args.title;
     const user_id = req.user.user_id;
     const community_id = args.community_id;
@@ -256,7 +236,7 @@ exports.deletePost = async (parent, args, { req, res }) => {
       throw new ForbiddenError("User not authorized to delete this post");
     }
 
-    if (deletedPost.type === POST_TYPE.MEDIA_POST) {
+    if (deletedPost.type === POST_TYPES.MEDIA_POST) {
       const key = deletedPost.media_src.split("/")[2];
       await deleteFile(key);
     }
