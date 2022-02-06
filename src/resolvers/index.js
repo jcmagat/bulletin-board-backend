@@ -7,6 +7,7 @@ const {
   getFollowing,
   getFollowers,
   getUserPosts,
+  getUserComments,
   getSavedPosts,
   follow,
   unfollow,
@@ -122,6 +123,7 @@ const resolvers = {
     following: getFollowing,
     followers: getFollowers,
     posts: getUserPosts,
+    comments: getUserComments,
     saved_posts: getSavedPosts,
   },
 

@@ -114,6 +114,35 @@ exports.getUserPosts = async (parent, args) => {
   }
 };
 
+// Child resolver for User to get authenticated user's comments
+exports.getUserComments = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  if (parent.user_id !== req.user.user_id) {
+    throw new ForbiddenError("User not authorized");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+
+    const query = await pool.query(
+      `SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
+      FROM comments 
+      WHERE user_id = ($1)`,
+      [user_id]
+    );
+
+    const comments = query.rows;
+
+    return comments;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
 // Child resolver for User to get authenticated user's saved posts
 exports.getSavedPosts = async (parent, args, { req, res }) => {
   if (!req.isAuth) {

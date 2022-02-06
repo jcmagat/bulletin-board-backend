@@ -21,6 +21,7 @@ const typeDefs = gql`
     following: [Follow]
     followers: [Follow]
     posts: [Post]
+    comments: [Comment]
     saved_posts: [Post]
   }
 
