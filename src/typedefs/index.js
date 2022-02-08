@@ -119,9 +119,9 @@ const typeDefs = gql`
     community(name: String!): Community
 
     # Post queries
-    posts: [Post]
-    post(post_id: Int!): Post
     homePagePosts: [Post]
+    explorePagePosts: [Post]
+    post(post_id: Int!): Post
 
     # Comment queries
     comments(post_id: Int!): [Comment]

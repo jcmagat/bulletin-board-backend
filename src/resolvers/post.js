@@ -1,4 +1,8 @@
 const pool = require("../database");
+const {
+  getHomePagePostsForAuthUser,
+  getPostsForNonAuthUser,
+} = require("../helpers/post");
 const { formatReactions } = require("../helpers/common");
 const { uploadFile, deleteFile } = require("../services/s3");
 const {
@@ -14,16 +18,26 @@ const POST_TYPES = {
 
 /* ========== Query Resolvers ========== */
 
-exports.getAllPosts = async (parent, args, { req, res }) => {
+exports.getHomePagePosts = async (parent, args, { req, res }) => {
   try {
-    const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
-      FROM posts 
-      ORDER BY created_at`
-    );
+    let posts;
 
-    const posts = query.rows;
+    if (req.isAuth) {
+      const user_id = req.user.user_id;
+      posts = await getHomePagePostsForAuthUser(user_id);
+    } else {
+      posts = await getPostsForNonAuthUser();
+    }
+
+    return posts;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.getExplorePagePosts = async (parent, args, { req, res }) => {
+  try {
+    const posts = await getPostsForNonAuthUser();
 
     return posts;
   } catch (error) {
@@ -46,35 +60,6 @@ exports.getPostById = async (parent, args) => {
     const post = query.rows[0];
 
     return post;
-  } catch (error) {
-    throw new ApolloError(error);
-  }
-};
-
-exports.getHomePagePosts = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
-    throw new AuthenticationError("Not authenticated");
-  }
-
-  try {
-    const user_id = req.user.user_id;
-
-    const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
-      FROM posts 
-      WHERE community_id IN (
-        SELECT community_id 
-        FROM members 
-        WHERE user_id = ($1)
-      )
-      ORDER BY created_at`,
-      [user_id]
-    );
-
-    const posts = query.rows;
-
-    return posts;
   } catch (error) {
     throw new ApolloError(error);
   }

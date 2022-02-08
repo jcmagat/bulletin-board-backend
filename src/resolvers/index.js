@@ -22,9 +22,9 @@ const {
   leave,
 } = require("./community");
 const {
-  getAllPosts,
-  getPostById,
   getHomePagePosts,
+  getExplorePagePosts,
+  getPostById,
   getPostCommunity,
   getPostCommentsInfo,
   getPostReactions,
@@ -67,9 +67,9 @@ const resolvers = {
     community: getCommunity,
 
     // Post queries
-    posts: getAllPosts,
-    post: getPostById,
     homePagePosts: getHomePagePosts,
+    explorePagePosts: getExplorePagePosts,
+    post: getPostById,
 
     // Comment queries
     comments: getPostComments,
