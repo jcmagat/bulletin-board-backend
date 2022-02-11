@@ -8,13 +8,16 @@ exports.setCreatedSince = async (parent, args, { req, res }) => {
     return null;
   }
 
-  const { years, days, hours, minutes } = age;
+  const { years, months, days, hours, minutes } = age;
   let time;
   let ago;
 
   if (years) {
     time = years;
     ago = years > 1 ? " years ago" : " year ago";
+  } else if (months) {
+    time = months;
+    ago = months > 1 ? " months ago" : " month ago";
   } else if (days) {
     time = days;
     ago = days > 1 ? " days ago" : " day ago";
