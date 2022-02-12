@@ -119,7 +119,7 @@ const typeDefs = gql`
     community(name: String!): Community
 
     # Post queries
-    homePagePosts: [Post]
+    homePagePosts(sort: String!): [Post]
     explorePagePosts: [Post]
     post(post_id: Int!): Post
 

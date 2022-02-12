@@ -10,7 +10,7 @@ exports.getHomePagePostsForAuthUser = async (user_id) => {
       FROM members 
       WHERE user_id = ($1)
     )
-    ORDER BY created_at`,
+    ORDER BY created_at DESC`,
     [user_id]
   );
 
@@ -22,9 +22,9 @@ exports.getHomePagePostsForAuthUser = async (user_id) => {
 exports.getPostsForNonAuthUser = async () => {
   const query = await pool.query(
     `SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
-      FROM posts 
-      ORDER BY created_at`
+      community_id, age(now(), created_at) 
+    FROM posts 
+    ORDER BY created_at DESC`
   );
 
   const posts = query.rows;

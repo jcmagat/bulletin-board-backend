@@ -14,6 +14,7 @@ const resolvers = require("./resolvers");
 const { authenticateToken } = require("./middlewares/auth");
 const { verifyAuthToken } = require("./services/jwt");
 const { getFileStream } = require("./services/s3");
+const _ = require("lodash");
 
 dotenv.config();
 
@@ -55,6 +56,24 @@ app.get("/media/:key", (req, res) => {
   readStream.pipe(res);
 });
 
+// formatResponse for ApolloServer
+const formatResponse = (
+  response,
+  { request: { operationName, variables } }
+) => {
+  // Sort HomePagePosts
+  if (operationName === "HomePagePosts") {
+    // By default, posts are sorted by new
+    let posts = response.data.homePagePosts;
+
+    if (variables.sort === "top") {
+      posts = _.orderBy(posts, "reactions.total", "desc");
+    }
+
+    return _.assign(response, { data: { homePagePosts: posts } });
+  }
+};
+
 // Create and start GraphQL server
 async function startServer() {
   const httpServer = createServer(app);
@@ -94,6 +113,7 @@ async function startServer() {
         },
       },
     ],
+    formatResponse,
   });
 
   await server.start();
