@@ -68,6 +68,16 @@ const formatResponse = (
 
     if (variables.sort === "top") {
       posts = _.orderBy(posts, "reactions.total", "desc");
+    } else if (variables.sort === "controversial") {
+      posts = _.orderBy(
+        posts,
+        (post) => {
+          return Math.abs(
+            0.5 - post.reactions.likes / (post.reactions.dislikes + 1)
+          );
+        },
+        "asc"
+      );
     }
 
     return _.assign(response, { data: { homePagePosts: posts } });
