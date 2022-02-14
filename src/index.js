@@ -63,24 +63,39 @@ const formatResponse = (
 ) => {
   // Sort HomePagePosts
   if (operationName === "HomePagePosts") {
-    // By default, posts are sorted by new
     let posts = response.data.homePagePosts;
 
-    if (variables.sort === "top") {
-      posts = _.orderBy(posts, "reactions.total", "desc");
-    } else if (variables.sort === "controversial") {
-      posts = _.orderBy(
-        posts,
-        (post) => {
-          return Math.abs(
-            0.5 - post.reactions.likes / (post.reactions.dislikes + 1)
-          );
-        },
-        "asc"
-      );
+    switch (variables.sort) {
+      case "hot":
+        posts = _.orderBy(
+          posts,
+          [
+            (post) => {
+              // Ignore time when sorting by created_at
+              return post.created_at.setHours(0, 0, 0, 0);
+            },
+            "reactions.total",
+            "comments_info.total",
+          ],
+          ["desc", "desc", "desc"]
+        );
+        break;
+      case "top":
+        posts = _.orderBy(posts, "reactions.total", "desc");
+        break;
+      case "controversial":
+        posts = _.orderBy(
+          posts,
+          ["reactions.dislikes", "reactions.likes"],
+          ["desc", "desc"]
+        );
+        break;
+      default:
+        // Posts are sorted new by default
+        break;
     }
 
-    return _.assign(response, { data: { homePagePosts: posts } });
+    return _.assign({}, response, { data: { homePagePosts: posts } });
   }
 };
 

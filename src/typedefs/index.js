@@ -43,6 +43,7 @@ const typeDefs = gql`
   interface Post {
     post_id: Int!
     title: String!
+    created_at: DateTime!
     created_since: String
     poster: User
     community: Community
@@ -53,6 +54,7 @@ const typeDefs = gql`
   type TextPost implements Post {
     post_id: Int!
     title: String!
+    created_at: DateTime!
     created_since: String
     poster: User
     community: Community
@@ -64,6 +66,7 @@ const typeDefs = gql`
   type MediaPost implements Post {
     post_id: Int!
     title: String!
+    created_at: DateTime!
     created_since: String
     poster: User
     community: Community

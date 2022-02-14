@@ -50,8 +50,8 @@ exports.getPostById = async (parent, args) => {
     const post_id = args.post_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
+      `SELECT type, post_id, title, description, media_src, created_at, 
+        user_id, community_id, age(now(), created_at) 
       FROM posts 
       WHERE post_id = ($1)`,
       [post_id]
@@ -156,8 +156,8 @@ exports.addTextPost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `INSERT INTO posts (type, title, description, user_id, community_id) 
       VALUES ($1, $2, $3, $4, $5) 
-      RETURNING type, post_id, title, description, user_id, community_id, 
-        age(now(), created_at)`,
+      RETURNING type, post_id, title, description, created_at, user_id, 
+        community_id, age(now(), created_at)`,
       [type, title, description, user_id, community_id]
     );
 
@@ -186,8 +186,8 @@ exports.addMediaPost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `INSERT INTO posts (type, title, media_src, user_id, community_id) 
       VALUES ($1, $2, $3, $4, $5) 
-      RETURNING type, post_id, title, media_src, user_id, community_id, 
-        age(now(), created_at)`,
+      RETURNING type, post_id, title, media_src, created_at, user_id, 
+        community_id, age(now(), created_at)`,
       [type, title, media_src, user_id, community_id]
     );
 
@@ -211,8 +211,8 @@ exports.deletePost = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `DELETE FROM posts 
       WHERE post_id = ($1) AND user_id = ($2) 
-      RETURNING type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at)`,
+      RETURNING type, post_id, title, description, media_src, created_at, 
+        user_id, community_id, age(now(), created_at)`,
       [post_id, user_id]
     );
 
@@ -249,8 +249,8 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
         ON CONFLICT ON CONSTRAINT post_reactions_pkey
         DO UPDATE SET reaction = ($3)
       )
-      SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
+      SELECT type, post_id, title, description, media_src, created_at, 
+        user_id, community_id, age(now(), created_at) 
       FROM posts 
       WHERE post_id = ($1)`,
       [post_id, user_id, reaction]
@@ -278,8 +278,8 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
         DELETE FROM post_reactions 
         WHERE post_id = ($1) AND user_id = ($2) 
       )
-      SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
+      SELECT type, post_id, title, description, media_src, created_at, 
+        user_id, community_id, age(now(), created_at) 
       FROM posts 
       WHERE post_id = ($1)`,
       [post_id, user_id]
@@ -307,8 +307,8 @@ exports.savePost = async (parent, args, { req, res }) => {
         INSERT INTO saved_posts (user_id, post_id) 
         VALUES ($1, $2) 
       )
-      SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
+      SELECT type, post_id, title, description, media_src, created_at, 
+        user_id, community_id, age(now(), created_at) 
       FROM posts 
       WHERE post_id = ($2)`,
       [user_id, post_id]
@@ -336,8 +336,8 @@ exports.unsavePost = async (parent, args, { req, res }) => {
         DELETE FROM saved_posts 
         WHERE user_id = ($1) AND post_id = ($2) 
       )
-      SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
+      SELECT type, post_id, title, description, media_src, created_at, 
+        user_id, community_id, age(now(), created_at) 
       FROM posts 
       WHERE post_id = ($2)`,
       [user_id, post_id]

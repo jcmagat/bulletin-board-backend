@@ -43,8 +43,8 @@ exports.getCommunityPosts = async (parent, args) => {
     const community_id = parent.community_id;
 
     const query = await pool.query(
-      `SELECT type, post_id, title, description, media_src, user_id, 
-        community_id, age(now(), created_at) 
+      `SELECT type, post_id, title, description, media_src, created_at, 
+        user_id, community_id, age(now(), created_at) 
       FROM posts 
       WHERE community_id = ($1)`,
       [community_id]

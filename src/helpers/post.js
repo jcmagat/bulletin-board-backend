@@ -2,8 +2,8 @@ const pool = require("../database");
 
 exports.getHomePagePostsForAuthUser = async (user_id) => {
   const query = await pool.query(
-    `SELECT type, post_id, title, description, media_src, user_id, 
-      community_id, age(now(), created_at) 
+    `SELECT type, post_id, title, description, media_src, created_at, 
+      user_id, community_id, age(now(), created_at) 
     FROM posts 
     WHERE community_id IN (
       SELECT community_id 
@@ -21,8 +21,8 @@ exports.getHomePagePostsForAuthUser = async (user_id) => {
 
 exports.getPostsForNonAuthUser = async () => {
   const query = await pool.query(
-    `SELECT type, post_id, title, description, media_src, user_id, 
-      community_id, age(now(), created_at) 
+    `SELECT type, post_id, title, description, media_src, created_at, 
+      user_id, community_id, age(now(), created_at) 
     FROM posts 
     ORDER BY created_at DESC`
   );
