@@ -61,42 +61,48 @@ const formatResponse = (
   response,
   { request: { operationName, variables } }
 ) => {
-  // Sort HomePagePosts
-  if (operationName === "HomePagePosts") {
-    let posts = response.data.homePagePosts;
+  if (operationName !== "HomePagePosts" && operationName !== "ExplorePagePosts")
+    return response;
 
-    switch (variables.sort) {
-      case "hot":
-        posts = _.orderBy(
-          posts,
-          [
-            (post) => {
-              // Ignore time when sorting by created_at
-              return post.created_at.setHours(0, 0, 0, 0);
-            },
-            "reactions.total",
-            "comments_info.total",
-          ],
-          ["desc", "desc", "desc"]
-        );
-        break;
-      case "top":
-        posts = _.orderBy(posts, "reactions.total", "desc");
-        break;
-      case "controversial":
-        posts = _.orderBy(
-          posts,
-          ["reactions.dislikes", "reactions.likes"],
-          ["desc", "desc"]
-        );
-        break;
-      default:
-        // Posts are sorted new by default
-        break;
-    }
+  // Sort HomePagePosts and ExplorePagePosts
+  const key = operationName[0].toLowerCase() + operationName.substring(1);
 
-    return _.assign({}, response, { data: { homePagePosts: posts } });
+  let posts = response.data[key];
+
+  switch (variables.sort) {
+    case "hot":
+      posts = _.orderBy(
+        posts,
+        [
+          (post) => {
+            // Ignore time when sorting by created_at
+            return post.created_at.setHours(0, 0, 0, 0);
+          },
+          "reactions.total",
+          "comments_info.total",
+        ],
+        ["desc", "desc", "desc"]
+      );
+      break;
+    case "top":
+      posts = _.orderBy(posts, "reactions.total", "desc");
+      break;
+    case "controversial":
+      posts = _.orderBy(
+        posts,
+        ["reactions.dislikes", "reactions.likes"],
+        ["desc", "desc"]
+      );
+      break;
+    default:
+      // Posts are sorted new by default
+      break;
   }
+
+  let sortedPosts = { data: {} };
+  sortedPosts.data[key] = posts;
+
+  return _.assign({}, response, sortedPosts);
 };
 
 // Create and start GraphQL server

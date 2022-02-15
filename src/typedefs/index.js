@@ -123,7 +123,7 @@ const typeDefs = gql`
 
     # Post queries
     homePagePosts(sort: String!): [Post]
-    explorePagePosts: [Post]
+    explorePagePosts(sort: String!): [Post]
     post(post_id: Int!): Post
 
     # Comment queries
