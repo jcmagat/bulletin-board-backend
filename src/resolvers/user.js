@@ -3,6 +3,7 @@ const {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
+  UserInputError,
 } = require("apollo-server-express");
 
 /* ========== Query Resolvers ========== */
@@ -267,6 +268,55 @@ exports.removeFollower = async (parent, args, { req, res }) => {
     const removedFollower = query.rows[0];
 
     return removedFollower;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.changeUsername = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const username = args.username;
+    const user_id = req.user.user_id;
+
+    const query = await pool.query(
+      `UPDATE users 
+      SET username = ($1) 
+      WHERE user_id = ($2) 
+      RETURNING user_id, username, created_at`,
+      [username, user_id]
+    );
+
+    const user = query.rows[0];
+
+    return user;
+  } catch (error) {
+    if (error.constraint === "users_username_key") {
+      throw new UserInputError("Username is already taken");
+    } else {
+      throw new ApolloError(error);
+    }
+  }
+};
+
+exports.changeProfilePic = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+
+    // check if profile_pic_src is null
+    // if not null, delete from aws
+
+    // upload to aws
+    // query db to update profile_pic_src
+
+    return {};
   } catch (error) {
     throw new ApolloError(error);
   }
