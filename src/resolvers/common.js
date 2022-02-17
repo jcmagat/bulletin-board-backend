@@ -38,8 +38,7 @@ exports.setCreatedSince = async (parent, args, { req, res }) => {
 // Post to get the poster
 // Comment to get the commenter
 // Conversation to get the user
-// Message to get the sender
-// Message to get the recipient
+// Message to get the sender and recipient
 exports.getUserById = async (parent, args, context, { path }) => {
   try {
     let user_id;
@@ -53,7 +52,7 @@ exports.getUserById = async (parent, args, context, { path }) => {
     }
 
     const query = await pool.query(
-      `SELECT user_id, username, created_at 
+      `SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
       WHERE user_id = ($1)`,
       [user_id]

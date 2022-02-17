@@ -1,4 +1,5 @@
 const pool = require("../database");
+const { uploadFile, deleteFile } = require("../services/s3");
 const {
   ApolloError,
   AuthenticationError,
@@ -13,7 +14,7 @@ exports.getUser = async (parent, args) => {
     const username = args.username;
 
     const query = await pool.query(
-      `SELECT user_id, username, created_at 
+      `SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
       WHERE username = ($1)`,
       [username]
@@ -36,7 +37,7 @@ exports.getAuthUser = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
 
     const query = await pool.query(
-      `SELECT user_id, username, created_at 
+      `SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
       WHERE user_id = ($1)`,
       [user_id]
@@ -197,7 +198,7 @@ exports.follow = async (parent, args, { req, res }) => {
       ON CONFLICT ON CONSTRAINT follows_pkey 
       DO NOTHING
       )
-      SELECT user_id, username, created_at 
+      SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
       WHERE username = ($2)`,
       [follower_id, followed_username]
@@ -228,7 +229,7 @@ exports.unfollow = async (parent, args, { req, res }) => {
         FROM users 
         WHERE username = ($2)
       ))
-      SELECT user_id, username, created_at 
+      SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
       WHERE username = ($2)`,
       [follower_id, followed_username]
@@ -259,7 +260,7 @@ exports.removeFollower = async (parent, args, { req, res }) => {
         FROM users 
         WHERE username = ($2)
       ))
-      SELECT user_id, username, created_at 
+      SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
       WHERE username = ($2)`,
       [followed_id, follower_username]
@@ -286,7 +287,7 @@ exports.changeUsername = async (parent, args, { req, res }) => {
       `UPDATE users 
       SET username = ($1) 
       WHERE user_id = ($2) 
-      RETURNING user_id, username, created_at`,
+      RETURNING user_id, username, created_at, profile_pic_src`,
       [username, user_id]
     );
 
@@ -310,13 +311,30 @@ exports.changeProfilePic = async (parent, args, { req, res }) => {
   try {
     const user_id = req.user.user_id;
 
-    // check if profile_pic_src is null
-    // if not null, delete from aws
+    const uploadedFile = await uploadFile(args.profile_pic);
+    const profile_pic_src = `/media/${uploadedFile.Key}`;
 
-    // upload to aws
-    // query db to update profile_pic_src
+    const query = await pool.query(
+      `UPDATE users 
+      SET profile_pic_src = ($1) 
+      WHERE user_id = ($2) 
+      RETURNING user_id, username, created_at, profile_pic_src, (
+          SELECT profile_pic_src 
+          FROM users 
+          WHERE user_id = ($2)
+        ) 
+        AS old_profile_pic_src`,
+      [profile_pic_src, user_id]
+    );
 
-    return {};
+    const user = query.rows[0];
+
+    if (user.old_profile_pic_src) {
+      const key = user.old_profile_pic_src.split("/")[2];
+      await deleteFile(key);
+    }
+
+    return user;
   } catch (error) {
     throw new ApolloError(error);
   }

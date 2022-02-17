@@ -64,7 +64,7 @@ exports.getCommunityMembers = async (parent, args) => {
     const community_id = parent.community_id;
 
     const query = await pool.query(
-      `SELECT user_id, username, created_at 
+      `SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
       WHERE user_id IN (
         SELECT user_id 

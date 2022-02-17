@@ -18,6 +18,7 @@ const typeDefs = gql`
   type User {
     username: String!
     created_at: DateTime!
+    profile_pic_src: String
     following: [Follow]
     followers: [Follow]
     posts: [Post]
