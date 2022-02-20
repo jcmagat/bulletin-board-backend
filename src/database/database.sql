@@ -26,6 +26,7 @@ CREATE TABLE public.users (
 	username varchar(32) NULL,
 	"password" varchar(255) NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+	profile_pic_src varchar(64) NULL,
 	CONSTRAINT users_email_key UNIQUE (email),
 	CONSTRAINT users_pkey PRIMARY KEY (user_id),
 	CONSTRAINT users_username_key UNIQUE (username)
