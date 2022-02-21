@@ -17,6 +17,7 @@ const typeDefs = gql`
 
   type User {
     user_id: ID!
+    email: String
     username: String!
     created_at: DateTime!
     profile_pic_src: String

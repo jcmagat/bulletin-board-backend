@@ -37,7 +37,7 @@ exports.getAuthUser = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
 
     const query = await pool.query(
-      `SELECT user_id, username, created_at, profile_pic_src 
+      `SELECT user_id, email, username, created_at, profile_pic_src 
       FROM users 
       WHERE user_id = ($1)`,
       [user_id]
