@@ -14,6 +14,7 @@ const {
   removeFollower,
   changeUsername,
   changeProfilePic,
+  changePassword,
 } = require("./user");
 const {
   getAllCommunities,
@@ -93,6 +94,7 @@ const resolvers = {
     removeFollower: removeFollower,
     changeUsername: changeUsername,
     changeProfilePic: changeProfilePic,
+    changePassword: changePassword,
 
     // Community mutations
     join: join,

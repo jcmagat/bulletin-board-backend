@@ -150,6 +150,7 @@ const typeDefs = gql`
     removeFollower(username: String!): User
     changeUsername(username: String!): User
     changeProfilePic(profile_pic: Upload!): User
+    changePassword(current_password: String!, new_password: String!): User
 
     # Community mutations
     join(community_id: Int!): Community

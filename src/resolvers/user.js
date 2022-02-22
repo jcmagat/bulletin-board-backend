@@ -1,5 +1,6 @@
 const pool = require("../database");
 const { uploadFile, deleteFile } = require("../services/s3");
+const bcrypt = require("bcrypt");
 const {
   ApolloError,
   AuthenticationError,
@@ -287,7 +288,7 @@ exports.changeUsername = async (parent, args, { req, res }) => {
       `UPDATE users 
       SET username = ($1) 
       WHERE user_id = ($2) 
-      RETURNING user_id, username, created_at, profile_pic_src`,
+      RETURNING user_id, email, username, created_at, profile_pic_src`,
       [username, user_id]
     );
 
@@ -318,7 +319,7 @@ exports.changeProfilePic = async (parent, args, { req, res }) => {
       `UPDATE users 
       SET profile_pic_src = ($1) 
       WHERE user_id = ($2) 
-      RETURNING user_id, username, created_at, profile_pic_src, (
+      RETURNING user_id, email, username, created_at, profile_pic_src, (
           SELECT profile_pic_src 
           FROM users 
           WHERE user_id = ($2)
@@ -333,6 +334,48 @@ exports.changeProfilePic = async (parent, args, { req, res }) => {
       const key = user.old_profile_pic_src.split("/")[2];
       await deleteFile(key);
     }
+
+    return user;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.changePassword = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+    const current_password = args.current_password;
+    const new_password = args.new_password;
+
+    const userQuery = await pool.query(
+      "SELECT password FROM users WHERE user_id = ($1)",
+      [user_id]
+    );
+
+    const isCorrectPassword = await bcrypt.compare(
+      current_password,
+      userQuery.rows[0].password
+    );
+
+    if (!isCorrectPassword) {
+      throw new UserInputError("Incorrect password");
+    }
+
+    const hashedNewPassword = await bcrypt.hash(new_password, 10);
+
+    const updateQuery = await pool.query(
+      `UPDATE users 
+      SET password = ($1) 
+      WHERE user_id = ($2) 
+      RETURNING user_id, email, username, created_at, profile_pic_src`,
+      [hashedNewPassword, user_id]
+    );
+
+    const user = updateQuery.rows[0];
 
     return user;
   } catch (error) {
