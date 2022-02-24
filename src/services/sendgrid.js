@@ -38,3 +38,37 @@ exports.sendEmailVerification = (email, token) => {
       console.log(error.message);
     });
 };
+
+exports.sendDeleteAccountConfirmation = (email, token) => {
+  const url = `https://www.cirqls.app/delete-account/${token}`;
+
+  const messageText = `Hi,
+  We've received a request to permanently delete your Cirqls account.
+  To continue, please confirm by clicking the link below.
+  ${url}`;
+
+  const messageHtml = `<p>Hi,</p>
+  <p>We've received a request to permanently delete your Cirqls account.</p>
+  <p>To continue, please confirm by clicking the button below.</p>
+  <a clicktracking=off href="${url}"><button>Delete Account</button></a>`;
+
+  const message = {
+    to: email,
+    from: {
+      name: "Cirqls",
+      email: "noreply@cirqls.app",
+    },
+    subject: "Confirm Deleting Your Cirqls Account",
+    text: messageText,
+    html: messageHtml,
+  };
+
+  sgMail
+    .send(message)
+    .then((response) => {
+      console.log("Email sent");
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+};

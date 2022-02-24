@@ -1,6 +1,8 @@
 const pool = require("../database");
 const { uploadFile, deleteFile } = require("../services/s3");
+const { sendDeleteAccountConfirmation } = require("../services/sendgrid");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const {
   ApolloError,
   AuthenticationError,
@@ -378,6 +380,45 @@ exports.changePassword = async (parent, args, { req, res }) => {
     const user = updateQuery.rows[0];
 
     return user;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.confirmDeleteAccount = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+    const password = args.password;
+
+    const query = await pool.query(
+      `SELECT email, password 
+      FROM users 
+      WHERE user_id = ($1)`,
+      [user_id]
+    );
+
+    const user = query.rows[0];
+
+    const isCorrectPassword = await bcrypt.compare(password, user.password);
+    if (!isCorrectPassword) {
+      throw new UserInputError("Incorrect password");
+    }
+
+    const payload = {
+      user_id: user_id,
+    };
+
+    const token = jwt.sign(payload, process.env.EMAIL_TOKEN_SECRET, {
+      expiresIn: "1d",
+    });
+
+    sendDeleteAccountConfirmation(user.email, token); // asynchronous
+
+    return { success: true };
   } catch (error) {
     throw new ApolloError(error);
   }
