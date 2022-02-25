@@ -16,6 +16,7 @@ const {
   changeProfilePic,
   changePassword,
   confirmDeleteAccount,
+  deleteAccount,
 } = require("./user");
 const {
   getAllCommunities,
@@ -97,6 +98,7 @@ const resolvers = {
     changeProfilePic: changeProfilePic,
     changePassword: changePassword,
     confirmDeleteAccount: confirmDeleteAccount,
+    deleteAccount: deleteAccount,
 
     // Community mutations
     join: join,

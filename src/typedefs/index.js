@@ -152,6 +152,7 @@ const typeDefs = gql`
     changeProfilePic(profile_pic: Upload!): User
     changePassword(current_password: String!, new_password: String!): User
     confirmDeleteAccount(password: String!): Success
+    deleteAccount(token: String!): Success
 
     # Community mutations
     join(community_id: Int!): Community

@@ -38,3 +38,17 @@ exports.verifyEmailToken = (token) => {
     return { isValid: false };
   }
 };
+
+exports.verifyDeleteAccountToken = (token) => {
+  if (!token) {
+    return { isValid: false };
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET);
+
+    return { isValid: true, user_id: payload.user_id };
+  } catch (error) {
+    return { isValid: false };
+  }
+};

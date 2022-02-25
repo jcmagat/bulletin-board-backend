@@ -1,6 +1,7 @@
 const pool = require("../database");
 const { uploadFile, deleteFile } = require("../services/s3");
 const { sendDeleteAccountConfirmation } = require("../services/sendgrid");
+const { verifyDeleteAccountToken } = require("../services/jwt");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {
@@ -417,6 +418,37 @@ exports.confirmDeleteAccount = async (parent, args, { req, res }) => {
     });
 
     sendDeleteAccountConfirmation(user.email, token); // asynchronous
+
+    return { success: true };
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.deleteAccount = async (parent, args, { req, res }) => {
+  try {
+    const token = args.token;
+
+    const verification = verifyDeleteAccountToken(token);
+    if (!verification.isValid) {
+      throw new ApolloError("Invalid token");
+    }
+
+    const user_id = verification.user_id;
+
+    const query = await pool.query(
+      `DELETE FROM users 
+      WHERE user_id = ($1) 
+      RETURNING profile_pic_src`,
+      [user_id]
+    );
+
+    const user = query.rows[0];
+
+    if (user.profile_pic_src) {
+      const key = user.profile_pic_src.split("/")[2];
+      await deleteFile(key);
+    }
 
     return { success: true };
   } catch (error) {
