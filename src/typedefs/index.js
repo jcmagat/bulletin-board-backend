@@ -148,6 +148,7 @@ const typeDefs = gql`
     follow(username: String!): User
     unfollow(username: String!): User
     removeFollower(username: String!): User
+    changeEmail(password: String!, new_email: String!): User
     changeUsername(username: String!): User
     changeProfilePic(profile_pic: Upload!): User
     changePassword(current_password: String!, new_password: String!): User

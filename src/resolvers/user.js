@@ -278,6 +278,57 @@ exports.removeFollower = async (parent, args, { req, res }) => {
   }
 };
 
+exports.changeEmail = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+    const password = args.password;
+    const new_email = args.new_email;
+
+    const userQuery = await pool.query(
+      "SELECT password FROM users WHERE user_id = ($1)",
+      [user_id]
+    );
+
+    const isCorrectPassword = await bcrypt.compare(
+      password,
+      userQuery.rows[0].password
+    );
+
+    if (!isCorrectPassword) {
+      throw new UserInputError("Incorrect password");
+    }
+
+    const updateQuery = await pool.query(
+      `UPDATE users 
+      SET email = ($1) 
+      WHERE user_id = ($2) 
+      RETURNING user_id, email, username, created_at, profile_pic_src, (
+          SELECT email 
+          FROM users 
+          WHERE user_id = ($2)
+        ) 
+        AS old_email`,
+      [new_email, user_id]
+    );
+
+    const user = updateQuery.rows[0];
+
+    // TODO: send email notification that email has been changed
+
+    return user;
+  } catch (error) {
+    if (error.constraint === "users_email_key") {
+      throw new UserInputError("Email is already registered");
+    } else {
+      throw new ApolloError(error);
+    }
+  }
+};
+
 exports.changeUsername = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");
@@ -296,6 +347,8 @@ exports.changeUsername = async (parent, args, { req, res }) => {
     );
 
     const user = query.rows[0];
+
+    // TODO: send email notification that username has been changed
 
     return user;
   } catch (error) {
@@ -379,6 +432,8 @@ exports.changePassword = async (parent, args, { req, res }) => {
     );
 
     const user = updateQuery.rows[0];
+
+    // TODO: send email notification that password has been changed
 
     return user;
   } catch (error) {
