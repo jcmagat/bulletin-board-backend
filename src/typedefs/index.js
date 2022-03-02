@@ -39,6 +39,7 @@ const typeDefs = gql`
     title: String!
     description: String!
     created_at: DateTime!
+    moderators: [User]
     members: [User]
     posts: [Post]
   }

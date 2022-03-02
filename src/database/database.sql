@@ -66,6 +66,21 @@ CREATE TABLE public.members (
 );
 
 
+-- public.moderators definition
+
+-- Drop table
+
+-- DROP TABLE public.moderators;
+
+CREATE TABLE public.moderators (
+	community_id int4 NOT NULL,
+	user_id int4 NOT NULL,
+	CONSTRAINT moderators_pkey PRIMARY KEY (community_id, user_id),
+	CONSTRAINT moderators_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(community_id) ON DELETE CASCADE,
+	CONSTRAINT moderators_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE
+);
+
+
 -- reaction definition
 
 -- Drop type

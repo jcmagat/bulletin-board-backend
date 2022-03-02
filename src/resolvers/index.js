@@ -22,6 +22,7 @@ const {
 const {
   getAllCommunities,
   getCommunity,
+  getCommunityModerators,
   getCommunityMembers,
   getCommunityPosts,
   join,
@@ -140,6 +141,7 @@ const resolvers = {
   },
 
   Community: {
+    moderators: getCommunityModerators,
     members: getCommunityMembers,
     posts: getCommunityPosts,
   },
