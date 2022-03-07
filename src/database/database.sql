@@ -10,6 +10,7 @@ CREATE TABLE public.communities (
 	title varchar(64) NULL,
 	description varchar(255) NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+	logo_src varchar(64) NULL,
 	CONSTRAINT communities_pkey PRIMARY KEY (community_id)
 );
 

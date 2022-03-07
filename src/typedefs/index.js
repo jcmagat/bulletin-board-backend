@@ -39,6 +39,7 @@ const typeDefs = gql`
     title: String!
     description: String!
     created_at: DateTime!
+    logo_src: String
     moderators: [User]
     members: [User]
     posts: [Post]
@@ -159,6 +160,13 @@ const typeDefs = gql`
     # Community mutations
     join(community_id: Int!): Community
     leave(community_id: Int!): Community
+    editCommunity(
+      community_id: Int!
+      name: String
+      title: String
+      description: String
+      logo_src: Upload
+    ): Community
 
     # Post mutations
     addTextPost(title: String!, description: String!, community_id: Int!): Post

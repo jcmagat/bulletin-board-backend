@@ -1,12 +1,16 @@
 const pool = require("../database");
-const { ApolloError, AuthenticationError } = require("apollo-server-express");
+const {
+  ApolloError,
+  AuthenticationError,
+  ForbiddenError,
+} = require("apollo-server-express");
 
 /* ========== Query Resolvers ========== */
 
 exports.getAllCommunities = async (parent, args) => {
   try {
     const query = await pool.query(
-      `SELECT community_id, name, title, description, created_at 
+      `SELECT community_id, name, title, description, created_at, logo_src 
       FROM communities`
     );
 
@@ -23,7 +27,7 @@ exports.getCommunity = async (parent, args) => {
     const name = args.name;
 
     const query = await pool.query(
-      `SELECT community_id, name, title, description, created_at 
+      `SELECT community_id, name, title, description, created_at, logo_src 
       FROM communities 
       WHERE name = ($1)`,
       [name]
@@ -124,7 +128,7 @@ exports.join = async (parent, args, { req, res }) => {
         ON CONFLICT ON CONSTRAINT members_pkey 
         DO NOTHING
       )
-      SELECT community_id, name, title, description, created_at 
+      SELECT community_id, name, title, description, created_at, logo_src 
       FROM communities 
       WHERE community_id = ($1)`,
       [community_id, user_id]
@@ -152,7 +156,7 @@ exports.leave = async (parent, args, { req, res }) => {
         DELETE FROM members 
         WHERE community_id = ($1) AND user_id = ($2)
       )
-      SELECT community_id, name, title, description, created_at 
+      SELECT community_id, name, title, description, created_at, logo_src 
       FROM communities 
       WHERE community_id = ($1)`,
       [community_id, user_id]
@@ -161,6 +165,32 @@ exports.leave = async (parent, args, { req, res }) => {
     const community = query.rows[0];
 
     return community;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.editCommunity = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const community_id = args.community_id;
+    const user_id = req.user.user_id;
+
+    const moderatorQuery = await pool.query(
+      `SELECT * 
+      FROM moderators 
+      WHERE community_id = ($1) AND user_id = ($2)`,
+      [community_id, user_id]
+    );
+
+    if (!moderatorQuery.rows[0]) {
+      throw new ForbiddenError("User not authorized to edit this community");
+    }
+
+    return { community_id: community_id };
   } catch (error) {
     throw new ApolloError(error);
   }
