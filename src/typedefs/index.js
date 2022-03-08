@@ -162,10 +162,9 @@ const typeDefs = gql`
     leave(community_id: Int!): Community
     editCommunity(
       community_id: Int!
-      name: String
       title: String
       description: String
-      logo_src: Upload
+      logo: Upload
     ): Community
 
     # Post mutations

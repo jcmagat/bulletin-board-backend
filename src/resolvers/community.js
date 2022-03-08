@@ -1,4 +1,5 @@
 const pool = require("../database");
+const { uploadFile, deleteFile } = require("../services/s3");
 const {
   ApolloError,
   AuthenticationError,
@@ -178,6 +179,9 @@ exports.editCommunity = async (parent, args, { req, res }) => {
   try {
     const community_id = args.community_id;
     const user_id = req.user.user_id;
+    const title = args.title;
+    const description = args.description;
+    const logo = args.logo;
 
     const moderatorQuery = await pool.query(
       `SELECT * 
@@ -190,7 +194,57 @@ exports.editCommunity = async (parent, args, { req, res }) => {
       throw new ForbiddenError("User not authorized to edit this community");
     }
 
-    return { community_id: community_id };
+    if (title) {
+      await pool.query(
+        `UPDATE communities 
+        SET title = ($1) 
+        WHERE community_id = ($2)`,
+        [title, community_id]
+      );
+    }
+
+    if (description) {
+      await pool.query(
+        `UPDATE communities 
+        SET description = ($1) 
+        WHERE community_id = ($2)`,
+        [description, community_id]
+      );
+    }
+
+    if (logo) {
+      const uploadedFile = await uploadFile(logo);
+      const logo_src = `/media/${uploadedFile.Key}`;
+
+      const logoQuery = await pool.query(
+        `UPDATE communities
+        SET logo_src = ($1)
+        WHERE community_id = ($2) 
+        RETURNING (
+            SELECT logo_src 
+            FROM communities 
+            WHERE community_id = ($2)
+          ) AS old_logo_src`,
+        [logo_src, community_id]
+      );
+
+      const old_logo_src = logoQuery.rows[0].old_logo_src;
+      if (old_logo_src) {
+        const key = old_logo_src.split("/")[2];
+        await deleteFile(key);
+      }
+    }
+
+    const communityQuery = await pool.query(
+      `SELECT community_id, name, title, description, created_at, logo_src 
+      FROM communities 
+      WHERE community_id = ($1)`,
+      [community_id]
+    );
+
+    const community = communityQuery.rows[0];
+
+    return community;
   } catch (error) {
     throw new ApolloError(error);
   }
