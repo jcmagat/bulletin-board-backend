@@ -6,9 +6,9 @@
 
 CREATE TABLE public.communities (
 	community_id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
-	name varchar(32) NULL,
-	title varchar(64) NULL,
-	description varchar(255) NULL,
+	"name" varchar(32) NOT NULL,
+	title varchar(64) NOT NULL,
+	description varchar(255) NOT NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
 	logo_src varchar(64) NULL,
 	CONSTRAINT communities_pkey PRIMARY KEY (community_id)
@@ -23,9 +23,9 @@ CREATE TABLE public.communities (
 
 CREATE TABLE public.users (
 	user_id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
-	email varchar(255) NULL,
-	username varchar(32) NULL,
-	"password" varchar(255) NULL,
+	email varchar(255) NOT NULL,
+	username varchar(32) NOT NULL,
+	"password" varchar(255) NOT NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
 	profile_pic_src varchar(64) NULL,
 	CONSTRAINT users_email_key UNIQUE (email),
@@ -101,7 +101,7 @@ CREATE TYPE post_type AS ENUM (
 
 CREATE TABLE public.posts (
 	post_id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
-	title varchar(128) NULL,
+	title varchar(128) NOT NULL,
 	description varchar(255) NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
 	user_id int4 NOT NULL,
