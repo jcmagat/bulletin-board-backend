@@ -116,6 +116,8 @@ const typeDefs = gql`
     messages: [Message]
   }
 
+  union SearchResult = User | Community | TextPost | MediaPost
+
   # Queries
   type Query {
     # User queries
@@ -137,6 +139,9 @@ const typeDefs = gql`
     # Message queries
     conversations: [Conversation]
     conversation(username: String!): [Message]
+
+    # Search queries
+    search(term: String!): [SearchResult]
   }
 
   # Mutations

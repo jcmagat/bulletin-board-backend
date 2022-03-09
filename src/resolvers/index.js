@@ -60,6 +60,7 @@ const {
   newMessage,
   newMessageFilter,
 } = require("./message");
+const { search } = require("./search");
 const { withFilter } = require("graphql-subscriptions");
 
 const resolvers = {
@@ -85,6 +86,9 @@ const resolvers = {
     // Message queries
     conversations: getConversations,
     conversation: getConversation,
+
+    // Search queries
+    search: search,
   },
 
   Mutation: {
@@ -173,6 +177,19 @@ const resolvers = {
 
   Conversation: {
     user: getUserById,
+  },
+
+  SearchResult: {
+    __resolveType(obj) {
+      if (obj.post_id) {
+        // Note: posts also have user_id and community_id
+        return obj.type;
+      } else if (obj.user_id) {
+        return "User";
+      } else {
+        return "Community";
+      }
+    },
   },
 };
 
