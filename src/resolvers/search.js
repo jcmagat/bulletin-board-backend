@@ -7,6 +7,8 @@ exports.search = async (parent, args) => {
   try {
     let term = args.term;
 
+    if (term === "") return [];
+
     if (term.includes(" ")) {
       term = term.replaceAll(" ", " & ");
     } else {
