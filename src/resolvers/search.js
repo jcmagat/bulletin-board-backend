@@ -5,21 +5,28 @@ const { ApolloError } = require("apollo-server-errors");
 
 exports.search = async (parent, args) => {
   try {
-    const term = args.term;
+    let term = args.term;
+
+    if (term.includes(" ")) {
+      term = term.replaceAll(" ", " & ");
+    } else {
+      // Search partial term
+      term = term !== "u/" && term !== "c/" ? term.concat(":*") : term;
+    }
 
     const postQuery = await pool.query(
       `SELECT type, post_id, title, description, media_src, created_at, 
         user_id, community_id, age(now(), created_at) 
       FROM posts 
       WHERE to_tsvector(title || ' ' || COALESCE(description, '')) 
-        @@ plainto_tsquery($1)`,
+        @@ to_tsquery($1)`,
       [term]
     );
 
     const userQuery = await pool.query(
       `SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
-      WHERE to_tsvector(username || ' u/' || username) @@ plainto_tsquery($1)`,
+      WHERE to_tsvector(username || ' u/' || username) @@ to_tsquery($1)`,
       [term]
     );
 
@@ -27,7 +34,7 @@ exports.search = async (parent, args) => {
       `SELECT community_id, name, title, description, created_at, logo_src 
       FROM communities 
       WHERE to_tsvector(name || ' c/' || name || ' ' || title || ' ' || description) 
-        @@ plainto_tsquery($1)`,
+        @@ to_tsquery($1)`,
       [term]
     );
 
