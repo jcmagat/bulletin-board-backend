@@ -60,6 +60,7 @@ const {
   newMessage,
   newMessageFilter,
 } = require("./message");
+const { getNotifications } = require("./notification");
 const { search } = require("./search");
 const { withFilter } = require("graphql-subscriptions");
 
@@ -86,6 +87,9 @@ const resolvers = {
     // Message queries
     conversations: getConversations,
     conversation: getConversation,
+
+    // Notification queries
+    notifications: getNotifications,
 
     // Search queries
     search: search,
@@ -177,6 +181,12 @@ const resolvers = {
 
   Conversation: {
     user: getUserById,
+  },
+
+  Notification: {
+    __resolveType(obj) {
+      return "Message";
+    },
   },
 
   SearchResult: {

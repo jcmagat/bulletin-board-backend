@@ -8,6 +8,7 @@ const { makeExecutableSchema } = require("@graphql-tools/schema");
 const { execute, subscribe } = require("graphql");
 const { SubscriptionServer } = require("subscriptions-transport-ws");
 const { ApolloServer } = require("apollo-server-express");
+const { PubSub } = require("graphql-subscriptions");
 const { typeDefs: scalarTypeDefs } = require("graphql-scalars");
 const typeDefs = require("./typedefs");
 const resolvers = require("./resolvers");
@@ -115,6 +116,8 @@ async function startServer() {
     inheritResolversFromInterfaces: true,
   });
 
+  const pubsub = new PubSub();
+
   // Create Subscription server
   const subscriptionServer = SubscriptionServer.create(
     {
@@ -123,7 +126,7 @@ async function startServer() {
       subscribe,
       onConnect: (connectionParams) => {
         // Can be accessed as context in the subscription resolver
-        return verifyAuthToken(connectionParams.headers);
+        return { ...verifyAuthToken(connectionParams.headers), pubsub };
       },
     },
     { server: httpServer, path: "/subscriptions" }
@@ -132,7 +135,7 @@ async function startServer() {
   // Create Query and Mutation server
   const server = new ApolloServer({
     schema,
-    context: ({ req, res }) => ({ req, res }),
+    context: ({ req, res }) => ({ req, res, pubsub }),
     plugins: [
       {
         async serverWillStart() {

@@ -1,13 +1,11 @@
 const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
-const { PubSub } = require("graphql-subscriptions");
 const { formatConversations } = require("../helpers/message");
-
-const pubsub = new PubSub();
 
 const NEW_MESSAGE = "NEW_MESSAGE";
 
 /* ========== Query Resolvers ========== */
+
 exports.getConversations = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");
@@ -69,7 +67,7 @@ exports.getConversation = async (parent, args, { req, res }) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.sendMessage = async (parent, args, { req, res }) => {
+exports.sendMessage = async (parent, args, { req, res, pubsub }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");
   }
@@ -101,7 +99,7 @@ exports.sendMessage = async (parent, args, { req, res }) => {
 /* ========== Subscription Resolvers ========== */
 
 exports.newMessage = (parent, args, context) => {
-  return pubsub.asyncIterator([NEW_MESSAGE]);
+  return context.pubsub.asyncIterator([NEW_MESSAGE]);
 };
 
 exports.newMessageFilter = (payload, variables, context) => {
