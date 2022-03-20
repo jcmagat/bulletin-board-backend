@@ -15,7 +15,7 @@ exports.getConversations = async (parent, args, { req, res }) => {
     const auth_user_id = req.user.user_id;
 
     const query = await pool.query(
-      `SELECT message_id, sender_id, recipient_id, message, sent_at 
+      `SELECT message_id, sender_id, recipient_id, message, sent_at, is_read 
       FROM messages 
       WHERE sender_id = ($1) OR recipient_id = ($1)
       ORDER BY sent_at DESC`,
@@ -41,7 +41,7 @@ exports.getConversation = async (parent, args, { req, res }) => {
     const username = args.username;
 
     const query = await pool.query(
-      `SELECT message_id, sender_id, recipient_id, message, sent_at 
+      `SELECT message_id, sender_id, recipient_id, message, sent_at, is_read 
       FROM messages 
       WHERE (sender_id = ($1) AND recipient_id IN (
         SELECT user_id 
@@ -82,7 +82,7 @@ exports.sendMessage = async (parent, args, { req, res, pubsub }) => {
         SELECT ($1), ($2), user_id 
         FROM users 
         WHERE username = ($3) 
-      RETURNING message_id, sender_id, recipient_id, message, sent_at`,
+      RETURNING message_id, sender_id, recipient_id, message, sent_at, is_read`,
       [sender_id, message, recipient]
     );
 
@@ -91,6 +91,31 @@ exports.sendMessage = async (parent, args, { req, res, pubsub }) => {
     pubsub.publish(NEW_MESSAGE, { newMessage: newMessage });
 
     return newMessage;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.readMessages = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+    const message_ids = args.message_ids;
+
+    const query = await pool.query(
+      `UPDATE messages 
+      SET is_read = TRUE 
+      WHERE recipient_id = ($1) AND message_id = ANY($2) 
+      RETURNING message_id, sender_id, recipient_id, message, sent_at, is_read`,
+      [user_id, message_ids]
+    );
+
+    const messages = query.rows;
+
+    return messages;
   } catch (error) {
     throw new ApolloError(error);
   }

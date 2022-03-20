@@ -109,6 +109,7 @@ const typeDefs = gql`
     recipient: User!
     message: String!
     sent_at: DateTime!
+    is_read: Boolean!
   }
 
   type Conversation {
@@ -194,6 +195,7 @@ const typeDefs = gql`
 
     # Message mutations
     sendMessage(recipient: String!, message: String!): Message
+    readMessages(message_ids: [Int]!): [Message]
   }
 
   type Subscription {

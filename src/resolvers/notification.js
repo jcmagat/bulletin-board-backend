@@ -12,7 +12,7 @@ exports.getNotifications = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
 
     const query = await pool.query(
-      `SELECT message_id, sender_id, recipient_id, message, sent_at 
+      `SELECT message_id, sender_id, recipient_id, message, sent_at, is_read 
       FROM messages 
       WHERE recipient_id = ($1) AND NOT is_read 
       ORDER BY sent_at DESC`,

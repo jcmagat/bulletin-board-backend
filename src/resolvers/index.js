@@ -57,6 +57,7 @@ const {
   getConversations,
   getConversation,
   sendMessage,
+  readMessages,
   newMessage,
   newMessageFilter,
 } = require("./message");
@@ -134,6 +135,7 @@ const resolvers = {
 
     // Message mutations
     sendMessage: sendMessage,
+    readMessages: readMessages,
   },
 
   Subscription: {
