@@ -200,6 +200,7 @@ const typeDefs = gql`
 
   type Subscription {
     newMessage: Message
+    newNotification: Notification
   }
 
   schema {

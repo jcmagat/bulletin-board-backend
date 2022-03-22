@@ -1,6 +1,8 @@
 const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
 
+const NEW_NOTIFICATION = "NEW_NOTIFICATION";
+
 /* ========== Query Resolvers ========== */
 
 exports.getNotifications = async (parent, args, { req, res }) => {
@@ -25,4 +27,24 @@ exports.getNotifications = async (parent, args, { req, res }) => {
   } catch (error) {
     throw new ApolloError(error);
   }
+};
+
+/* ========== Subscription Resolvers ========== */
+
+exports.newNotification = (parent, args, context) => {
+  return context.pubsub.asyncIterator([NEW_NOTIFICATION]);
+};
+
+exports.newNotificationFilter = (payload, variables, context) => {
+  if (!context.isAuthenticated) {
+    return false;
+  }
+
+  // Assumes notification is a Message
+  // The only possible notification for now
+  if (context.authUser.user_id !== payload.newNotification.recipient_id) {
+    return false;
+  }
+
+  return true;
 };

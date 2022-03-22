@@ -61,7 +61,11 @@ const {
   newMessage,
   newMessageFilter,
 } = require("./message");
-const { getNotifications } = require("./notification");
+const {
+  getNotifications,
+  newNotification,
+  newNotificationFilter,
+} = require("./notification");
 const { search } = require("./search");
 const { withFilter } = require("graphql-subscriptions");
 
@@ -141,6 +145,9 @@ const resolvers = {
   Subscription: {
     newMessage: {
       subscribe: withFilter(newMessage, newMessageFilter),
+    },
+    newNotification: {
+      subscribe: withFilter(newNotification, newNotificationFilter),
     },
   },
 

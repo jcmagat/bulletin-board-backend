@@ -89,6 +89,7 @@ exports.sendMessage = async (parent, args, { req, res, pubsub }) => {
     const newMessage = query.rows[0];
 
     pubsub.publish(NEW_MESSAGE, { newMessage: newMessage });
+    pubsub.publish("NEW_NOTIFICATION", { newNotification: newMessage });
 
     return newMessage;
   } catch (error) {
