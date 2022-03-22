@@ -205,6 +205,7 @@ CREATE TABLE public.messages (
 	recipient_id int4 NOT NULL,
 	message varchar(255) NULL,
 	sent_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+	is_read bool NULL DEFAULT false,
 	CONSTRAINT messages_pkey PRIMARY KEY (message_id),
 	CONSTRAINT messages_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES public.users(user_id) ON DELETE CASCADE,
 	CONSTRAINT messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(user_id) ON DELETE CASCADE
