@@ -16,7 +16,6 @@ exports.verifyAuthToken = (headers) => {
 
     const authUser = {
       user_id: payload.user_id,
-      username: payload.username,
     };
 
     return { isAuthenticated: true, authUser: authUser };
