@@ -1,8 +1,7 @@
 const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
 const { formatConversations } = require("../helpers/message");
-
-const NEW_MESSAGE = "NEW_MESSAGE";
+const { NEW_MESSAGE, NEW_NOTIFICATION } = require("../utils/constants");
 
 /* ========== Query Resolvers ========== */
 
@@ -89,7 +88,11 @@ exports.sendMessage = async (parent, args, { req, res, pubsub }) => {
     const newMessage = query.rows[0];
 
     pubsub.publish(NEW_MESSAGE, { newMessage: newMessage });
-    pubsub.publish("NEW_NOTIFICATION", { newNotification: newMessage });
+
+    pubsub.publish(NEW_NOTIFICATION, {
+      type: "Message",
+      newNotification: newMessage,
+    });
 
     return newMessage;
   } catch (error) {

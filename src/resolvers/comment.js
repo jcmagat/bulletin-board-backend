@@ -5,6 +5,7 @@ const {
   AuthenticationError,
   ForbiddenError,
 } = require("apollo-server-errors");
+const { NEW_NOTIFICATION } = require("../utils/constants");
 
 /* ========== Query Resolvers ========== */
 
@@ -85,7 +86,7 @@ exports.getChildComments = async (parent, args) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.addComment = async (parent, args, { req, res }) => {
+exports.addComment = async (parent, args, { req, res, pubsub }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");
   }
@@ -105,6 +106,11 @@ exports.addComment = async (parent, args, { req, res }) => {
     );
 
     const newComment = query.rows[0];
+
+    pubsub.publish(NEW_NOTIFICATION, {
+      type: "Comment",
+      newNotification: newComment,
+    });
 
     return newComment;
   } catch (error) {

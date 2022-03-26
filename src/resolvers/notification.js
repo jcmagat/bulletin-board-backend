@@ -1,7 +1,7 @@
 const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
-
-const NEW_NOTIFICATION = "NEW_NOTIFICATION";
+const { NEW_NOTIFICATION } = require("../utils/constants");
+const _ = require("lodash");
 
 /* ========== Query Resolvers ========== */
 
@@ -40,10 +40,26 @@ exports.newNotificationFilter = (payload, variables, context) => {
     return false;
   }
 
-  // Assumes notification is a Message
-  // The only possible notification for now
-  if (context.authUser.user_id !== payload.newNotification.recipient_id) {
-    return false;
+  console.log(payload);
+
+  const notification = payload.newNotification;
+
+  switch (payload.type) {
+    case "Message":
+      // Only publish to the message recipient
+      if (context.authUser.user_id !== notification.recipient_id) {
+        return false;
+      }
+      break;
+
+    case "Comment":
+      // Only publish to the user whose post the comment was left
+      // Or whose comment the comment is replied to
+      return false;
+      break;
+
+    default:
+      return false;
   }
 
   return true;
