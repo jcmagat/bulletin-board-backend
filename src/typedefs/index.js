@@ -117,7 +117,7 @@ const typeDefs = gql`
     messages: [Message]
   }
 
-  union Notification = Message
+  union Notification = Message | Comment
 
   union SearchResult = User | Community | TextPost | MediaPost
 

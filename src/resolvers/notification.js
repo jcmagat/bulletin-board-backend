@@ -40,27 +40,30 @@ exports.newNotificationFilter = (payload, variables, context) => {
     return false;
   }
 
-  console.log(payload);
-
-  const notification = payload.newNotification;
-
   switch (payload.type) {
     case "Message":
       // Only publish to the message recipient
-      if (context.authUser.user_id !== notification.recipient_id) {
-        return false;
+      if (context.authUser.user_id === payload.newNotification.recipient_id) {
+        return true;
       }
       break;
 
     case "Comment":
-      // Only publish to the user whose post the comment was left
-      // Or whose comment the comment is replied to
-      return false;
+      // Only publish to the creator of the parent comment
+      // If there's no parent comment, only publish to the creator of the post
+      if (context.authUser.user_id === payload.info.parent_comment_user_id) {
+        return true;
+      } else if (
+        !payload.info.parent_comment_user_id &&
+        context.authUser.user_id === payload.info.post_user_id
+      ) {
+        return true;
+      }
       break;
 
     default:
       return false;
   }
 
-  return true;
+  return false;
 };

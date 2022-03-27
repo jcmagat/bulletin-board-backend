@@ -194,7 +194,11 @@ const resolvers = {
 
   Notification: {
     __resolveType(obj) {
-      return "Message";
+      if (obj.message_id) {
+        return "Message";
+      } else if (obj.comment_id) {
+        return "Comment";
+      }
     },
   },
 
