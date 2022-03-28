@@ -13,7 +13,7 @@ exports.getNotifications = async (parent, args, { req, res }) => {
   try {
     const user_id = req.user.user_id;
 
-    const query = await pool.query(
+    const messageQuery = await pool.query(
       `SELECT message_id, sender_id, recipient_id, message, sent_at, is_read 
       FROM messages 
       WHERE recipient_id = ($1) AND NOT is_read 
@@ -21,7 +21,26 @@ exports.getNotifications = async (parent, args, { req, res }) => {
       [user_id]
     );
 
-    const notifications = query.rows;
+    const commentQuery = await pool.query(
+      `WITH 
+        comment_ids AS (
+          SELECT comment_id FROM comments WHERE user_id = ($1)
+        ), 
+        post_ids AS (
+          SELECT post_id FROM posts WHERE user_id = ($1)
+        )
+      SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
+      FROM comments 
+      WHERE (
+          parent_comment_id IN (SELECT * FROM comment_ids) OR 
+          parent_comment_id IS NULL AND post_id IN (SELECT * FROM post_ids)
+        ) AND 
+        NOT is_read`,
+      [user_id]
+    );
+
+    const notifications = [...messageQuery.rows, ...commentQuery.rows];
 
     return notifications;
   } catch (error) {
