@@ -135,7 +135,9 @@ async function startServer() {
   // Create Query and Mutation server
   const server = new ApolloServer({
     schema,
-    context: ({ req, res }) => ({ req, res, pubsub }),
+    context: ({ req, res }) => {
+      return { req, res, ...verifyAuthToken(req.headers), pubsub };
+    },
     plugins: [
       {
         async serverWillStart() {

@@ -30,7 +30,7 @@ exports.getPostComments = async (parent, args) => {
 };
 
 // Child resolver for Comment to get comment reactions
-exports.getCommentReactions = async (parent, args, { req, res }) => {
+exports.getCommentReactions = async (parent, args, context) => {
   try {
     const comment_id = parent.comment_id;
 
@@ -44,8 +44,8 @@ exports.getCommentReactions = async (parent, args, { req, res }) => {
 
     let commentReactions = formatReactions(query.rows);
 
-    if (req.isAuth) {
-      const user_id = req.user.user_id;
+    if (context.isAuthenticated) {
+      const user_id = context.authUser.user_id;
 
       const auth_query = await pool.query(
         `SELECT reaction as auth_user_reaction
