@@ -52,6 +52,7 @@ const {
   deleteComment,
   addCommentReaction,
   deleteCommentReaction,
+  readComments,
 } = require("./comment");
 const {
   getConversations,
@@ -136,6 +137,7 @@ const resolvers = {
     deleteComment: deleteComment,
     addCommentReaction: addCommentReaction,
     deleteCommentReaction: deleteCommentReaction,
+    readComments: readComments,
 
     // Message mutations
     sendMessage: sendMessage,

@@ -192,6 +192,7 @@ const typeDefs = gql`
     deleteComment(comment_id: Int!): Comment
     addCommentReaction(comment_id: Int!, reaction: String!): Comment
     deleteCommentReaction(comment_id: Int!): Comment
+    readComments(comment_ids: [Int]!): [Comment]
 
     # Message mutations
     sendMessage(recipient: String!, message: String!): Message
