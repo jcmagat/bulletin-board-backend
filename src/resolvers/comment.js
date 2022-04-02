@@ -107,23 +107,24 @@ exports.addComment = async (parent, args, { req, res, pubsub }) => {
 
     const newComment = query.rows[0];
 
-    // Info:
-    // - post_user_id = user_id of the creator of the post where the comment was left
-    // - parent_comment_user_id = user_id of the creator of the parent comment
-    //   (null if parent_comment_id is null)
-    const infoQuery = await pool.query(
-      `WITH x AS (
-        SELECT user_id AS parent_comment_user_id 
-        FROM comments 
-        WHERE comment_id = ($1)
-      )
-      SELECT user_id AS post_user_id, (SELECT * FROM x) 
-      FROM posts 
-      WHERE post_id = ($2)`,
-      [parent_comment_id, post_id]
+    const notificationQuery = await pool.query(
+      `WITH 
+        parent_comment_user_id AS (
+          SELECT user_id FROM comments WHERE comment_id = ($1)
+        ), 
+        post_user_id AS (
+          SELECT user_id FROM posts WHERE post_id = ($2)
+        )
+      INSERT INTO notifications (recipient_id, actor_id, comment_id)
+      VALUES (
+          COALESCE((SELECT * FROM parent_comment_user_id), (SELECT * FROM post_user_id)), 
+          ($3), ($4)
+        )
+      RETURNING *`,
+      [parent_comment_id, post_id, user_id, newComment.comment_id]
     );
 
-    const info = infoQuery.rows[0];
+    const info = notificationQuery.rows[0];
 
     pubsub.publish(NEW_NOTIFICATION, {
       type: "Comment",

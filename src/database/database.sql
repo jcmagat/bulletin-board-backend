@@ -211,3 +211,23 @@ CREATE TABLE public.messages (
 	CONSTRAINT messages_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES public.users(user_id) ON DELETE CASCADE,
 	CONSTRAINT messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(user_id) ON DELETE CASCADE
 );
+
+
+-- public.notifications definition
+
+-- Drop table
+
+-- DROP TABLE public.notifications;
+
+CREATE TABLE public.notifications (
+	notification_id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
+	actor_id int4 NULL,
+	recipient_id int4 NOT NULL,
+	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+	is_read bool NULL DEFAULT false,
+	comment_id int4 NULL,
+	CONSTRAINT notifications_pkey PRIMARY KEY (notification_id),
+	CONSTRAINT notifications_actor_id_fkey FOREIGN KEY (actor_id) REFERENCES public.users(user_id) ON DELETE CASCADE,
+	CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public."comments"(comment_id) ON DELETE CASCADE,
+	CONSTRAINT notifications_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES public.users(user_id) ON DELETE CASCADE
+);

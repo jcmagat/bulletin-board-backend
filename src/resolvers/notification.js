@@ -70,12 +70,7 @@ exports.newNotificationFilter = (payload, variables, context) => {
     case "Comment":
       // Only publish to the creator of the parent comment
       // If there's no parent comment, only publish to the creator of the post
-      if (context.authUser.user_id === payload.info.parent_comment_user_id) {
-        return true;
-      } else if (
-        !payload.info.parent_comment_user_id &&
-        context.authUser.user_id === payload.info.post_user_id
-      ) {
+      if (context.authUser.user_id === payload.info.recipient_id) {
         return true;
       }
       break;
