@@ -117,7 +117,14 @@ const typeDefs = gql`
     messages: [Message]
   }
 
-  union Notification = Message | Comment
+  type Notification {
+    notification_id: Int!
+    created_at: DateTime!
+    is_read: Boolean!
+    object: NotificationObject
+  }
+
+  union NotificationObject = Message | Comment
 
   union SearchResult = User | Community | TextPost | MediaPost
 
@@ -144,7 +151,7 @@ const typeDefs = gql`
     conversation(username: String!): [Message]
 
     # Notification queries
-    notifications: [Notification]
+    notifications: [NotificationObject]
 
     # Search queries
     search(term: String!): [SearchResult]
@@ -197,11 +204,14 @@ const typeDefs = gql`
     # Message mutations
     sendMessage(recipient: String!, message: String!): Message
     readMessages(message_ids: [Int]!): [Message]
+
+    # Notification mutations
+    readNotifications(notification_ids: [Int]!): [Notification]
   }
 
   type Subscription {
     newMessage: Message
-    newNotification: Notification
+    newNotification: NotificationObject
   }
 
   schema {

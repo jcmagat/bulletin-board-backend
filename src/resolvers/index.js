@@ -64,6 +64,8 @@ const {
 } = require("./message");
 const {
   getNotifications,
+  getNotificationObject,
+  readNotifications,
   newNotification,
   newNotificationFilter,
 } = require("./notification");
@@ -142,6 +144,9 @@ const resolvers = {
     // Message mutations
     sendMessage: sendMessage,
     readMessages: readMessages,
+
+    // Notification mutations
+    readNotifications: readNotifications,
   },
 
   Subscription: {
@@ -195,6 +200,10 @@ const resolvers = {
   },
 
   Notification: {
+    object: getNotificationObject,
+  },
+
+  NotificationObject: {
     __resolveType(obj) {
       if (obj.message_id) {
         return "Message";
