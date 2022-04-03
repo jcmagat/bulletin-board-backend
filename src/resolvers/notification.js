@@ -1,7 +1,6 @@
 const pool = require("../database");
 const { ApolloError, AuthenticationError } = require("apollo-server-express");
 const { NEW_NOTIFICATION } = require("../utils/constants");
-const _ = require("lodash");
 
 /* ========== Query Resolvers ========== */
 
@@ -22,21 +21,13 @@ exports.getNotifications = async (parent, args, { req, res }) => {
     );
 
     const commentQuery = await pool.query(
-      `WITH 
-        comment_ids AS (
-          SELECT comment_id FROM comments WHERE user_id = ($1)
-        ), 
-        post_ids AS (
-          SELECT post_id FROM posts WHERE user_id = ($1)
-        )
-      SELECT comment_id, parent_comment_id, post_id, user_id, message, 
-        age(now(), created_at) 
-      FROM comments 
-      WHERE (
-          parent_comment_id IN (SELECT * FROM comment_ids) OR 
-          parent_comment_id IS NULL AND post_id IN (SELECT * FROM post_ids)
-        ) AND 
-        NOT is_read`,
+      `SELECT c.comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), n.created_at) 
+      FROM notifications n 
+      INNER JOIN comments c 
+        ON n.comment_id = c.comment_id 
+      WHERE recipient_id = ($1) AND NOT n.is_read 
+      ORDER BY n.created_at DESC`,
       [user_id]
     );
 
