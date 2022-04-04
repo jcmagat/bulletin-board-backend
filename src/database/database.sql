@@ -143,7 +143,6 @@ CREATE TABLE public."comments" (
 	parent_comment_id int4 NULL,
 	message varchar(255) NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
-	is_read bool NULL DEFAULT false,
 	CONSTRAINT comments_pkey PRIMARY KEY (comment_id),
 	CONSTRAINT comments_parent_comment_id_fkey FOREIGN KEY (parent_comment_id) REFERENCES public."comments"(comment_id) ON DELETE CASCADE,
 	CONSTRAINT comments_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(post_id) ON DELETE CASCADE,

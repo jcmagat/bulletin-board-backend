@@ -26,7 +26,7 @@ exports.getNotifications = async (parent, args, context) => {
       FROM notifications n 
       INNER JOIN comments c 
         ON n.comment_id = c.comment_id 
-      WHERE recipient_id = ($1) AND NOT n.is_read 
+      WHERE recipient_id = ($1) AND NOT is_read 
       ORDER BY n.created_at DESC`,
       [user_id]
     );
