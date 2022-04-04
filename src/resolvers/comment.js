@@ -227,28 +227,27 @@ exports.deleteCommentReaction = async (parent, args, { req, res }) => {
   }
 };
 
-exports.readComments = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.readComments = async (parent, args, context) => {
+  if (!context.isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = context.authUser.user_id;
     const comment_ids = args.comment_ids;
 
-    // TODO:
-    // check if req.user is recipient of comment notification
-    // get parent_comment_id and post_id
-    // get user_id of post and parent_comment
-    // check to see if either is req.user
-
     const query = await pool.query(
-      `UPDATE comments 
-      SET is_read = TRUE 
-      WHERE comment_id = ANY($1) 
-      RETURNING comment_id, parent_comment_id, post_id, user_id, message, 
-        age(now(), created_at)`,
-      [comment_ids]
+      `WITH read_comment_ids AS (
+        UPDATE notifications 
+        SET is_read = TRUE 
+        WHERE recipient_id = ($1) AND comment_id = ANY($2) 
+        RETURNING comment_id
+      )
+      SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
+      FROM comments 
+      WHERE comment_id IN (SELECT * FROM read_comment_ids)`,
+      [user_id, comment_ids]
     );
 
     const comments = query.rows;
