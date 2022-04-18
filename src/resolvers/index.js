@@ -27,6 +27,7 @@ const {
   getCommunityPosts,
   join,
   leave,
+  createCommunity,
   editCommunity,
 } = require("./community");
 const {
@@ -121,6 +122,7 @@ const resolvers = {
     // Community mutations
     join: join,
     leave: leave,
+    createCommunity: createCommunity,
     editCommunity: editCommunity,
 
     // Post mutations

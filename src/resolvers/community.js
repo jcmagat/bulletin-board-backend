@@ -171,6 +171,48 @@ exports.leave = async (parent, args, { req, res }) => {
   }
 };
 
+exports.createCommunity = async (parent, args, { req, res }) => {
+  if (!req.isAuth) {
+    throw new AuthenticationError("Not authenticated");
+  }
+
+  try {
+    const user_id = req.user.user_id;
+    const name = args.name;
+    const title = args.title;
+    const description = args.description;
+    const logo = args.logo;
+    let logo_src = null;
+
+    if (logo) {
+      const uploadedFile = await uploadFile(logo);
+      logo_src = `/media/${uploadedFile.Key}`;
+    }
+
+    const query = await pool.query(
+      `WITH 
+        new_community AS (
+          INSERT INTO communities (name, title, description, logo_src) 
+          VALUES ($1, $2, $3, $4) 
+          RETURNING community_id, name, title, description, created_at, logo_src
+        ), 
+        new_moderator AS (
+          INSERT INTO moderators (community_id, user_id) 
+          VALUES ((SELECT community_id FROM new_community), $5) 
+        )
+      SELECT * 
+      FROM new_community`,
+      [name, title, description, logo_src, user_id]
+    );
+
+    const community = query.rows[0];
+
+    return community;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
 exports.editCommunity = async (parent, args, { req, res }) => {
   if (!req.isAuth) {
     throw new AuthenticationError("Not authenticated");

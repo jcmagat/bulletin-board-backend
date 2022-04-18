@@ -171,6 +171,12 @@ const typeDefs = gql`
     # Community mutations
     join(community_id: Int!): Community
     leave(community_id: Int!): Community
+    createCommunity(
+      name: String!
+      title: String!
+      description: String!
+      logo: Upload
+    ): Community
     editCommunity(
       community_id: Int!
       title: String
