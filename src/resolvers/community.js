@@ -52,8 +52,8 @@ exports.getCommunityModerators = async (parent, args) => {
       FROM users 
       WHERE user_id IN (
         SELECT user_id 
-        FROM moderators 
-        WHERE community_id = ($1)
+        FROM members 
+        WHERE community_id = ($1) AND type = 'moderator'
       )`,
       [community_id]
     );
@@ -197,8 +197,10 @@ exports.createCommunity = async (parent, args, { req, res }) => {
           RETURNING community_id, name, title, description, created_at, logo_src
         ), 
         new_moderator AS (
-          INSERT INTO moderators (community_id, user_id) 
-          VALUES ((SELECT community_id FROM new_community), $5) 
+          INSERT INTO members (community_id, user_id, type) 
+          VALUES (
+            (SELECT community_id FROM new_community), 
+            $5, 'moderator') 
         )
       SELECT * 
       FROM new_community`,
@@ -227,8 +229,8 @@ exports.editCommunity = async (parent, args, { req, res }) => {
 
     const moderatorQuery = await pool.query(
       `SELECT * 
-      FROM moderators 
-      WHERE community_id = ($1) AND user_id = ($2)`,
+      FROM members 
+      WHERE community_id = ($1) AND user_id = ($2) AND type = 'moderator'`,
       [community_id, user_id]
     );
 

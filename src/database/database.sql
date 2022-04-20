@@ -51,6 +51,17 @@ CREATE TABLE public.follows (
 );
 
 
+-- reaction definition
+
+-- Drop type
+
+-- DROP TYPE member_type;
+
+CREATE TYPE member_type AS ENUM (
+	'member',
+	'moderator');
+
+
 -- public.members definition
 
 -- Drop table
@@ -60,25 +71,11 @@ CREATE TABLE public.follows (
 CREATE TABLE public.members (
 	community_id int4 NOT NULL,
 	user_id int4 NOT NULL,
-	joined_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+	joined_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	"type" member_type NOT NULL DEFAULT 'member'::member_type,
 	CONSTRAINT members_pkey PRIMARY KEY (community_id, user_id),
 	CONSTRAINT members_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(community_id) ON DELETE CASCADE,
 	CONSTRAINT members_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE
-);
-
-
--- public.moderators definition
-
--- Drop table
-
--- DROP TABLE public.moderators;
-
-CREATE TABLE public.moderators (
-	community_id int4 NOT NULL,
-	user_id int4 NOT NULL,
-	CONSTRAINT moderators_pkey PRIMARY KEY (community_id, user_id),
-	CONSTRAINT moderators_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(community_id) ON DELETE CASCADE,
-	CONSTRAINT moderators_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE
 );
 
 
