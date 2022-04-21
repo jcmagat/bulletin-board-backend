@@ -4,6 +4,7 @@ const {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
+  UserInputError,
 } = require("apollo-server-express");
 
 /* ========== Query Resolvers ========== */
@@ -211,7 +212,11 @@ exports.createCommunity = async (parent, args, { req, res }) => {
 
     return community;
   } catch (error) {
-    throw new ApolloError(error);
+    if (error.constraint === "communities_name_unique") {
+      throw new UserInputError("Community name is already taken");
+    } else {
+      throw new ApolloError(error);
+    }
   }
 };
 
