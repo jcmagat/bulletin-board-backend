@@ -33,13 +33,13 @@ const typeDefs = gql`
     followed_at: DateTime!
   }
 
-  # TODO: add type
   type Community {
     community_id: Int!
     name: String!
     title: String!
     description: String!
     created_at: DateTime!
+    type: String!
     logo_src: String
     moderators: [User]
     members: [User]

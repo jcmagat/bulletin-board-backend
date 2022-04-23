@@ -12,7 +12,7 @@ const {
 exports.getAllCommunities = async (parent, args) => {
   try {
     const query = await pool.query(
-      `SELECT community_id, name, title, description, created_at, logo_src 
+      `SELECT community_id, name, title, description, type, created_at, logo_src 
       FROM communities`
     );
 
@@ -29,7 +29,7 @@ exports.getCommunity = async (parent, args) => {
     const name = args.name;
 
     const query = await pool.query(
-      `SELECT community_id, name, title, description, created_at, logo_src 
+      `SELECT community_id, name, title, description, type, created_at, logo_src 
       FROM communities 
       WHERE name = ($1)`,
       [name]
@@ -130,7 +130,7 @@ exports.join = async (parent, args, { req, res }) => {
         ON CONFLICT ON CONSTRAINT members_pkey 
         DO NOTHING
       )
-      SELECT community_id, name, title, description, created_at, logo_src 
+      SELECT community_id, name, title, description, type, created_at, logo_src 
       FROM communities 
       WHERE community_id = ($1)`,
       [community_id, user_id]
@@ -158,7 +158,7 @@ exports.leave = async (parent, args, { req, res }) => {
         DELETE FROM members 
         WHERE community_id = ($1) AND user_id = ($2)
       )
-      SELECT community_id, name, title, description, created_at, logo_src 
+      SELECT community_id, name, title, description, type, created_at, logo_src 
       FROM communities 
       WHERE community_id = ($1)`,
       [community_id, user_id]
@@ -196,7 +196,8 @@ exports.createCommunity = async (parent, args, { req, res }) => {
         new_community AS (
           INSERT INTO communities (name, title, description, type, logo_src) 
           VALUES ($1, $2, $3, $4, $5) 
-          RETURNING community_id, name, title, description, created_at, logo_src
+          RETURNING community_id, name, title, description, type, created_at, 
+            logo_src
         ), 
         new_moderator AS (
           INSERT INTO members (community_id, user_id, type) 
@@ -296,7 +297,7 @@ exports.editCommunity = async (parent, args, { req, res }) => {
     }
 
     const communityQuery = await pool.query(
-      `SELECT community_id, name, title, description, created_at, logo_src 
+      `SELECT community_id, name, title, description, type, created_at, logo_src 
       FROM communities 
       WHERE community_id = ($1)`,
       [community_id]

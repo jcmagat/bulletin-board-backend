@@ -33,7 +33,7 @@ exports.search = async (parent, args) => {
     );
 
     const communityQuery = await pool.query(
-      `SELECT community_id, name, title, description, created_at, logo_src 
+      `SELECT community_id, name, title, description, type, created_at, logo_src 
       FROM communities 
       WHERE to_tsvector(name || ' c/' || name || ' ' || title || ' ' || description) 
         @@ to_tsquery($1)`,
