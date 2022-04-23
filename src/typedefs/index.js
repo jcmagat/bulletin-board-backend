@@ -33,6 +33,7 @@ const typeDefs = gql`
     followed_at: DateTime!
   }
 
+  # TODO: add type
   type Community {
     community_id: Int!
     name: String!
@@ -175,12 +176,14 @@ const typeDefs = gql`
       name: String!
       title: String!
       description: String!
+      type: String!
       logo: Upload
     ): Community
     editCommunity(
       community_id: Int!
       title: String
       description: String
+      type: String
       logo: Upload
     ): Community
 

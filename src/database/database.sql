@@ -1,3 +1,15 @@
+-- community_type definition
+
+-- Drop type
+
+-- DROP TYPE community_type;
+
+CREATE TYPE community_type AS ENUM (
+	'public',
+	'restricted',
+	'private');
+
+
 -- public.communities definition
 
 -- Drop table
@@ -11,6 +23,7 @@ CREATE TABLE public.communities (
 	description varchar(255) NOT NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
 	logo_src varchar(64) NULL,
+	"type" community_type NOT NULL DEFAULT 'public'::community_type,
 	v_name varchar(32) NULL GENERATED ALWAYS AS (lower(name::text)) STORED,
 	CONSTRAINT communities_name_unique UNIQUE (v_name),
 	CONSTRAINT communities_pkey PRIMARY KEY (community_id)

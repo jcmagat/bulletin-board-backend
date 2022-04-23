@@ -182,6 +182,7 @@ exports.createCommunity = async (parent, args, { req, res }) => {
     const name = args.name;
     const title = args.title;
     const description = args.description;
+    const type = args.type;
     const logo = args.logo;
     let logo_src = null;
 
@@ -193,19 +194,19 @@ exports.createCommunity = async (parent, args, { req, res }) => {
     const query = await pool.query(
       `WITH 
         new_community AS (
-          INSERT INTO communities (name, title, description, logo_src) 
-          VALUES ($1, $2, $3, $4) 
+          INSERT INTO communities (name, title, description, type, logo_src) 
+          VALUES ($1, $2, $3, $4, $5) 
           RETURNING community_id, name, title, description, created_at, logo_src
         ), 
         new_moderator AS (
           INSERT INTO members (community_id, user_id, type) 
           VALUES (
             (SELECT community_id FROM new_community), 
-            $5, 'moderator') 
+            $6, 'moderator') 
         )
       SELECT * 
       FROM new_community`,
-      [name, title, description, logo_src, user_id]
+      [name, title, description, type, logo_src, user_id]
     );
 
     const community = query.rows[0];
@@ -230,6 +231,7 @@ exports.editCommunity = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
     const title = args.title;
     const description = args.description;
+    const type = args.type;
     const logo = args.logo;
 
     const moderatorQuery = await pool.query(
@@ -258,6 +260,15 @@ exports.editCommunity = async (parent, args, { req, res }) => {
         SET description = ($1) 
         WHERE community_id = ($2)`,
         [description, community_id]
+      );
+    }
+
+    if (type) {
+      await pool.query(
+        `UPDATE communities 
+        SET type = ($1) 
+        WHERE community_id = ($2)`,
+        [type, community_id]
       );
     }
 
