@@ -63,13 +63,6 @@ exports.authorizeUserPost = async (community_id, user_id) => {
         return false;
       }
 
-    case "private":
-      if (info.member_type === "member" || info.member_type === "moderator") {
-        return true;
-      } else {
-        return false;
-      }
-
     default:
       return false;
   }

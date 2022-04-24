@@ -6,8 +6,7 @@
 
 CREATE TYPE community_type AS ENUM (
 	'public',
-	'restricted',
-	'private');
+	'restricted');
 
 
 -- public.communities definition
