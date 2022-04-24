@@ -2,6 +2,7 @@ const pool = require("../database");
 const {
   getHomePagePostsForAuthUser,
   getPostsForNonAuthUser,
+  authorizeUserPost,
 } = require("../helpers/post");
 const { formatReactions } = require("../helpers/common");
 const { uploadFile, deleteFile } = require("../services/s3");
@@ -155,7 +156,11 @@ exports.addTextPost = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
     const community_id = args.community_id;
 
-    // TODO: check community type
+    const isAuthorized = await authorizeUserPost(community_id, user_id);
+
+    if (!isAuthorized) {
+      throw new ForbiddenError("User not authorized to post in this community");
+    }
 
     const query = await pool.query(
       `INSERT INTO posts (type, title, description, user_id, community_id) 
@@ -184,7 +189,11 @@ exports.addMediaPost = async (parent, args, { req, res }) => {
     const user_id = req.user.user_id;
     const community_id = args.community_id;
 
-    // TODO: check community type
+    const isAuthorized = await authorizeUserPost(community_id, user_id);
+
+    if (!isAuthorized) {
+      throw new ForbiddenError("User not authorized to post in this community");
+    }
 
     const uploadedMedia = await uploadFile(args.media);
     const media_src = `/media/${uploadedMedia.Key}`;

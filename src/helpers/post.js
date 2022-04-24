@@ -31,3 +31,46 @@ exports.getPostsForNonAuthUser = async () => {
 
   return posts;
 };
+
+// Returns boolean whether or not user is authorized to post in community
+exports.authorizeUserPost = async (community_id, user_id) => {
+  const query = await pool.query(
+    `WITH 
+      community AS (
+        SELECT type AS community_type 
+        FROM communities 
+        WHERE community_id = ($1)
+      ), 
+      member AS (
+        SELECT type AS member_type 
+        FROM members 
+        WHERE community_id = ($1) AND user_id = ($2)
+      )
+    SELECT (SELECT * FROM community), (SELECT * FROM member)`,
+    [community_id, user_id]
+  );
+
+  const info = query.rows[0];
+
+  switch (info.community_type) {
+    case "public":
+      return true;
+
+    case "restricted":
+      if (info.member_type === "moderator") {
+        return true;
+      } else {
+        return false;
+      }
+
+    case "private":
+      if (info.member_type === "member" || info.member_type === "moderator") {
+        return true;
+      } else {
+        return false;
+      }
+
+    default:
+      return false;
+  }
+};
