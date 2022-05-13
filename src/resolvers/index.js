@@ -47,6 +47,7 @@ const {
 } = require("./post");
 const {
   getPostComments,
+  getComment,
   getCommentReactions,
   getChildComments,
   addComment,
@@ -89,7 +90,8 @@ const resolvers = {
     post: getPostById,
 
     // Comment queries
-    comments: getPostComments,
+    postComments: getPostComments,
+    comment: getComment,
 
     // Message queries
     conversations: getConversations,

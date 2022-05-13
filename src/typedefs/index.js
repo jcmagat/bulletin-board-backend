@@ -138,7 +138,8 @@ const typeDefs = gql`
     post(post_id: Int!): Post
 
     # Comment queries
-    comments(post_id: Int!): [Comment]
+    postComments(post_id: Int!): [Comment]
+    comment(comment_id: Int!): Comment
 
     # Message queries
     conversations: [Conversation]

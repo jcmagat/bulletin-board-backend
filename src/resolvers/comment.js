@@ -29,6 +29,26 @@ exports.getPostComments = async (parent, args) => {
   }
 };
 
+exports.getComment = async (parent, args) => {
+  try {
+    const comment_id = args.comment_id;
+
+    const query = await pool.query(
+      `SELECT comment_id, parent_comment_id, post_id, user_id, message, 
+        age(now(), created_at) 
+      FROM comments 
+      WHERE comment_id = ($1)`,
+      [comment_id]
+    );
+
+    const comment = query.rows[0];
+
+    return comment;
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
 // Child resolver for Comment to get comment reactions
 exports.getCommentReactions = async (parent, args, context) => {
   try {
