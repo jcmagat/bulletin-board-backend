@@ -57,6 +57,13 @@ app.get("/media/:key", (req, res) => {
   readStream.pipe(res);
 });
 
+// OAuth
+app.get("/oauth/google", (req, res) => {
+  res.send("Hello");
+
+  // send cookie back to client
+});
+
 // formatResponse for ApolloServer
 const formatResponse = (
   response,
