@@ -5,13 +5,15 @@ const { NEW_MESSAGE, NEW_NOTIFICATION } = require("../utils/constants");
 
 /* ========== Query Resolvers ========== */
 
-exports.getConversations = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.getConversations = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const auth_user_id = req.user.user_id;
+    const auth_user_id = authUser.user_id;
 
     const query = await pool.query(
       `SELECT message_id, sender_id, recipient_id, message, sent_at, is_read 
@@ -30,13 +32,15 @@ exports.getConversations = async (parent, args, { req, res }) => {
   }
 };
 
-exports.getConversation = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.getConversation = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const auth_user_id = req.user.user_id;
+    const auth_user_id = authUser.user_id;
     const username = args.username;
 
     const query = await pool.query(
@@ -66,13 +70,15 @@ exports.getConversation = async (parent, args, { req, res }) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.sendMessage = async (parent, args, { req, res, pubsub }) => {
-  if (!req.isAuth) {
+exports.sendMessage = async (parent, args, context) => {
+  const { isAuthenticated, authUser, pubsub } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const sender_id = req.user.user_id;
+    const sender_id = authUser.user_id;
     const message = args.message;
     const recipient = args.recipient;
 
@@ -100,13 +106,15 @@ exports.sendMessage = async (parent, args, { req, res, pubsub }) => {
   }
 };
 
-exports.readMessages = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.readMessages = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const message_ids = args.message_ids;
 
     const query = await pool.query(

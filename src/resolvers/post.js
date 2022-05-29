@@ -19,12 +19,14 @@ const POST_TYPES = {
 
 /* ========== Query Resolvers ========== */
 
-exports.getHomePagePosts = async (parent, args, { req, res }) => {
+exports.getHomePagePosts = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
   try {
     let posts;
 
-    if (req.isAuth) {
-      const user_id = req.user.user_id;
+    if (isAuthenticated) {
+      const user_id = authUser.user_id;
       posts = await getHomePagePostsForAuthUser(user_id);
     } else {
       posts = await getPostsForNonAuthUser();
@@ -36,7 +38,7 @@ exports.getHomePagePosts = async (parent, args, { req, res }) => {
   }
 };
 
-exports.getExplorePagePosts = async (parent, args, { req, res }) => {
+exports.getExplorePagePosts = async (parent) => {
   try {
     const posts = await getPostsForNonAuthUser();
 
@@ -69,7 +71,7 @@ exports.getPostById = async (parent, args) => {
 };
 
 // Child resolver for Post to get the community that the post is in
-exports.getPostCommunity = async (parent, args) => {
+exports.getPostCommunity = async (parent) => {
   try {
     const community_id = parent.community_id;
 
@@ -89,7 +91,7 @@ exports.getPostCommunity = async (parent, args) => {
 };
 
 // Child resolver for Post to get info on comments
-exports.getPostCommentsInfo = async (parent, args) => {
+exports.getPostCommentsInfo = async (parent) => {
   try {
     const post_id = parent.post_id;
 
@@ -109,7 +111,9 @@ exports.getPostCommentsInfo = async (parent, args) => {
 };
 
 // Child resolver for Post to get post reactions
-exports.getPostReactions = async (parent, args, { req, res }) => {
+exports.getPostReactions = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
   try {
     const post_id = parent.post_id;
 
@@ -123,8 +127,8 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
 
     let postReactions = formatReactions(query.rows);
 
-    if (req.isAuth) {
-      const user_id = req.user.user_id;
+    if (isAuthenticated) {
+      const user_id = authUser.user_id;
 
       const auth_query = await pool.query(
         `SELECT reaction as auth_user_reaction
@@ -144,8 +148,10 @@ exports.getPostReactions = async (parent, args, { req, res }) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.addTextPost = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.addTextPost = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
@@ -153,7 +159,7 @@ exports.addTextPost = async (parent, args, { req, res }) => {
     const type = POST_TYPES.TEXT_POST;
     const title = args.title;
     const description = args.description;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const community_id = args.community_id;
 
     const isAuthorized = await authorizeUserPost(community_id, user_id);
@@ -178,15 +184,17 @@ exports.addTextPost = async (parent, args, { req, res }) => {
   }
 };
 
-exports.addMediaPost = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.addMediaPost = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const type = POST_TYPES.MEDIA_POST;
     const title = args.title;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const community_id = args.community_id;
 
     const isAuthorized = await authorizeUserPost(community_id, user_id);
@@ -214,14 +222,16 @@ exports.addMediaPost = async (parent, args, { req, res }) => {
   }
 };
 
-exports.deletePost = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.deletePost = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const post_id = args.post_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `DELETE FROM posts 
@@ -247,14 +257,16 @@ exports.deletePost = async (parent, args, { req, res }) => {
   }
 };
 
-exports.addPostReaction = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.addPostReaction = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const post_id = args.post_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const reaction = args.reaction;
 
     const query = await pool.query(
@@ -279,14 +291,16 @@ exports.addPostReaction = async (parent, args, { req, res }) => {
   }
 };
 
-exports.deletePostReaction = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.deletePostReaction = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const post_id = args.post_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `WITH x AS (
@@ -308,13 +322,15 @@ exports.deletePostReaction = async (parent, args, { req, res }) => {
   }
 };
 
-exports.savePost = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.savePost = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const post_id = args.post_id;
 
     const query = await pool.query(
@@ -337,13 +353,15 @@ exports.savePost = async (parent, args, { req, res }) => {
   }
 };
 
-exports.unsavePost = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.unsavePost = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const post_id = args.post_id;
 
     const query = await pool.query(

@@ -5,12 +5,14 @@ const { NEW_NOTIFICATION } = require("../utils/constants");
 /* ========== Query Resolvers ========== */
 
 exports.getNotifications = async (parent, args, context) => {
-  if (!context.isAuthenticated) {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = context.authUser.user_id;
+    const user_id = authUser.user_id;
 
     const messageQuery = await pool.query(
       `SELECT message_id, sender_id, recipient_id, message, sent_at, is_read 
@@ -46,14 +48,16 @@ exports.newNotification = (parent, args, context) => {
 };
 
 exports.newNotificationFilter = (payload, variables, context) => {
-  if (!context.isAuthenticated) {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     return false;
   }
 
   switch (payload.type) {
     case "Message":
       // Only publish to the message recipient
-      if (context.authUser.user_id === payload.newNotification.recipient_id) {
+      if (authUser.user_id === payload.newNotification.recipient_id) {
         return true;
       }
       break;
@@ -61,7 +65,7 @@ exports.newNotificationFilter = (payload, variables, context) => {
     case "Comment":
       // Only publish to the creator of the parent comment
       // If there's no parent comment, only publish to the creator of the post
-      if (context.authUser.user_id === payload.info.recipient_id) {
+      if (authUser.user_id === payload.info.recipient_id) {
         return true;
       }
       break;

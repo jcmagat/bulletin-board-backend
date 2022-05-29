@@ -10,11 +10,7 @@ const {
   UserInputError,
 } = require("apollo-server-errors");
 
-exports.signup = async (parent, args, { req, res }) => {
-  if (req.isAuth) {
-    throw new ForbiddenError("User is already registered and logged in");
-  }
-
+exports.signup = async (parent, args) => {
   try {
     const email = args.email;
 
@@ -43,11 +39,7 @@ exports.signup = async (parent, args, { req, res }) => {
   }
 };
 
-exports.register = async (parent, args, { req, res }) => {
-  if (req.isAuth) {
-    throw new ForbiddenError("User is already registered and logged in");
-  }
-
+exports.register = async (parent, args) => {
   try {
     const token = args.token;
 
@@ -78,10 +70,8 @@ exports.register = async (parent, args, { req, res }) => {
   }
 };
 
-exports.login = async (parent, args, { req, res }) => {
-  if (req.isAuth) {
-    throw new ForbiddenError("User is already logged in");
-  }
+exports.login = async (parent, args, context) => {
+  const { res } = context;
 
   try {
     const username = args.username;

@@ -32,13 +32,15 @@ exports.getUser = async (parent, args) => {
   }
 };
 
-exports.getAuthUser = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.getAuthUser = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `SELECT user_id, email, username, created_at, profile_pic_src 
@@ -56,7 +58,7 @@ exports.getAuthUser = async (parent, args, { req, res }) => {
 };
 
 // Child resolver for User to get following
-exports.getFollowing = async (parent, args) => {
+exports.getFollowing = async (parent) => {
   try {
     const user_id = parent.user_id;
 
@@ -78,7 +80,7 @@ exports.getFollowing = async (parent, args) => {
 };
 
 // Child resolver for User to get followers
-exports.getFollowers = async (parent, args) => {
+exports.getFollowers = async (parent) => {
   try {
     const user_id = parent.user_id;
 
@@ -100,7 +102,7 @@ exports.getFollowers = async (parent, args) => {
 };
 
 // Child resolver for User to get user's posts
-exports.getUserPosts = async (parent, args) => {
+exports.getUserPosts = async (parent) => {
   try {
     const user_id = parent.user_id;
 
@@ -121,17 +123,19 @@ exports.getUserPosts = async (parent, args) => {
 };
 
 // Child resolver for User to get authenticated user's comments
-exports.getUserComments = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.getUserComments = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
-  if (parent.user_id !== req.user.user_id) {
+  if (parent.user_id !== authUser.user_id) {
     throw new ForbiddenError("User not authorized");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `SELECT comment_id, parent_comment_id, post_id, user_id, message, 
@@ -150,17 +154,19 @@ exports.getUserComments = async (parent, args, { req, res }) => {
 };
 
 // Child resolver for User to get authenticated user's saved posts
-exports.getSavedPosts = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.getSavedPosts = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
-  if (parent.user_id !== req.user.user_id) {
+  if (parent.user_id !== authUser.user_id) {
     throw new ForbiddenError("User not authorized");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `SELECT type, post_id, title, description, media_src, created_at, 
@@ -184,13 +190,15 @@ exports.getSavedPosts = async (parent, args, { req, res }) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.follow = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.follow = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const follower_id = req.user.user_id;
+    const follower_id = authUser.user_id;
     const followed_username = args.username;
 
     const query = await pool.query(
@@ -216,13 +224,15 @@ exports.follow = async (parent, args, { req, res }) => {
   }
 };
 
-exports.unfollow = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.unfollow = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const follower_id = req.user.user_id;
+    const follower_id = authUser.user_id;
     const followed_username = args.username;
 
     const query = await pool.query(
@@ -247,13 +257,15 @@ exports.unfollow = async (parent, args, { req, res }) => {
   }
 };
 
-exports.removeFollower = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.removeFollower = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const followed_id = req.user.user_id;
+    const followed_id = authUser.user_id;
     const follower_username = args.username;
 
     const query = await pool.query(
@@ -278,13 +290,15 @@ exports.removeFollower = async (parent, args, { req, res }) => {
   }
 };
 
-exports.changeEmail = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.changeEmail = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const password = args.password;
     const new_email = args.new_email;
 
@@ -329,14 +343,16 @@ exports.changeEmail = async (parent, args, { req, res }) => {
   }
 };
 
-exports.changeUsername = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.changeUsername = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const username = args.username;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `UPDATE users 
@@ -360,13 +376,15 @@ exports.changeUsername = async (parent, args, { req, res }) => {
   }
 };
 
-exports.changeProfilePic = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.changeProfilePic = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const uploadedFile = await uploadFile(args.profile_pic);
     const profile_pic_src = `/media/${uploadedFile.Key}`;
@@ -397,13 +415,15 @@ exports.changeProfilePic = async (parent, args, { req, res }) => {
   }
 };
 
-exports.changePassword = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.changePassword = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const current_password = args.current_password;
     const new_password = args.new_password;
 
@@ -441,13 +461,15 @@ exports.changePassword = async (parent, args, { req, res }) => {
   }
 };
 
-exports.confirmDeleteAccount = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.confirmDeleteAccount = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const password = args.password;
 
     const query = await pool.query(
@@ -480,7 +502,7 @@ exports.confirmDeleteAccount = async (parent, args, { req, res }) => {
   }
 };
 
-exports.deleteAccount = async (parent, args, { req, res }) => {
+exports.deleteAccount = async (parent, args) => {
   try {
     const token = args.token;
 

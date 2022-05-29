@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { graphqlUploadExpress } = require("graphql-upload");
-const { authenticateToken } = require("./middlewares/auth");
 const { getFileStream } = require("./services/s3");
 const startServer = require("./apollo");
 
@@ -29,9 +28,6 @@ app.use(cors(corsOptions));
 
 // Cookie parser
 app.use(cookieParser());
-
-// Auth middleware
-app.use(authenticateToken);
 
 // File upload middleware
 app.use(graphqlUploadExpress());

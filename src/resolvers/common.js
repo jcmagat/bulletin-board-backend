@@ -2,7 +2,7 @@ const pool = require("../database");
 const { ApolloError } = require("apollo-server-express");
 
 // Child resolver for Post and Comment to set created_since
-exports.setCreatedSince = async (parent, args, { req, res }) => {
+exports.setCreatedSince = async (parent) => {
   const age = parent.age;
   if (!age) {
     return null;

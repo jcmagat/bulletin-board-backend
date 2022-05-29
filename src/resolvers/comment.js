@@ -51,6 +51,8 @@ exports.getComment = async (parent, args) => {
 
 // Child resolver for Comment to get comment reactions
 exports.getCommentReactions = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
   try {
     const comment_id = parent.comment_id;
 
@@ -64,8 +66,8 @@ exports.getCommentReactions = async (parent, args, context) => {
 
     let commentReactions = formatReactions(query.rows);
 
-    if (context.isAuthenticated) {
-      const user_id = context.authUser.user_id;
+    if (isAuthenticated) {
+      const user_id = authUser.user_id;
 
       const auth_query = await pool.query(
         `SELECT reaction as auth_user_reaction
@@ -84,7 +86,7 @@ exports.getCommentReactions = async (parent, args, context) => {
 };
 
 // Child resolver for Comment to get child_comments
-exports.getChildComments = async (parent, args) => {
+exports.getChildComments = async (parent) => {
   try {
     const parent_comment_id = parent.comment_id;
 
@@ -106,15 +108,17 @@ exports.getChildComments = async (parent, args) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.addComment = async (parent, args, { req, res, pubsub }) => {
-  if (!req.isAuth) {
+exports.addComment = async (parent, args, context) => {
+  const { isAuthenticated, authUser, pubsub } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const parent_comment_id = args.parent_comment_id;
     const post_id = args.post_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const message = args.message;
 
     const query = await pool.query(
@@ -158,14 +162,16 @@ exports.addComment = async (parent, args, { req, res, pubsub }) => {
   }
 };
 
-exports.deleteComment = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.deleteComment = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const comment_id = args.comment_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `DELETE FROM comments 
@@ -186,14 +192,16 @@ exports.deleteComment = async (parent, args, { req, res }) => {
   }
 };
 
-exports.addCommentReaction = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.addCommentReaction = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const comment_id = args.comment_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const reaction = args.reaction;
 
     const query = await pool.query(
@@ -218,14 +226,16 @@ exports.addCommentReaction = async (parent, args, { req, res }) => {
   }
 };
 
-exports.deleteCommentReaction = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.deleteCommentReaction = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const comment_id = args.comment_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `WITH x AS (
@@ -248,12 +258,14 @@ exports.deleteCommentReaction = async (parent, args, { req, res }) => {
 };
 
 exports.readComments = async (parent, args, context) => {
-  if (!context.isAuthenticated) {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = context.authUser.user_id;
+    const user_id = authUser.user_id;
     const comment_ids = args.comment_ids;
 
     const query = await pool.query(

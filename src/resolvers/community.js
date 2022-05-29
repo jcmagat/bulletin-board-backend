@@ -44,7 +44,7 @@ exports.getCommunity = async (parent, args) => {
 };
 
 // Child resolver for Community to get community's moderators
-exports.getCommunityModerators = async (parent, args) => {
+exports.getCommunityModerators = async (parent) => {
   try {
     const community_id = parent.community_id;
 
@@ -68,7 +68,7 @@ exports.getCommunityModerators = async (parent, args) => {
 };
 
 // Child resolver for Community to get community's members
-exports.getCommunityMembers = async (parent, args) => {
+exports.getCommunityMembers = async (parent) => {
   try {
     const community_id = parent.community_id;
 
@@ -92,7 +92,7 @@ exports.getCommunityMembers = async (parent, args) => {
 };
 
 // Child resolver for Community to get community's posts
-exports.getCommunityPosts = async (parent, args) => {
+exports.getCommunityPosts = async (parent) => {
   try {
     const community_id = parent.community_id;
 
@@ -114,14 +114,16 @@ exports.getCommunityPosts = async (parent, args) => {
 
 /* ========== Mutation Resolvers ========== */
 
-exports.join = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.join = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const community_id = args.community_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `WITH x AS (
@@ -144,14 +146,16 @@ exports.join = async (parent, args, { req, res }) => {
   }
 };
 
-exports.leave = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.leave = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const community_id = args.community_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
 
     const query = await pool.query(
       `WITH x AS (
@@ -172,13 +176,15 @@ exports.leave = async (parent, args, { req, res }) => {
   }
 };
 
-exports.createCommunity = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.createCommunity = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const name = args.name;
     const title = args.title;
     const description = args.description;
@@ -222,14 +228,16 @@ exports.createCommunity = async (parent, args, { req, res }) => {
   }
 };
 
-exports.editCommunity = async (parent, args, { req, res }) => {
-  if (!req.isAuth) {
+exports.editCommunity = async (parent, args, context) => {
+  const { isAuthenticated, authUser } = context;
+
+  if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
   }
 
   try {
     const community_id = args.community_id;
-    const user_id = req.user.user_id;
+    const user_id = authUser.user_id;
     const title = args.title;
     const description = args.description;
     const type = args.type;
