@@ -1,12 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-exports.verifyAuthToken = (headers) => {
-  const authorization = headers.authorization;
-  if (!authorization) {
-    return { isAuthenticated: false };
-  }
-
-  const token = authorization.split(" ")[1]; // Authorization: Bearer token
+exports.verifyAuthToken = (token) => {
   if (!token) {
     return { isAuthenticated: false };
   }

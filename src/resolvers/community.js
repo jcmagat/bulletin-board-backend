@@ -9,7 +9,7 @@ const {
 
 /* ========== Query Resolvers ========== */
 
-exports.getAllCommunities = async (parent, args) => {
+exports.getAllCommunities = async (parent) => {
   try {
     const query = await pool.query(
       `SELECT community_id, name, title, description, type, created_at, logo_src 

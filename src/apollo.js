@@ -77,9 +77,22 @@ async function startServer(app) {
       schema,
       execute,
       subscribe,
-      onConnect: (connectionParams) => {
-        // Can be accessed as context in the subscription resolver
-        return { ...verifyAuthToken(connectionParams.headers), pubsub };
+      onConnect: (connectionParams, webSocket) => {
+        // Parse cookies
+        let parsedCookies = {};
+
+        const cookies = webSocket.upgradeReq.headers.cookie.split("; ");
+
+        cookies.forEach((cookie) => {
+          const cookieSplit = cookie.split("=");
+          const cookieKey = cookieSplit[0];
+          const cookieValue = cookieSplit[1];
+
+          parsedCookies[cookieKey] = cookieValue;
+        });
+
+        // Can be accessed as context in subscription resolvers
+        return { ...verifyAuthToken(parsedCookies.access_token), pubsub };
       },
     },
     { server: httpServer, path: "/subscriptions" }
@@ -89,7 +102,7 @@ async function startServer(app) {
   const server = new ApolloServer({
     schema,
     context: ({ req, res }) => {
-      return { req, res, ...verifyAuthToken(req.headers), pubsub };
+      return { req, res, ...verifyAuthToken(req.cookies.access_token), pubsub };
     },
     plugins: [
       {
