@@ -527,6 +527,10 @@ exports.deleteAccount = async (parent, args) => {
       await deleteFile(key);
     }
 
+    // Delete auth cookies
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+
     return { success: true };
   } catch (error) {
     throw new ApolloError(error);

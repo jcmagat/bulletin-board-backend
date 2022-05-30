@@ -4,11 +4,7 @@ const { verifyEmailToken } = require("../services/jwt");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const ms = require("ms");
-const {
-  ApolloError,
-  ForbiddenError,
-  UserInputError,
-} = require("apollo-server-errors");
+const { ApolloError, UserInputError } = require("apollo-server-errors");
 
 exports.signup = async (parent, args) => {
   try {
@@ -104,15 +100,7 @@ exports.login = async (parent, args, context) => {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     });
 
-    const authData = {
-      username: user.username,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      accessTokenExpiration: "1h",
-      refreshTokenExpiration: "7d",
-    };
-
-    // Set cookies
+    // Set auth cookies
     res.cookie("access_token", accessToken, {
       maxAge: ms(process.env.ACCESS_TOKEN_EXPIRY),
       httpOnly: true,
@@ -125,7 +113,21 @@ exports.login = async (parent, args, context) => {
       sameSite: "strict",
     });
 
-    return authData;
+    return { success: true };
+  } catch (error) {
+    throw new ApolloError(error);
+  }
+};
+
+exports.logout = async (parent, args, context) => {
+  const { res } = context;
+
+  try {
+    // Delete auth cookies
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+
+    return { success: true };
   } catch (error) {
     throw new ApolloError(error);
   }
