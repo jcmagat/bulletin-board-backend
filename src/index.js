@@ -4,6 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { graphqlUploadExpress } = require("graphql-upload");
 const { getFileStream } = require("./services/s3");
+const { getGoogleOAuthTokens } = require("./services/oauth");
 const startServer = require("./apollo");
 
 dotenv.config();
@@ -44,10 +45,34 @@ app.get("/media/:key", (req, res) => {
 });
 
 // OAuth
-app.get("/oauth/google", (req, res) => {
-  res.send("Hello");
+app.get("/oauth/google", async (req, res) => {
+  // Get code from query string
+  const code = req.query.code;
 
-  // send cookie back to client
+  // Get id and access token with code
+  try {
+    const { id_token, access_token } = await getGoogleOAuthTokens(code);
+    console.log("Success");
+    // console.log(id_token);
+    // console.log(access_token);
+  } catch (error) {
+    console.error("Error");
+    // console.error(error);
+  }
+
+  // Get user with token
+
+  // Upsert the user
+
+  // Create a session
+
+  // Create access and refresh tokens
+
+  // Set cookies
+
+  // Redirect back to client
+
+  res.send("Hello");
 });
 
 startServer(app);
