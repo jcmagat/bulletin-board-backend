@@ -20,3 +20,18 @@ exports.getGoogleOAuthTokens = async (code) => {
 
   return response.data;
 };
+
+exports.getGoogleUser = async (id_token, access_token) => {
+  const url = "https://www.googleapis.com/oauth2/v2/userinfo";
+
+  const response = await axios.get(url, {
+    params: {
+      access_token: access_token,
+    },
+    headers: {
+      Authorization: `Bearer ${id_token}`,
+    },
+  });
+
+  return response.data;
+};

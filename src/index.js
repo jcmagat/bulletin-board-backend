@@ -4,7 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { graphqlUploadExpress } = require("graphql-upload");
 const { getFileStream } = require("./services/s3");
-const { getGoogleOAuthTokens } = require("./services/oauth");
+const { getGoogleOAuthTokens, getGoogleUser } = require("./services/oauth");
 const startServer = require("./apollo");
 
 dotenv.config();
@@ -49,28 +49,32 @@ app.get("/oauth/google", async (req, res) => {
   // Get code from query string
   const code = req.query.code;
 
-  // Get id and access token with code
   try {
+    // Get id and access token with code
     const { id_token, access_token } = await getGoogleOAuthTokens(code);
-    console.log("Success");
-    // console.log(id_token);
-    // console.log(access_token);
+
+    console.log({ id_token, access_token });
+
+    // Get user with token
+    const user = await getGoogleUser(id_token, access_token);
+
+    console.log({ user });
+
+    // Create or update user in db with user from google
+
+    // Check db if google user's email is registered
+    // If registered, add google user's id to the user
+    // If not, create a user using google user's email
+
+    // Create access and refresh tokens
+
+    // Set cookies
+
+    // Redirect back to client
   } catch (error) {
     console.error("Error");
     // console.error(error);
   }
-
-  // Get user with token
-
-  // Upsert the user
-
-  // Create a session
-
-  // Create access and refresh tokens
-
-  // Set cookies
-
-  // Redirect back to client
 
   res.send("Hello");
 });
