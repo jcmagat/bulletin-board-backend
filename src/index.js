@@ -3,8 +3,11 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { graphqlUploadExpress } = require("graphql-upload");
+const ms = require("ms");
 const { getFileStream } = require("./services/s3");
 const { getGoogleOAuthTokens, getGoogleUser } = require("./services/oauth");
+const { createUserWithGoogleOAuth } = require("./helpers/auth");
+const { createAuthTokens } = require("./services/jwt");
 const startServer = require("./apollo");
 
 dotenv.config();
@@ -53,30 +56,38 @@ app.get("/oauth/google", async (req, res) => {
     // Get id and access token with code
     const { id_token, access_token } = await getGoogleOAuthTokens(code);
 
-    console.log({ id_token, access_token });
-
     // Get user with token
-    const user = await getGoogleUser(id_token, access_token);
-
-    console.log({ user });
+    const { email, id } = await getGoogleUser(id_token, access_token);
 
     // Create or update user in db with user from google
-
-    // Check db if google user's email is registered
-    // If registered, add google user's id to the user
-    // If not, create a user using google user's email
+    const user = await createUserWithGoogleOAuth(email, id);
 
     // Create access and refresh tokens
+    const payload = {
+      user_id: user.user_id,
+    };
 
-    // Set cookies
+    const { accessToken, refreshToken } = createAuthTokens(payload);
+
+    // Set auth cookies
+    res.cookie("access_token", accessToken, {
+      maxAge: ms(process.env.ACCESS_TOKEN_EXPIRY),
+      httpOnly: true,
+      sameSite: "strict",
+    });
+
+    res.cookie("refresh_token", refreshToken, {
+      maxAge: ms(process.env.REFRESH_TOKEN_EXPIRY),
+      httpOnly: true,
+      sameSite: "strict",
+    });
 
     // Redirect back to client
+    res.redirect("http://localhost:3000/");
   } catch (error) {
-    console.error("Error");
-    // console.error(error);
+    console.error(error);
+    res.redirect("http://localhost:3000/");
   }
-
-  res.send("Hello");
 });
 
 startServer(app);

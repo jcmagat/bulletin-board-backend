@@ -35,16 +35,24 @@ CREATE TABLE public.communities (
 
 -- DROP TABLE public.users;
 
+-- TODO: for heroku pg
+-- add v_username, v_email
+-- add unique constraints for v_username, v_email
+-- drop unique constraints for username, email
+-- change password to null
 CREATE TABLE public.users (
 	user_id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
 	email varchar(255) NOT NULL,
 	username varchar(32) NOT NULL,
-	"password" varchar(255) NOT NULL,
+	"password" varchar(255) NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
 	profile_pic_src varchar(64) NULL,
-	CONSTRAINT users_email_key UNIQUE (email),
+	v_username varchar(32) NULL GENERATED ALWAYS AS (lower(username::text)) STORED,
+	v_email varchar(255) NULL GENERATED ALWAYS AS (lower(email::text)) STORED,
+	google_id varchar(32) NULL,
+	CONSTRAINT users_email_unique UNIQUE (v_email),
 	CONSTRAINT users_pkey PRIMARY KEY (user_id),
-	CONSTRAINT users_username_key UNIQUE (username)
+	CONSTRAINT users_username_unique UNIQUE (v_username)
 );
 
 
