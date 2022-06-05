@@ -62,6 +62,17 @@ app.get("/oauth/google", async (req, res) => {
     // Create or update user in db with user from google
     const user = await createUserWithGoogleOAuth(email, id);
 
+    // TODO:
+    // If email is already registered and google_id is null,
+    // ask user if they want to link their existing account with
+    // their google account
+
+    // If email is already registered and google_id is different
+    // (not possible afaik), send an error
+
+    // If email is not already registered, ask user for a username
+    // and create a new user
+
     // Create access and refresh tokens
     const payload = {
       user_id: user.user_id,

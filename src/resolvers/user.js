@@ -502,7 +502,9 @@ exports.confirmDeleteAccount = async (parent, args, context) => {
   }
 };
 
-exports.deleteAccount = async (parent, args) => {
+exports.deleteAccount = async (parent, args, context) => {
+  const { res } = context;
+
   try {
     const token = args.token;
 
@@ -522,7 +524,7 @@ exports.deleteAccount = async (parent, args) => {
 
     const user = query.rows[0];
 
-    if (user.profile_pic_src) {
+    if (user && user.profile_pic_src) {
       const key = user.profile_pic_src.split("/")[2];
       await deleteFile(key);
     }
