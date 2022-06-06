@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const ms = require("ms");
 const { ApolloError, UserInputError } = require("apollo-server-errors");
+const { createAuthTokens } = require("../services/jwt");
 
 exports.signup = async (parent, args) => {
   try {
@@ -56,9 +57,9 @@ exports.register = async (parent, args) => {
 
     return { success: true };
   } catch (error) {
-    if (error.constraint === "users_email_key") {
+    if (error.constraint === "users_email_unique") {
       throw new UserInputError("Email is already registered");
-    } else if (error.constraint === "users_username_key") {
+    } else if (error.constraint === "users_username_unique") {
       throw new UserInputError("Username is already taken");
     } else {
       throw new ApolloError(error);
@@ -92,13 +93,7 @@ exports.login = async (parent, args, context) => {
       user_id: user.user_id,
     };
 
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-    });
-
-    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-    });
+    const { accessToken, refreshToken } = createAuthTokens(payload);
 
     // Set auth cookies
     res.cookie("access_token", accessToken, {

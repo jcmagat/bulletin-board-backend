@@ -4,9 +4,10 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { graphqlUploadExpress } = require("graphql-upload");
 const ms = require("ms");
+const jwt = require("jsonwebtoken");
+const pool = require("./database");
 const { getFileStream } = require("./services/s3");
 const { getGoogleOAuthTokens, getGoogleUser } = require("./services/oauth");
-const { createUserWithGoogleOAuth } = require("./helpers/auth");
 const { createAuthTokens } = require("./services/jwt");
 const startServer = require("./apollo");
 
@@ -57,21 +58,36 @@ app.get("/oauth/google", async (req, res) => {
     const { id_token, access_token } = await getGoogleOAuthTokens(code);
 
     // Get user with token
-    const { email, id } = await getGoogleUser(id_token, access_token);
+    const googleUser = await getGoogleUser(id_token, access_token);
 
-    // Create or update user in db with user from google
-    const user = await createUserWithGoogleOAuth(email, id);
+    // Create or update Cirqls user with Google user
+    const query = await pool.query(
+      `SELECT user_id, email, username, google_id 
+      FROM users 
+      WHERE email = ($1)`,
+      [googleUser.email]
+    );
 
-    // TODO:
-    // If email is already registered and google_id is null,
-    // ask user if they want to link their existing account with
-    // their google account
+    const user = query.rows[0];
 
-    // If email is already registered and google_id is different
-    // (not possible afaik), send an error
+    if (!user) {
+      // redirect to sign up page
+      const payload = {
+        email: googleUser.email,
+        google_id: googleUser.id,
+      };
 
-    // If email is not already registered, ask user for a username
-    // and create a new user
+      const token = jwt.sign(payload, process.env.EMAIL_TOKEN_SECRET, {
+        expiresIn: "1d",
+      });
+
+      // TODO: change to production
+      return res.redirect(`http://localhost:3000/signup/${token}?oauth`);
+    } else if (!user.google_id) {
+      // ask to link accounts
+    } else if (user.google_id !== googleUser.id) {
+      // send error
+    }
 
     // Create access and refresh tokens
     const payload = {
@@ -94,10 +110,10 @@ app.get("/oauth/google", async (req, res) => {
     });
 
     // Redirect back to client
-    res.redirect("http://localhost:3000/");
+    return res.redirect("http://localhost:3000/"); // TODO: change to production
   } catch (error) {
     console.error(error);
-    res.redirect("http://localhost:3000/");
+    return res.redirect("http://localhost:3000/"); // TODO: change to production
   }
 });
 

@@ -335,7 +335,7 @@ exports.changeEmail = async (parent, args, context) => {
 
     return user;
   } catch (error) {
-    if (error.constraint === "users_email_key") {
+    if (error.constraint === "users_email_unique") {
       throw new UserInputError("Email is already registered");
     } else {
       throw new ApolloError(error);
@@ -368,7 +368,7 @@ exports.changeUsername = async (parent, args, context) => {
 
     return user;
   } catch (error) {
-    if (error.constraint === "users_username_key") {
+    if (error.constraint === "users_username_unique") {
       throw new UserInputError("Username is already taken");
     } else {
       throw new ApolloError(error);
