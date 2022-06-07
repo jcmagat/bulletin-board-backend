@@ -1,6 +1,6 @@
 const pool = require("../database");
 const { sendEmailVerification } = require("../services/sendgrid");
-const { verifyEmailToken } = require("../services/jwt");
+const { verifyEmailToken, verifyOAuthToken } = require("../services/jwt");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const ms = require("ms");
@@ -54,6 +54,54 @@ exports.register = async (parent, args) => {
       "INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING *",
       [email, username, hashedPassword]
     );
+
+    return { success: true };
+  } catch (error) {
+    if (error.constraint === "users_email_unique") {
+      throw new UserInputError("Email is already registered");
+    } else if (error.constraint === "users_username_unique") {
+      throw new UserInputError("Username is already taken");
+    } else {
+      throw new ApolloError(error);
+    }
+  }
+};
+
+exports.registerOAuth = async (parent, args, context) => {
+  const { res } = context;
+
+  try {
+    const token = args.token;
+    const username = args.username;
+
+    const { isValid, email, google_id } = verifyOAuthToken(token);
+    if (!isValid) {
+      throw new ApolloError("Invalid token");
+    }
+
+    const query = await pool.query(
+      "INSERT INTO users (email, username, google_id) VALUES ($1, $2, $3) RETURNING *",
+      [email, username, google_id]
+    );
+
+    const payload = {
+      user_id: query.rows[0].user_id,
+    };
+
+    const { accessToken, refreshToken } = createAuthTokens(payload);
+
+    // Set auth cookies
+    res.cookie("access_token", accessToken, {
+      maxAge: ms(process.env.ACCESS_TOKEN_EXPIRY),
+      httpOnly: true,
+      sameSite: "strict",
+    });
+
+    res.cookie("refresh_token", refreshToken, {
+      maxAge: ms(process.env.REFRESH_TOKEN_EXPIRY),
+      httpOnly: true,
+      sameSite: "strict",
+    });
 
     return { success: true };
   } catch (error) {

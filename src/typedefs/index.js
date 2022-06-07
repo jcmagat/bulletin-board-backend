@@ -157,6 +157,7 @@ const typeDefs = gql`
     # Auth mutations
     signup(email: String!): Success
     register(token: String!, username: String!, password: String!): Success
+    registerOAuth(token: String!, username: String!): Success
     login(username: String!, password: String!): Success
     logout: Success
 

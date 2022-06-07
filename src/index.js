@@ -77,12 +77,12 @@ app.get("/oauth/google", async (req, res) => {
         google_id: googleUser.id,
       };
 
-      const token = jwt.sign(payload, process.env.EMAIL_TOKEN_SECRET, {
+      const token = jwt.sign(payload, process.env.OAUTH_TOKEN_SECRET, {
         expiresIn: "1d",
       });
 
       // TODO: change to production
-      return res.redirect(`http://localhost:3000/signup/${token}?oauth`);
+      return res.redirect(`http://localhost:3000/signup/${token}?oauth=true`);
     } else if (!user.google_id) {
       // ask to link accounts
     } else if (user.google_id !== googleUser.id) {

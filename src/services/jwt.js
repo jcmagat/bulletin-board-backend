@@ -57,3 +57,21 @@ exports.verifyDeleteAccountToken = (token) => {
     return { isValid: false };
   }
 };
+
+exports.verifyOAuthToken = (token) => {
+  if (!token) {
+    return { isValid: false };
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.OAUTH_TOKEN_SECRET);
+
+    return {
+      isValid: true,
+      email: payload.email,
+      google_id: payload.google_id,
+    };
+  } catch (error) {
+    return { isValid: false };
+  }
+};
