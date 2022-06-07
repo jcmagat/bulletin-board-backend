@@ -1,16 +1,18 @@
-const pool = require("../database");
+const { createAuthTokens } = require("../services/jwt");
+const ms = require("ms");
 
-exports.createUserWithGoogleOAuth = async (email, google_id) => {
-  const username = email.split("@")[0];
+exports.setAuthCookies = (res, user_id) => {
+  const { accessToken, refreshToken } = createAuthTokens(user_id);
 
-  const query = await pool.query(
-    `INSERT INTO users (email, username, google_id) 
-    VALUES ($1, $2, $3) 
-    ON CONFLICT ON CONSTRAINT users_email_unique 
-    DO UPDATE SET google_id = ($3)
-    RETURNING user_id, email, username, google_id`,
-    [email, username, google_id]
-  );
+  res.cookie("access_token", accessToken, {
+    maxAge: ms(process.env.ACCESS_TOKEN_EXPIRY),
+    httpOnly: true,
+    sameSite: "strict",
+  });
 
-  return query.rows[0];
+  res.cookie("refresh_token", refreshToken, {
+    maxAge: ms(process.env.REFRESH_TOKEN_EXPIRY),
+    httpOnly: true,
+    sameSite: "strict",
+  });
 };

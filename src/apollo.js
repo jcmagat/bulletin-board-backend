@@ -81,9 +81,9 @@ async function startServer(app) {
         // Parse cookies
         let parsedCookies = {};
 
-        const cookies = webSocket.upgradeReq.headers.cookie.split("; ");
+        const cookies = webSocket.upgradeReq.headers.cookie?.split("; ");
 
-        cookies.forEach((cookie) => {
+        cookies?.forEach((cookie) => {
           const cookieSplit = cookie.split("=");
           const cookieKey = cookieSplit[0];
           const cookieValue = cookieSplit[1];

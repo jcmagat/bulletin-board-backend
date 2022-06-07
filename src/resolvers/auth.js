@@ -3,9 +3,8 @@ const { sendEmailVerification } = require("../services/sendgrid");
 const { verifyEmailToken, verifyOAuthToken } = require("../services/jwt");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const ms = require("ms");
 const { ApolloError, UserInputError } = require("apollo-server-errors");
-const { createAuthTokens } = require("../services/jwt");
+const { setAuthCookies } = require("../helpers/auth");
 
 exports.signup = async (parent, args) => {
   try {
@@ -84,24 +83,8 @@ exports.registerOAuth = async (parent, args, context) => {
       [email, username, google_id]
     );
 
-    const payload = {
-      user_id: query.rows[0].user_id,
-    };
-
-    const { accessToken, refreshToken } = createAuthTokens(payload);
-
     // Set auth cookies
-    res.cookie("access_token", accessToken, {
-      maxAge: ms(process.env.ACCESS_TOKEN_EXPIRY),
-      httpOnly: true,
-      sameSite: "strict",
-    });
-
-    res.cookie("refresh_token", refreshToken, {
-      maxAge: ms(process.env.REFRESH_TOKEN_EXPIRY),
-      httpOnly: true,
-      sameSite: "strict",
-    });
+    setAuthCookies(res, query.rows[0].user_id);
 
     return { success: true };
   } catch (error) {
@@ -137,24 +120,8 @@ exports.login = async (parent, args, context) => {
       throw new UserInputError("Incorrect username or password");
     }
 
-    const payload = {
-      user_id: user.user_id,
-    };
-
-    const { accessToken, refreshToken } = createAuthTokens(payload);
-
     // Set auth cookies
-    res.cookie("access_token", accessToken, {
-      maxAge: ms(process.env.ACCESS_TOKEN_EXPIRY),
-      httpOnly: true,
-      sameSite: "strict",
-    });
-
-    res.cookie("refresh_token", refreshToken, {
-      maxAge: ms(process.env.REFRESH_TOKEN_EXPIRY),
-      httpOnly: true,
-      sameSite: "strict",
-    });
+    setAuthCookies(res, user.user_id);
 
     return { success: true };
   } catch (error) {

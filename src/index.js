@@ -3,12 +3,11 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { graphqlUploadExpress } = require("graphql-upload");
-const ms = require("ms");
 const jwt = require("jsonwebtoken");
 const pool = require("./database");
 const { getFileStream } = require("./services/s3");
 const { getGoogleOAuthTokens, getGoogleUser } = require("./services/oauth");
-const { createAuthTokens } = require("./services/jwt");
+const { setAuthCookies } = require("./helpers/auth");
 const startServer = require("./apollo");
 
 dotenv.config();
@@ -89,25 +88,8 @@ app.get("/oauth/google", async (req, res) => {
       // send error
     }
 
-    // Create access and refresh tokens
-    const payload = {
-      user_id: user.user_id,
-    };
-
-    const { accessToken, refreshToken } = createAuthTokens(payload);
-
     // Set auth cookies
-    res.cookie("access_token", accessToken, {
-      maxAge: ms(process.env.ACCESS_TOKEN_EXPIRY),
-      httpOnly: true,
-      sameSite: "strict",
-    });
-
-    res.cookie("refresh_token", refreshToken, {
-      maxAge: ms(process.env.REFRESH_TOKEN_EXPIRY),
-      httpOnly: true,
-      sameSite: "strict",
-    });
+    setAuthCookies(res, user.user_id);
 
     // Redirect back to client
     return res.redirect("http://localhost:3000/"); // TODO: change to production
