@@ -15,19 +15,13 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Set up CORS
-const devCorsOptions = {
-  origin: "*",
+const frontendUri = process.env.FRONTEND_URI;
+
+const corsOptions = {
+  origin: [frontendUri],
   credentials: true,
 };
 
-const prodCorsOptions = {
-  origin: ["https://cirqls.app"],
-  credentials: true,
-};
-
-const corsOptions =
-  process.env.NODE_ENV === "production" ? prodCorsOptions : devCorsOptions;
 app.use(cors(corsOptions));
 
 // Cookie parser
@@ -70,7 +64,7 @@ app.get("/oauth/google", async (req, res) => {
     const user = query.rows[0];
 
     if (!user) {
-      // redirect to sign up page
+      // Register a new user
       const payload = {
         email: googleUser.email,
         google_id: googleUser.id,
@@ -80,22 +74,25 @@ app.get("/oauth/google", async (req, res) => {
         expiresIn: "1d",
       });
 
-      // TODO: change to production
-      return res.redirect(`http://localhost:3000/signup/${token}?oauth=true`);
+      // Redirect to sign up page
+      return res.redirect(`${frontendUri}/signup/${token}?oauth=true`);
     } else if (!user.google_id) {
-      // ask to link accounts
+      // Ask to link accounts
+      return res.redirect(`${frontendUri}/link-account/google`);
     } else if (user.google_id !== googleUser.id) {
-      // send error
+      // Send error
+      // TODO: change
+      return res.redirect(`${frontendUri}/link-account/google`);
     }
 
     // Set auth cookies
     setAuthCookies(res, user.user_id);
 
     // Redirect back to client
-    return res.redirect("http://localhost:3000/"); // TODO: change to production
+    return res.redirect(frontendUri);
   } catch (error) {
     console.error(error);
-    return res.redirect("http://localhost:3000/"); // TODO: change to production
+    return res.redirect(frontendUri);
   }
 });
 

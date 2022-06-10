@@ -3,10 +3,12 @@ const sgMail = require("@sendgrid/mail");
 
 dotenv.config();
 
+const frontendUri = process.env.FRONTEND_URI;
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.sendEmailVerification = (email, token) => {
-  const url = `https://www.cirqls.app/signup/${token}`;
+  const url = `${frontendUri}/signup/${token}`;
 
   const messageText = `Hi,
   Welcome to Cirqls! You're almost done creating an account!
@@ -40,7 +42,7 @@ exports.sendEmailVerification = (email, token) => {
 };
 
 exports.sendDeleteAccountConfirmation = (email, token) => {
-  const url = `https://www.cirqls.app/delete-account/${token}`;
+  const url = `${frontendUri}/delete-account/${token}`;
 
   const messageText = `Hi,
   We've received a request to permanently delete your Cirqls account.
