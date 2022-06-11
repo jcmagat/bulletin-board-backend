@@ -52,8 +52,6 @@ exports.getPostById = async (parent, args) => {
   try {
     const post_id = args.post_id;
 
-    // TODO: check community type
-
     const query = await pool.query(
       `SELECT type, post_id, title, description, media_src, created_at, 
         user_id, community_id, age(now(), created_at) 
