@@ -7,14 +7,6 @@ const typeDefs = gql`
     success: Boolean!
   }
 
-  type AuthData {
-    username: String!
-    accessToken: String!
-    refreshToken: String!
-    accessTokenExpiration: String!
-    refreshTokenExpiration: String!
-  }
-
   type User {
     user_id: ID!
     email: String

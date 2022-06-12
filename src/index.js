@@ -85,14 +85,14 @@ app.get("/oauth/google", async (req, res) => {
       return res.redirect(`${frontendUri}/link-account/google`);
     }
 
+    // Redirect back to client
+    res.redirect(frontendUri);
+
     // Set auth cookies
     setAuthCookies(res, user.user_id);
-
-    // Redirect back to client
-    return res.redirect(frontendUri);
   } catch (error) {
     console.error(error);
-    return res.redirect(frontendUri);
+    res.redirect(frontendUri);
   }
 });
 
