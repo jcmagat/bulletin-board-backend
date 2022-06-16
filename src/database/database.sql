@@ -37,7 +37,7 @@ CREATE TABLE public.communities (
 
 CREATE TABLE public.users (
 	user_id int4 NOT NULL GENERATED ALWAYS AS IDENTITY,
-	email varchar(255) NOT NULL,
+	email varchar(255) NULL,
 	username varchar(32) NOT NULL,
 	"password" varchar(255) NULL,
 	created_at timestamptz NULL DEFAULT CURRENT_TIMESTAMP,

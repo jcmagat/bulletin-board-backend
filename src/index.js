@@ -87,6 +87,7 @@ app.get("/oauth/google", async (req, res) => {
 
     // Set auth cookies
     setAuthCookies(res, user.user_id);
+    // BUG: cookie being set on backend domain instead of frontend
 
     // Redirect back to client
     res.redirect(frontendUri);

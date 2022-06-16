@@ -1,6 +1,6 @@
 const { GraphQLUpload } = require("graphql-upload");
 const { setCreatedSince, getUserById } = require("./common");
-const { signup, register, registerOAuth, login, logout } = require("./auth");
+const { signup, registerOAuth, login, logout } = require("./auth");
 const {
   getUser,
   getAuthUser,
@@ -107,7 +107,6 @@ const resolvers = {
   Mutation: {
     // Auth mutations
     signup: signup,
-    register: register,
     registerOAuth: registerOAuth,
     login: login,
     logout: logout,
