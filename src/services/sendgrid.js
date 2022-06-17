@@ -7,6 +7,7 @@ const frontendUri = process.env.FRONTEND_URI;
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// NOTE: currently not used
 exports.sendEmailVerification = (email, token) => {
   const url = `${frontendUri}/signup/${token}`;
 
@@ -41,6 +42,7 @@ exports.sendEmailVerification = (email, token) => {
     });
 };
 
+// NOTE: currently not used
 exports.sendDeleteAccountConfirmation = (email, token) => {
   const url = `${frontendUri}/delete-account/${token}`;
 

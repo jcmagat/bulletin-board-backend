@@ -461,8 +461,8 @@ exports.changePassword = async (parent, args, context) => {
   }
 };
 
-exports.confirmDeleteAccount = async (parent, args, context) => {
-  const { isAuthenticated, authUser } = context;
+exports.deleteAccount = async (parent, args, context) => {
+  const { res, isAuthenticated, authUser } = context;
 
   if (!isAuthenticated) {
     throw new AuthenticationError("Not authenticated");
@@ -472,57 +472,32 @@ exports.confirmDeleteAccount = async (parent, args, context) => {
     const user_id = authUser.user_id;
     const password = args.password;
 
-    const query = await pool.query(
-      `SELECT email, password 
+    // Check if password is correct
+    const passwordQuery = await pool.query(
+      `SELECT password 
       FROM users 
       WHERE user_id = ($1)`,
       [user_id]
     );
 
-    const user = query.rows[0];
+    const isCorrectPassword = await bcrypt.compare(
+      password,
+      passwordQuery.rows[0].password
+    );
 
-    const isCorrectPassword = await bcrypt.compare(password, user.password);
     if (!isCorrectPassword) {
       throw new UserInputError("Incorrect password");
     }
 
-    const payload = {
-      user_id: user_id,
-    };
-
-    const token = jwt.sign(payload, process.env.EMAIL_TOKEN_SECRET, {
-      expiresIn: "1d",
-    });
-
-    sendDeleteAccountConfirmation(user.email, token); // asynchronous
-
-    return { success: true };
-  } catch (error) {
-    throw new ApolloError(error);
-  }
-};
-
-exports.deleteAccount = async (parent, args, context) => {
-  const { res } = context;
-
-  try {
-    const token = args.token;
-
-    const verification = verifyDeleteAccountToken(token);
-    if (!verification.isValid) {
-      throw new ApolloError("Invalid token");
-    }
-
-    const user_id = verification.user_id;
-
-    const query = await pool.query(
-      `DELETE FROM users 
-      WHERE user_id = ($1) 
+    // If password is correct, delete account
+    const deleteQuery = await pool.query(
+      `DELETE FROM users
+      WHERE user_id = ($1)
       RETURNING profile_pic_src`,
       [user_id]
     );
 
-    const user = query.rows[0];
+    const user = deleteQuery.rows[0];
 
     if (user && user.profile_pic_src) {
       const key = user.profile_pic_src.split("/")[2];

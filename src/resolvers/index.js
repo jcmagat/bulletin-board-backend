@@ -16,7 +16,6 @@ const {
   changeUsername,
   changeProfilePic,
   changePassword,
-  confirmDeleteAccount,
   deleteAccount,
 } = require("./user");
 const {
@@ -119,7 +118,6 @@ const resolvers = {
     changeUsername: changeUsername,
     changeProfilePic: changeProfilePic,
     changePassword: changePassword,
-    confirmDeleteAccount: confirmDeleteAccount,
     deleteAccount: deleteAccount,
 
     // Community mutations

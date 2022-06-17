@@ -70,7 +70,7 @@ exports.login = async (parent, args, context) => {
     const password = args.password;
 
     const query = await pool.query(
-      "SELECT * FROM users WHERE username = ($1)",
+      "SELECT * FROM users WHERE v_username = LOWER($1)",
       [username]
     );
 
