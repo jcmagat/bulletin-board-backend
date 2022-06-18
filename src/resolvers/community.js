@@ -31,7 +31,7 @@ exports.getCommunity = async (parent, args) => {
     const query = await pool.query(
       `SELECT community_id, name, title, description, type, created_at, logo_src 
       FROM communities 
-      WHERE name = ($1)`,
+      WHERE v_name = LOWER($1)`,
       [name]
     );
 
