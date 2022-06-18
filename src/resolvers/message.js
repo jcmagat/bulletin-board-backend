@@ -49,12 +49,12 @@ exports.getConversation = async (parent, args, context) => {
       WHERE (sender_id = ($1) AND recipient_id IN (
         SELECT user_id 
         FROM users 
-        WHERE username = ($2)
+        WHERE v_username = LOWER($2)
       )) OR 
       (sender_id IN (
         SELECT user_id 
         FROM users 
-        WHERE username = ($2)
+        WHERE v_username = LOWER($2)
       ) AND recipient_id = ($1)) 
       ORDER BY sent_at DESC`,
       [auth_user_id, username]
@@ -86,7 +86,7 @@ exports.sendMessage = async (parent, args, context) => {
       `INSERT INTO messages (sender_id, message, recipient_id) 
         SELECT ($1), ($2), user_id 
         FROM users 
-        WHERE username = ($3) 
+        WHERE v_username = LOWER($3) 
       RETURNING message_id, sender_id, recipient_id, message, sent_at, is_read`,
       [sender_id, message, recipient]
     );

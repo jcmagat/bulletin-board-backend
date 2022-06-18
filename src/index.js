@@ -57,7 +57,7 @@ app.get("/oauth/google", async (req, res) => {
     const query = await pool.query(
       `SELECT user_id, email, username, google_id 
       FROM users 
-      WHERE email = ($1)`,
+      WHERE v_email = LOWER($1)`,
       [googleUser.email]
     );
 

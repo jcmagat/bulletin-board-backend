@@ -20,7 +20,7 @@ exports.getUser = async (parent, args) => {
     const query = await pool.query(
       `SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
-      WHERE username = ($1)`,
+      WHERE v_username = LOWER($1)`,
       [username]
     );
 
@@ -206,13 +206,13 @@ exports.follow = async (parent, args, context) => {
       INSERT INTO follows (follower_id, followed_id) 
         SELECT ($1), user_id 
         FROM users 
-        WHERE username = ($2)
+        WHERE v_username = LOWER($2)
       ON CONFLICT ON CONSTRAINT follows_pkey 
       DO NOTHING
       )
       SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
-      WHERE username = ($2)`,
+      WHERE v_username = LOWER($2)`,
       [follower_id, followed_username]
     );
 
@@ -241,11 +241,11 @@ exports.unfollow = async (parent, args, context) => {
       WHERE follower_id = ($1) AND followed_id IN (
         SELECT user_id
         FROM users 
-        WHERE username = ($2)
+        WHERE v_username = LOWER($2)
       ))
       SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
-      WHERE username = ($2)`,
+      WHERE v_username = LOWER($2)`,
       [follower_id, followed_username]
     );
 
@@ -274,11 +274,11 @@ exports.removeFollower = async (parent, args, context) => {
       WHERE followed_id = ($1) AND follower_id IN (
         SELECT user_id
         FROM users 
-        WHERE username = ($2)
+        WHERE v_username = LOWER($2)
       ))
       SELECT user_id, username, created_at, profile_pic_src 
       FROM users 
-      WHERE username = ($2)`,
+      WHERE v_username = LOWER($2)`,
       [followed_id, follower_username]
     );
 
