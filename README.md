@@ -19,4 +19,4 @@ This repo is for the backend API written using: Node.js, PostgreSQL, GraphQL, Ap
 
 ## UML Class Diagram
 
-![UML Class Diagram](./uml-class-diagram.svg)
+![UML Class Diagram](./images/uml-class-diagram.svg)
