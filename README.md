@@ -20,3 +20,7 @@ This repo is for the backend API written using: Node.js, PostgreSQL, GraphQL, Ap
 ## UML Class Diagram
 
 ![UML Class Diagram](./images/uml-class-diagram.svg)
+
+## Entity-Relationship Diagram
+
+![Entity-Relationship Diagram](./images/entity-relationship-diagram.svg)
