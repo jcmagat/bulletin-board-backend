@@ -13,16 +13,11 @@ const typeDefs = gql`
     username: String!
     created_at: DateTime!
     profile_pic_src: String
-    following: [Follow]
-    followers: [Follow]
+    following: [User]
+    followers: [User]
     posts: [Post]
     comments: [Comment]
     saved_posts: [Post]
-  }
-
-  type Follow {
-    username: String!
-    followed_at: DateTime!
   }
 
   type Community {
